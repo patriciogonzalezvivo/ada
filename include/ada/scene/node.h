@@ -5,6 +5,8 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/quaternion.hpp"
 
+namespace ada {
+
 class Node {
 public:
 
@@ -75,3 +77,5 @@ private:
     glm::quat           m_orientation;
     glm::vec3           m_scale;
 };
+
+}

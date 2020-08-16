@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <regex>
 
+namespace ada {
+
 std::string toLower(const std::string& _string) {
     std::string std = _string;
     for (int i = 0; _string[i]; i++) {
@@ -321,4 +323,6 @@ bool check_for_postprocessing(const std::string& _source) {
 std::string getUniformName(const std::string& _str) {
     std::vector<std::string> values = split(_str, '.');
     return "u_" + toLower( toUnderscore( purifyString( values[0] ) ) );
+}
+
 }

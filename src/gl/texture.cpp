@@ -8,6 +8,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/normal.hpp>
 
+namespace ada {
 
 // TEXTURE
 Texture::Texture():m_path(""), m_width(0), m_height(0), m_id(0) {
@@ -228,4 +229,6 @@ void Texture::bind() {
 
 void Texture::unbind() {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 }

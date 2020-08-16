@@ -6,13 +6,13 @@
 #include "ada/gl/mesh.h"
 #include "ada/gl/shader.h"
 
-Mesh rect (float _x, float _y, float _w, float _h) {
+ada::Mesh rect (float _x, float _y, float _w, float _h) {
     float x = _x-1.0f;
     float y = _y-1.0f;
     float w = _w*2.0f;
     float h = _h*2.0f;
 
-    Mesh mesh;
+    ada::Mesh mesh;
     mesh.addVertex(glm::vec3(x, y, 0.0));
     mesh.addColor(glm::vec4(1.0));
     mesh.addNormal(glm::vec3(0.0, 0.0, 1.0));
@@ -39,8 +39,7 @@ Mesh rect (float _x, float _y, float _w, float _h) {
     return mesh;
 }
 
-
-static const std::string vert = R"(
+const std::string vert = R"(
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -77,7 +76,6 @@ varying vec2    v_texcoord;
 void main(void) {
     vec3 color = vec3(1.0);
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
-    st.x *= u_resolution.x/u_resolution.y;
     st = v_texcoord;
     
     color = vec3(st.x,st.y,abs(sin(u_time)));
@@ -85,8 +83,6 @@ void main(void) {
     gl_FragColor = vec4(color, 1.0);
 }
 )";
-
-
 
 int main(int argc, char **argv) {
 
@@ -97,61 +93,57 @@ int main(int argc, char **argv) {
         windowPosAndSize.z = screen.x;
         windowPosAndSize.w = screen.y;
     #else
-        // OSX/LINUX default windows size
+        // OSX/WIN/LINUX default windows size
         windowPosAndSize.z = 500;
         windowPosAndSize.w = 500;
     #endif
 
     // Initialize openGL context
-    initGL ("triangle", windowPosAndSize);
+    ada::initGL ("triangle", windowPosAndSize);
 
-    Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
-    Shader shader;
+    ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
+    ada::Shader shader;
     shader.load(frag, vert);
     shader.use();
 
+
     // Render Loop
-    while ( isGL() ) {
+    while ( ada::isGL() ) {
         // Update
-        updateGL();
+        ada::updateGL();
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        shader.setUniform("u_resolution", getWindowWidth(), getWindowHeight() );
-        shader.setUniform("u_time", (float)getTime());
+        shader.setUniform("u_resolution", ada::getWindowWidth(), ada::getWindowHeight() );
+        shader.setUniform("u_time", (float)ada::getTime());
 
         billboard_vbo->render( &shader );
 
-        renderGL();
+        ada::renderGL();
+        ada::updateViewport();
     }
+
+    ada::closeGL();
 
     return 1;
 }
 
 // Events
 //============================================================================
-void onKeyPress (int _key) {
+void ada::onKeyPress (int _key) {
 }
 
-void onMouseMove(float _x, float _y) {
+void ada::onMouseMove(float _x, float _y) {
 }
 
-void onMouseClick(float _x, float _y, int _button) {
+void ada::onMouseClick(float _x, float _y, int _button) {
 }
 
-void onScroll(float _yoffset) {
+void ada::onScroll(float _yoffset) {
 }
 
-void onMouseDrag(float _x, float _y, int _button) {
+void ada::onMouseDrag(float _x, float _y, int _button) {
 }
 
-void onViewportResize(int _newWidth, int _newHeight) {
-}
-
-void onExit() {
-    // clear screen
-    glClear( GL_COLOR_BUFFER_BIT );
-
-    // close openGL instance
-    closeGL();
+void ada::onViewportResize(int _newWidth, int _newHeight) {
 }

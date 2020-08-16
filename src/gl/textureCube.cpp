@@ -16,6 +16,8 @@
 #include <algorithm>
 #endif
 
+namespace ada {
+
 // A few useful utilities from Filament
 // https://github.com/google/filament/blob/master/tools/cmgen/src/CubemapSH.cpp
 // -----------------------------------------------------------------------------------------------
@@ -564,4 +566,6 @@ bool TextureCube::generate(SkyBox* _skybox, int _width ) {
 void TextureCube::bind() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+}
+
 }

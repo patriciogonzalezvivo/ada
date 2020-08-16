@@ -4,6 +4,8 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_access.hpp"
 
+namespace ada {
+
 Node::Node(): 
     bChange(true),
     m_transformMatrix(1.0), 
@@ -221,4 +223,6 @@ void Node::updateAxis() {
         m_axis[2] = glm::vec3(glm::row(getTransformMatrix(),2))/m_scale[2];
 
     bChange = true;
+}
+
 }

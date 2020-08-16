@@ -1,5 +1,7 @@
 #include "ada/scene/light.h"
 
+namespace ada {
+
 Light::Light(): 
     color(1.0), 
     direction(0.0),
@@ -92,4 +94,6 @@ void Light::unbindShadowMap() {
     // glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     m_shadowMap.unbind();
+}
+
 }

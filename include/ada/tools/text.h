@@ -9,6 +9,8 @@
 
 #include "glm/glm.hpp"
 
+namespace ada {
+
 // Search for one apearance
 bool find_id(const std::string& program, const char* id);
 bool check_for_floor(const std::string& _source);
@@ -89,3 +91,4 @@ inline std::istream& operator>>(std::istream& is, glm::vec3& vec);
 
 std::string getUniformName(const std::string& _str);
 
+}

@@ -26,6 +26,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ada/gl/fbo.h"
 #include <iostream>
 
+namespace ada {
+
 Fbo::Fbo():
     m_id(0), m_old_fbo_id(0), 
     m_texture(0), m_depth_buffer(0), m_depth_texture(0), 
@@ -185,4 +187,6 @@ void Fbo::unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, m_old_fbo_id);
         m_binded = false;
     }
+}
+
 }

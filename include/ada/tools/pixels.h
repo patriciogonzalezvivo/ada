@@ -4,6 +4,8 @@
 #include <cstring>
 #include <string>
 
+namespace ada {
+
 enum Channels {
     LUMINANCE = 1,
     LUMINANCE_ALPHA = 2,
@@ -52,4 +54,6 @@ void flipPixelsVertically(T *_pixels, int _width, int _height, int _bytes_per_pi
         std::memcpy(high, row, stride * sizeof(T));
     }
     free(row);
+}
+
 }

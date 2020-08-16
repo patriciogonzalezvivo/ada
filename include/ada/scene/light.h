@@ -3,6 +3,8 @@
 #include "ada/scene/node.h"
 #include "ada/gl/fbo.h"
 
+namespace ada {
+
 enum LightType {
     LIGHT_DIRECTIONAL, LIGHT_POINT, LIGHT_SPOT
 };
@@ -40,3 +42,5 @@ protected:
     
     LightType           m_type;
 };
+
+}

@@ -7,6 +7,8 @@
 #include "gl.h"
 #include "shader.h"
 
+namespace ada {
+
 struct VertexAttrib {
     std::string name;
     GLint size;
@@ -34,3 +36,5 @@ private:
     std::vector<VertexAttrib> m_attribs;
     GLint m_stride;
 };
+
+}

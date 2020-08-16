@@ -1,6 +1,8 @@
 #include "ada/gl/defines.h"
 #include "ada/tools/text.h"
 
+namespace ada {
+
 HaveDefines::HaveDefines() : m_defineChange(false) {
 }
 
@@ -116,4 +118,6 @@ void HaveDefines::mergeDefines( const DefinesList &_defines ) {
 void HaveDefines::replaceDefines( const DefinesList &_defines ) {
     m_defines = _defines;
     m_defineChange = true;
+}
+
 }

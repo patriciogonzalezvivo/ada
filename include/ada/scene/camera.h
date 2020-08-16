@@ -2,6 +2,8 @@
 
 #include "node.h"
 
+namespace ada {
+
 enum CameraType {
     ORTHO, FREE
 };
@@ -73,3 +75,5 @@ private:
 
     CameraType  m_type;
 };
+
+}

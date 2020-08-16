@@ -4,6 +4,8 @@
 
 #include "gl.h"
 
+namespace ada {
+
 class Texture {
 public:
     Texture();
@@ -34,3 +36,5 @@ protected:
 
     GLuint          m_id;
 };
+
+}

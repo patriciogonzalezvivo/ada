@@ -4,6 +4,8 @@
 #include "ada/gl/mesh.h"
 #include "ada/gl/vertexLayout.h"
 
+namespace ada {
+
 Mesh::Mesh():m_drawMode(GL_TRIANGLES) {
 
 }
@@ -397,4 +399,6 @@ Vbo* Mesh::getVbo() {
     tmpMesh->addIndices(m_indices.data(), m_indices.size());    
 
     return tmpMesh;
+}
+
 }

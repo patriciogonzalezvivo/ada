@@ -7,6 +7,8 @@
 
 #include "glm/glm.hpp"
 
+namespace ada {
+
 #if defined(PLATFORM_RPI) || defined(PLATFORM_RPI4) 
 #define INDEX_TYPE uint16_t
 #else
@@ -77,3 +79,5 @@ private:
 
     GLenum    m_drawMode;
 };
+
+}

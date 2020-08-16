@@ -2,6 +2,8 @@
 
 #include <math.h>
 
+namespace ada {
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif 
@@ -27,4 +29,6 @@ float clamp ( float value , float min , float max ) {
         return max;
 
     return value;
+}
+
 }

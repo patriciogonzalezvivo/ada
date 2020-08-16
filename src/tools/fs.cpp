@@ -6,6 +6,8 @@
 #include <algorithm>    // std::unique
 #include <sys/stat.h>
 
+namespace ada {
+
 bool haveExt(const std::string& _file, const std::string& _ext){
     return _file.find( "." + _ext) != std::string::npos;
 }
@@ -132,4 +134,6 @@ bool loadFromPath(const std::string &_path, std::string *_into, const std::vecto
 
     file.close();
     return true;
+}
+
 }

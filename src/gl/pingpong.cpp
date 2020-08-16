@@ -2,6 +2,8 @@
 
 #include "ada/gl/pingpong.h"
 
+namespace ada {
+
 PingPong::PingPong(): 
     src(nullptr), dst(nullptr), 
     m_flag(0) {
@@ -34,4 +36,6 @@ void PingPong::clear(float _alpha) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         m_fbos[i].unbind();
     }
+}
+
 }

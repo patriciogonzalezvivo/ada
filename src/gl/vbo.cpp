@@ -1,6 +1,8 @@
 #include "ada/gl/vbo.h"
 #include <iostream>
 
+namespace ada {
+
 Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) : m_vertexLayout(_vertexLayout), m_glVertexBuffer(0), m_nVertices(0), m_glIndexBuffer(0), m_nIndices(0), m_isUploaded(false) {
     setDrawMode(_drawMode);
 }
@@ -162,4 +164,6 @@ void Vbo::render(Shader* _shader) {
     } else if (m_nVertices > 0) {
         glDrawArrays(m_drawMode, 0, m_nVertices);
     }
+}
+
 }

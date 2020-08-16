@@ -10,6 +10,8 @@
 
 #include "glm/glm.hpp"
 
+namespace ada {
+
 class Shader : public HaveDefines {
 public:
     Shader();
@@ -79,3 +81,5 @@ private:
     GLuint      m_fragmentShader;
     GLuint      m_vertexShader;
 };
+
+}

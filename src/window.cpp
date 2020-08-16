@@ -13,7 +13,8 @@
 
 #include "ada/gl/gl.h"
 #include "glm/gtc/matrix_transform.hpp"
-// #include "tools/text.h"
+
+namespace ada {
 
 // Common global variables
 //----------------------------------------------------
@@ -833,4 +834,6 @@ int getMouseButton(){
 
 glm::vec4 getMouse4() {
     return mouse4;
+}
+
 }

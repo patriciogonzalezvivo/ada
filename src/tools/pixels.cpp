@@ -8,6 +8,8 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
+namespace ada {
+
 unsigned char* loadPixels(const std::string& _path, int *_width, int *_height, Channels _channels, bool _vFlip) {
     stbi_set_flip_vertically_on_load(_vFlip);
     int comp;
@@ -106,4 +108,6 @@ bool savePixelsHDR(const std::string& _path, float* _pixels, int _width, int _he
         return false;
     }
     return true;
+}
+
 }

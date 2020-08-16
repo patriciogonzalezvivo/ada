@@ -8,6 +8,8 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
+namespace ada {
+
 Shader::Shader():
     m_program(0), 
     m_fragmentShader(0),m_vertexShader(0) {
@@ -470,4 +472,6 @@ void Shader::setUniform(const std::string& _name, const glm::mat4& _value, bool 
     if (isInUse()) {
         glUniformMatrix4fv(getUniformLocation(_name), 1, _transpose, &_value[0][0]);
     }
+}
+
 }

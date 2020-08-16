@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+namespace ada {
+
 List merge(const List &_A,const List &_B) {
     List rta;
     
@@ -28,4 +30,6 @@ void del(const std::string &_str, List &_list) {
             _list.erase(_list.begin() + i);
         }
     }
+}
+
 }

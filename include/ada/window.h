@@ -7,6 +7,8 @@
 #define REST_SEC 0.016 // 60fps
 #endif
 
+namespace ada {
+
 enum WindowStyle {
     HEADLESS = 0,
     REGULAR,
@@ -61,3 +63,5 @@ void onMouseClick(float _x, float _y, int _button);
 void onMouseDrag(float _x, float _y, int _button);
 void onViewportResize(int _width, int _height);
 void onScroll(float _yoffset);
+
+}

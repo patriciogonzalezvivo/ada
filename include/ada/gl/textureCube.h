@@ -4,6 +4,8 @@
 #include "texture.h"
 #include "glm/glm.hpp"
 
+namespace ada {
+
 struct SkyBox {
     SkyBox() {
         groundAlbedo = glm::vec3(0.25);
@@ -32,3 +34,4 @@ public:
     glm::vec3       SH[9];
 };
 
+}

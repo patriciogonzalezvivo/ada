@@ -2,6 +2,8 @@
 
 #include "glm/gtc/matrix_inverse.hpp"
 
+namespace ada {
+
 // static const float MIN_APERTURE = 0.5f;
 // static const float MAX_APERTURE = 64.0f;
 // static const float MIN_SHUTTER_SPEED = 1.0f / 25000.0f;
@@ -163,4 +165,6 @@ void Camera::onOrientationChanged() {
 
 void Camera::onScaleChanged() {
     updateProjectionViewMatrix();
+}
+
 }

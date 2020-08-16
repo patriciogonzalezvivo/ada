@@ -5,6 +5,8 @@
 
 #include "glm/glm.hpp"
 
+namespace ada {
+
 typedef std::map<std::string,std::string> DefinesList;
 typedef std::map<std::string,std::string>::iterator DefinesList_it;
 typedef std::map<std::string,std::string>::const_iterator DefinesList_cit;
@@ -36,3 +38,5 @@ protected:
     DefinesList m_defines;
     bool        m_defineChange;
 };
+
+}

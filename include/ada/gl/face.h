@@ -5,6 +5,8 @@
 #include "ada/gl/gl.h"
 #include "glm/glm.hpp"
 
+namespace ada {
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
@@ -221,4 +223,6 @@ inline void vec3Mul(T* __restrict _result, const T* __restrict _a, float _b) {
 	_result[0] = _a[0] * _b;
 	_result[1] = _a[1] * _b;
 	_result[2] = _a[2] * _b;
+}
+
 }

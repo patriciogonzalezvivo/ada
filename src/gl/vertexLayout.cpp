@@ -1,6 +1,8 @@
 #include "ada/gl/vertexLayout.h"
 #include "ada/tools/text.h"
 
+namespace ada {
+
 std::map<GLint, GLuint> VertexLayout::s_enabledAttribs = std::map<GLint, GLuint>();
 
 VertexLayout::VertexLayout(const std::vector<VertexAttrib>& _attribs) : m_attribs(_attribs), m_stride(0) {
@@ -73,4 +75,6 @@ void VertexLayout::printAttrib() {
         }
         std::cout << "vec" << toString(size) << "  a_" << m_attribs[i].name << std::endl;
     }
+}
+
 }

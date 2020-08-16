@@ -2,6 +2,8 @@
 
 #include "gl.h"
 
+namespace ada {
+
 enum FboType {
     COLOR_TEXTURE, COLOR_TEXTURE_DEPTH_BUFFER, COLOR_DEPTH_TEXTURES, DEPTH_TEXTURE
 };
@@ -44,3 +46,5 @@ protected:
     bool    m_binded;
     bool    m_depth;
 };
+
+}

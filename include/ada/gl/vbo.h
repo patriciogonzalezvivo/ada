@@ -5,6 +5,8 @@
 #include "gl.h"
 #include "vertexLayout.h"
 
+namespace ada {
+
 #if defined(PLATFORM_RPI) || defined(PLATFORM_RPI4) 
 #define INDEX_TYPE_GL GLushort
 #else
@@ -81,3 +83,5 @@ private:
 
     bool    m_isUploaded;
 };
+
+}
