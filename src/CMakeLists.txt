@@ -11,12 +11,15 @@ file(GLOB TOOLS_HEADER "${PROJECT_SOURCE_DIR}/include/ada/tools/*.h")
 file(GLOB TOOLS_SOURCE "${PROJECT_SOURCE_DIR}/src/tools/*.cpp")
 
 set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
-# set(INCLUDE_SWIG_FILE "${PROJECT_SOURCE_DIR}/${PROJECT_NAME}.i")
 
 # C++ LIBRAY
 #
 add_library(ada ${ROOT_SOURCE} ${GL_SOURCE} ${SCENE_SOURCE} ${TOOLS_SOURCE})
 
+set_target_properties(ada PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+)
 
 # We need this directory, and users of our library will need it too
 target_include_directories(ada PUBLIC 
@@ -24,17 +27,40 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/glm"
     "${PROJECT_SOURCE_DIR}/deps/stb"
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
+    "${PROJECT_SOURCE_DIR}/deps/glfw/deps"
 )
 
+target_link_libraries(ada PUBLIC skymodel)
+
+#if (APPLE)
+#    target_link_libraries(ada PRIVATE ${COCOA_LIBRARIES})
+#    target_link_libraries(ada PRIVATE ${COCOA_LIBRARY})
+#    target_link_libraries(ada PRIVATE ${CoreVideo_LIBRARIES})
+#    target_link_libraries(ada PRIVATE ${IOKit_LIBRARIES})
+#    set(CMAKE_EXE_LINKER_FLAGS "-framework OpenGL")
+#else (APPLE)
+#    message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+#    target_link_libraries(ada PRIVATE
+#        OpenGL
+#        ${OPENGL_LIBRARIES}
+#    )
+#endif (APPLE)
+
+#if (TARGET OpenGL::OpenGL)
+#    target_link_libraries(ada PUBLIC OpenGL::OpenGL)
+#elseif (TARGET OpenGL::GL)
+#    target_link_libraries(ada PUBLIC OpenGL::GL)
+#else()
+    target_link_libraries(ada PUBLIC OpenGL)
+#endif()
+
+message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
 target_compile_definitions(ada PUBLIC DRIVER_GLFW)
-
 target_link_libraries(ada PUBLIC
-    OpenGL
     glfw
-    skymodel
     ${GLFW_LIBRARIES}
-    ${OPENGL_LIBRARIES}
 )
+
 
 # IDEs should put the headers in a nice place
 source_group(   TREE ${INCLUDE_FOLDER} 

@@ -1,5 +1,8 @@
-include_directories("${CMAKE_SOURCE_DIR}/include")
-
 add_executable (hello_world hello_world.cpp)
-target_link_libraries (hello_world PRIVATE ada)
+set_target_properties(hello_world PROPERTIES
+    CXX_STANDARD 11
+    CXX_STANDARD_REQUIRED ON
+)
+
+target_link_libraries (hello_world PUBLIC ada)
 

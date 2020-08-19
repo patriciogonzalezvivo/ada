@@ -27,7 +27,7 @@ typedef struct {
 } Mouse;
 struct timeval tv;
 static Mouse mouse;
-static glm::vec4 mouse4 = {0.0, 0.0, 0.0, 0.0};
+static glm::vec4 mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
 static glm::ivec4 viewport;
 static double fTime = 0.0f;
 static double fDelta = 0.0f;
@@ -383,7 +383,6 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
     // GLFW
     #else
 
-    
         glfwSetErrorCallback([](int err, const char* msg)->void {
             std::cerr << "GLFW error 0x"<<std::hex<<err<<std::dec<<": "<<msg<<"\n";
         });
