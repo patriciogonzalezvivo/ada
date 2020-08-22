@@ -9,7 +9,7 @@
 
 namespace ada {
 
-#if defined(PLATFORM_RPI) || defined(PLATFORM_RPI4) 
+#if defined(GL_ES) 
 #define INDEX_TYPE uint16_t
 #else
 #define INDEX_TYPE uint32_t

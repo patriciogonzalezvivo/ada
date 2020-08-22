@@ -31,14 +31,18 @@ target_include_directories(ada PUBLIC
 
 # WINDOW
 if (NO_GLFW)
-    message(STATUS "DRIVER_GBM: ${DRIVER_GBM}")
-    target_compile_definitions(ada PUBLIC DRIVER_GBM)
+    message(STATUS "USING GBM")
+    target_compile_definitions(ada PUBLIC DRIVER_GBM GL_ES)
 
     find_package(GBM)
     find_package(EGL)
     find_package(DRM)
     find_package(GLESv2)
-    include_directories(
+    message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
+    message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
+    message(STATUS "EGL_INCLUDE_DIRS: ${EGL_INCLUDE_DIRS}")
+    message(STATUS "GLESv2_INCLUDE_DIRS: ${GLESv2_INCLUDE_DIRS}")
+    include_directories(ada PUBLIC
         ${DRM_INCLUDE_DIRS}
         # ${GBM_INCLUDE_DIRS}
         # ${EGL_INCLUDE_DIRS}
@@ -52,7 +56,7 @@ if (NO_GLFW)
         ${GBM_LIBRARY}
     )
 else()
-    message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
+    message(STATUS "USING GLFW")
     target_compile_definitions(ada PUBLIC DRIVER_GLFW)
     target_link_libraries(ada PUBLIC 
         glfw
@@ -72,7 +76,7 @@ else()
             ${OPENGL_opengl_LIBRARY}
         )
     endif (APPLE)
-    
+
 endif()
 
 

@@ -15,7 +15,7 @@
 #include "ada/gl/gl.h"
 #include "glm/gtc/matrix_transform.hpp"
 
-namespace ada {
+using namespace ada;
 
 // Common global variables
 //----------------------------------------------------
@@ -693,14 +693,14 @@ void updateViewport() {
 void setViewport(float _width, float _height) {
     viewport.z = _width;
     viewport.w = _height;
-    updateViewport();
+    ada::updateViewport();
 }
 
 void setWindowSize(int _width, int _height) {
 #if defined(DRIVER_GLFW)
     glfwSetWindowSize(window, _width, _height);
 #endif
-    setViewport(_width, _height);
+    ada::setViewport((float)_width, (float)_height);
 }
 
 glm::ivec2 getScreenSize() {
@@ -834,6 +834,4 @@ int getMouseButton(){
 
 glm::vec4 getMouse4() {
     return mouse4;
-}
-
 }

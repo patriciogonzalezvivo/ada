@@ -7,7 +7,7 @@
 
 namespace ada {
 
-#if defined(PLATFORM_RPI) || defined(PLATFORM_RPI4) 
+#if defined(GL_ES) 
 #define INDEX_TYPE_GL GLushort
 #else
 #define INDEX_TYPE_GL GLuint
