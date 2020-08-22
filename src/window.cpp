@@ -12,7 +12,7 @@
 #include <unistd.h>
 #endif 
 
-#include "ada/gl/gl.h"
+// #include "ada/gl/gl.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 // Common global variables
@@ -36,8 +36,20 @@ static float fPixelDensity = 1.0;
 extern void pal_sleep(uint64_t);
 
 #if defined(DRIVER_GLFW)
-// GLWF globals
+
+#if defined(__APPLE__)
+#define GL_PROGRAM_BINARY_LENGTH 0x8741
+#include <GLFW/glfw3.h>
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#elif defined(_WIN32)
+// #include <GL/glew.h>
+#define APIENTRY __stdcall
+#else
+// ANY LINUX using GLFW 
+#define GL_GLEXT_PROTOTYPES
 #include "GLFW/glfw3.h"
+#endif
 
 namespace ada {
 //----------------------------------------------------
@@ -45,6 +57,21 @@ static bool left_mouse_button_down = false;
 static GLFWwindow* window;
 
 #else
+
+#if defined(DRIVER_VC)
+#include "bcm_host.h"
+#undef countof
+#elif defined(DRIVER_GBM)
+#include <xf86drm.h>
+#include <xf86drmMode.h>
+#include <gbm.h>
+#endif
+
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 // NON GLWF globals (we have to do all brute force)
 // --------------------------------------------------
 #include <assert.h>

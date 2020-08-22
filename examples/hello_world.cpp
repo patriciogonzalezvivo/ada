@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
     glm::ivec4 windowPosAndSize = glm::ivec4(0);
     #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
         // RASPBERRYPI default windows size (fullscreen)
-        glm::ivec2 screen = getScreenSize();
+        glm::ivec2 screen = ada::getScreenSize();
         windowPosAndSize.z = screen.x;
         windowPosAndSize.w = screen.y;
     #else

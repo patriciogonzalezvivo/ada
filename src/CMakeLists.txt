@@ -35,8 +35,8 @@ if (NO_GLFW)
 
     include_directories(ada PUBLIC
         ${DRM_INCLUDE_DIRS}
-        ${GBM_INCLUDE_DIRS}
-        ${EGL_INCLUDE_DIRS}
+        # ${GBM_INCLUDE_DIRS}
+        # ${EGL_INCLUDE_DIRS}
         ${GLESv2_INCLUDE_DIRS}
     )
 
@@ -49,6 +49,7 @@ if (NO_GLFW)
 else()
     
     target_compile_definitions(ada PUBLIC DRIVER_GLFW GL_OPENGL)
+
     target_link_libraries(ada PUBLIC 
         glfw
         ${GLFW_LIBRARIES}
