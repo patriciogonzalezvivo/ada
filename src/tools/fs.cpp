@@ -31,7 +31,7 @@ std::string getBaseDir(const std::string& filepath) {
     else 
         base_dir = ".";
     
-#ifdef PLATFORM_WIN32
+#ifdef _WIN32
     base_dir += "\\";
 #else
     base_dir += "/";
@@ -40,7 +40,7 @@ std::string getBaseDir(const std::string& filepath) {
     return base_dir;
 }
 
-#if defined (PLATFORM_WINDOWS)
+#if defined (_WIN32)
 const char* realpath(const char* str, void*)
 {
     return str;

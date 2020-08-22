@@ -29,6 +29,10 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
 )
 
+if (APPLE)
+    target_link_libraries(ada PUBLIC "-framework OpenGL")
+endif (APPLE)
+
 message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
 message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")

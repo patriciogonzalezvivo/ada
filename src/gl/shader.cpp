@@ -18,12 +18,14 @@ Shader::Shader():
     addDefine("GLSLVIEWER", 160);
 
     // Define PLATFORM
-    #ifdef PLATFORM_OSX
+    #if defined(__APPLE__)
     addDefine("PLATFORM_OSX");
-    #elif defined(PLATFORM_LINUX)
-    addDefine("PLATFORM_LINUX");
+    #elif defined(_WIN32)
+    addDefine("PLATFORM_WIN");
     #elif defined(PLATFORM_RPI) || defined(PLATFORM_RPI4)
     addDefine("PLATFORM_RPI");
+    #else
+    addDefine("PLATFORM_LINUX");
     #endif
 }
 

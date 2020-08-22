@@ -22,7 +22,7 @@
 // #include <GLES2/gl2ext.h>
 
 // MACOS
-#elif defined(PLATFORM_OSX)
+#elif defined(__APPLE__)
 #define GL_PROGRAM_BINARY_LENGTH 0x8741
 #include <GLFW/glfw3.h>
 #include <OpenGL/gl.h>
@@ -33,9 +33,6 @@
 #define APIENTRY __stdcall
 
 #else
-
-// #include "glad/gl.h"
-// #include "glad/glad.h"
 
 // ANY LINUX using GLFW 
 #define GL_GLEXT_PROTOTYPES

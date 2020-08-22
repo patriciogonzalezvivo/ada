@@ -85,11 +85,11 @@ struct Face {
         
     #if defined(PLATFORM_RPI) || defined(PLATFORM_RPI4) 
         GLenum InternalFormat = GL_RGB;
-    // #elif defined (PLATFORM_WINDOWS)
-    //     GLenum InternalFormat = GL_RGB16F;
-    #else
-        // GLenum InternalFormat = GL_RGB16F_ARB;
+    #elif defined (_WIN32)
         GLenum InternalFormat = GL_RGB16F;
+    #else
+        GLenum InternalFormat = GL_RGB16F_ARB;
+        // GLenum InternalFormat = GL_RGB;
     #endif
 
         glTexImage2D(CubeMapFace[id], 0, InternalFormat, width, height, 0, GL_RGB, type, data);

@@ -3,7 +3,7 @@
 #include <time.h>
 #include <iostream>
 
-#if defined(PLATFORM_WINDOWS)
+#ifdef _WIN32
 #define NOMINMAX
 #include <windows.h>
 #else
@@ -420,7 +420,7 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
         glfwMakeContextCurrent(window);
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
         glewInit();
 #endif//
         glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
