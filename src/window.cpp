@@ -1,6 +1,7 @@
 #include "ada/window.h"
 
 #include <time.h>
+#include <string>
 #include <iostream>
 
 #ifdef _WIN32

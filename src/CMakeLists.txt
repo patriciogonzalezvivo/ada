@@ -29,20 +29,53 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
 )
 
-if (APPLE)
-    target_link_libraries(ada PUBLIC "-framework OpenGL")
-endif (APPLE)
+# WINDOW
+if (NO_GLFW)
+    message(STATUS "DRIVER_GBM: ${DRIVER_GBM}")
+    target_compile_definitions(ada PUBLIC DRIVER_GBM)
 
-message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
+    find_package(GBM)
+    find_package(EGL)
+    find_package(DRM)
+    find_package(GLESv2)
+    include_directories(
+        ${DRM_INCLUDE_DIRS}
+        # ${GBM_INCLUDE_DIRS}
+        # ${EGL_INCLUDE_DIRS}
+        ${GLESv2_INCLUDE_DIRS}
+    )
+    target_compile_definitions(ada PUBLIC DRIVER_GBM)
+    target_link_libraries(ada PUBLIC
+        ${DRM_LIBRARIES}
+        ${EGL_LIBRARY}
+        ${GLESv2_LIBRARIES}
+        ${GBM_LIBRARY}
+    )
+else()
+    message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
+    target_compile_definitions(ada PUBLIC DRIVER_GLFW)
+    target_link_libraries(ada PUBLIC 
+        glfw
+        ${GLFW_LIBRARIES}
+    )
+endif()
+
+# OPENGL
 message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
+if (APPLE)
+    target_link_libraries(ada PUBLIC 
+        "-framework OpenGL"
+    )
+else()
+    target_link_libraries(ada PUBLIC 
+        ${OPENGL_LIBRARIES}
+        ${OPENGL_opengl_LIBRARY}
+    )
+endif (APPLE)
 
-target_compile_definitions(ada PUBLIC DRIVER_GLFW)
+## SKYMODLE
 target_link_libraries(ada PUBLIC 
-    glfw
-    ${GLFW_LIBRARIES}
-    ${OPENGL_LIBRARIES}
-    ${OPENGL_opengl_LIBRARY}
     skymodel
 )
 

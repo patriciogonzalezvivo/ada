@@ -5,10 +5,10 @@
 #include "bcm_host.h"
 #undef countof
 
-// #include <EGL/egl.h>
-// #include <EGL/eglext.h>
-// #include <GLES2/gl2.h>
-// #include <GLES2/gl2ext.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 // Default for RASPBERRY PI4
 #elif defined(DRIVER_GBM)
@@ -16,10 +16,10 @@
 #include <xf86drmMode.h>
 #include <gbm.h>
 
-// #include <EGL/egl.h>
-// #include <EGL/eglext.h>
-// #include <GLES2/gl2.h>
-// #include <GLES2/gl2ext.h>
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 // MACOS
 #elif defined(__APPLE__)
