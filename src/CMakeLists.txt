@@ -27,40 +27,20 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/glm"
     "${PROJECT_SOURCE_DIR}/deps/stb"
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
-    "${PROJECT_SOURCE_DIR}/deps/glfw/deps"
 )
-
-target_link_libraries(ada PUBLIC skymodel)
-
-#if (APPLE)
-#    target_link_libraries(ada PRIVATE ${COCOA_LIBRARIES})
-#    target_link_libraries(ada PRIVATE ${COCOA_LIBRARY})
-#    target_link_libraries(ada PRIVATE ${CoreVideo_LIBRARIES})
-#    target_link_libraries(ada PRIVATE ${IOKit_LIBRARIES})
-#    set(CMAKE_EXE_LINKER_FLAGS "-framework OpenGL")
-#else (APPLE)
-#    message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
-#    target_link_libraries(ada PRIVATE
-#        OpenGL
-#        ${OPENGL_LIBRARIES}
-#    )
-#endif (APPLE)
-
-#if (TARGET OpenGL::OpenGL)
-#    target_link_libraries(ada PUBLIC OpenGL::OpenGL)
-#elseif (TARGET OpenGL::GL)
-#    target_link_libraries(ada PUBLIC OpenGL::GL)
-#else()
-    target_link_libraries(ada PUBLIC OpenGL)
-#endif()
 
 message(STATUS "GLFW_LIBRARIES: ${GLFW_LIBRARIES}")
+message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
+
 target_compile_definitions(ada PUBLIC DRIVER_GLFW)
-target_link_libraries(ada PUBLIC
+target_link_libraries(ada PUBLIC 
     glfw
     ${GLFW_LIBRARIES}
+    ${OPENGL_LIBRARIES}
+    ${OPENGL_opengl_LIBRARY}
+    skymodel
 )
-
 
 # IDEs should put the headers in a nice place
 source_group(   TREE ${INCLUDE_FOLDER} 

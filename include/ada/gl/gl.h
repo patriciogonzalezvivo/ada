@@ -31,9 +31,11 @@
 #elif defined(_WIN32)
 // #include <GL/glew.h>
 #define APIENTRY __stdcall
+
 #else
 
-#include "glad/gl.h"
+// #include "glad/gl.h"
+// #include "glad/glad.h"
 
 // ANY LINUX using GLFW 
 #define GL_GLEXT_PROTOTYPES
