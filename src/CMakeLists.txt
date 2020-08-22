@@ -31,24 +31,15 @@ target_include_directories(ada PUBLIC
 
 # WINDOW
 if (NO_GLFW)
-    message(STATUS "USING GBM")
     target_compile_definitions(ada PUBLIC DRIVER_GBM GL_ES)
 
-    find_package(GBM)
-    find_package(EGL)
-    find_package(DRM)
-    find_package(GLESv2)
-    message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
-    message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
-    message(STATUS "EGL_INCLUDE_DIRS: ${EGL_INCLUDE_DIRS}")
-    message(STATUS "GLESv2_INCLUDE_DIRS: ${GLESv2_INCLUDE_DIRS}")
     include_directories(ada PUBLIC
         ${DRM_INCLUDE_DIRS}
-        # ${GBM_INCLUDE_DIRS}
-        # ${EGL_INCLUDE_DIRS}
+        ${GBM_INCLUDE_DIRS}
+        ${EGL_INCLUDE_DIRS}
         ${GLESv2_INCLUDE_DIRS}
     )
-    target_compile_definitions(ada PUBLIC DRIVER_GBM)
+
     target_link_libraries(ada PUBLIC
         ${DRM_LIBRARIES}
         ${EGL_LIBRARY}
@@ -56,16 +47,14 @@ if (NO_GLFW)
         ${GBM_LIBRARY}
     )
 else()
-    message(STATUS "USING GLFW")
-    target_compile_definitions(ada PUBLIC DRIVER_GLFW)
+    
+    target_compile_definitions(ada PUBLIC DRIVER_GLFW GL_OPENGL)
     target_link_libraries(ada PUBLIC 
         glfw
         ${GLFW_LIBRARIES}
     )
 
     # OPENGL
-    message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
-    message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
     if (APPLE)
         target_link_libraries(ada PUBLIC 
             "-framework OpenGL"

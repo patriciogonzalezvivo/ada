@@ -15,8 +15,6 @@
 #include "ada/gl/gl.h"
 #include "glm/gtc/matrix_transform.hpp"
 
-using namespace ada;
-
 // Common global variables
 //----------------------------------------------------
 static glm::mat4 orthoMatrix;
@@ -40,6 +38,8 @@ extern void pal_sleep(uint64_t);
 #if defined(DRIVER_GLFW)
 // GLWF globals
 #include "GLFW/glfw3.h"
+
+namespace ada {
 //----------------------------------------------------
 static bool left_mouse_button_down = false;
 static GLFWwindow* window;
@@ -52,6 +52,8 @@ static GLFWwindow* window;
 #include <iostream>
 #include <termios.h>
 #include <fstream>
+
+namespace ada {
 
 #define check() assert(glGetError() == 0)
 
@@ -834,4 +836,6 @@ int getMouseButton(){
 
 glm::vec4 getMouse4() {
     return mouse4;
+}
+
 }

@@ -7,7 +7,10 @@ project(ada)
 #     LANGUAGES CXX)
     
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
-add_compile_options(-fpermissive)
+
+if (NO_GLFW)
+    add_compile_options(-fpermissive)
+endif()
 
 # The compiled library code is here
 add_subdirectory(deps)
