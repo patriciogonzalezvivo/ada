@@ -58,21 +58,23 @@ else()
         glfw
         ${GLFW_LIBRARIES}
     )
+
+    # OPENGL
+    message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
+    message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
+    if (APPLE)
+        target_link_libraries(ada PUBLIC 
+            "-framework OpenGL"
+        )
+    else()
+        target_link_libraries(ada PUBLIC 
+            ${OPENGL_LIBRARIES}
+            ${OPENGL_opengl_LIBRARY}
+        )
+    endif (APPLE)
+    
 endif()
 
-# OPENGL
-message(STATUS "OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
-message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
-if (APPLE)
-    target_link_libraries(ada PUBLIC 
-        "-framework OpenGL"
-    )
-else()
-    target_link_libraries(ada PUBLIC 
-        ${OPENGL_LIBRARIES}
-        ${OPENGL_opengl_LIBRARY}
-    )
-endif (APPLE)
 
 ## SKYMODLE
 target_link_libraries(ada PUBLIC 

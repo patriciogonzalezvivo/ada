@@ -12,15 +12,16 @@ if (NOT NO_GLFW)
     if(APPLE)
     target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")
     endif()
+
+    ## OpenGL
+    if(NOT DEFINED OpenGL_GL_PREFERENCE)
+        # set(OpenGL_GL_PREFERENCE "LEGACY")
+        set(OPENGL_GL_PREFERENCE "GLVND")
+    endif()
+    set(OpenGL_GL_PREFERENCE ${OPENGL_GL_PREFERENCE})
+    find_package(OpenGL REQUIRED)    
 endif()
 
-## OpenGL
-if(NOT DEFINED OpenGL_GL_PREFERENCE)
-    # set(OpenGL_GL_PREFERENCE "LEGACY")
-    set(OPENGL_GL_PREFERENCE "GLVND")
-endif()
-set(OpenGL_GL_PREFERENCE ${OPENGL_GL_PREFERENCE})
-find_package(OpenGL REQUIRED)
 
 ## SkyModel
 add_subdirectory(skymodel)
