@@ -8,7 +8,7 @@ project(ada)
     
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-if (NO_GLFW)
+if (NO_X11)
     add_compile_options(-fpermissive)
 endif()
 

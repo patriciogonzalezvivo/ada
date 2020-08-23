@@ -43,11 +43,13 @@ target_include_directories(ada PUBLIC
 )
 
 # WINDOW
-if (NO_GLFW)
+if (NO_X11)
 
+    find_package(BROADCOM)
+    
     if (BROADCOM_FOUND)
+        message(STATUS "LOADING BROADCOM")
 
-        message(STATUS "ADDING BROADCOM LIB")
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM 
             ${BROADCOM_DEFINITIONS}
@@ -63,7 +65,16 @@ if (NO_GLFW)
 
     else()
 
-        message(STATUS "ADDING GBM/DRM LIB")
+        message(STATUS "LOADING GBM/DRM")
+        
+        find_package(GBM)
+        find_package(DRM)
+        
+        message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
+        message(STATUS "DRM_LIBRARIES: ${DRM_LIBRARIES}")
+        message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
+        message(STATUS "GBM_LIBRARY: ${GBM_LIBRARY}")
+
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM
         )
@@ -79,6 +90,14 @@ if (NO_GLFW)
         )
 
     endif()
+
+    message(STATUS "LOADING EGL GL_ESv2")
+    find_package(EGL)
+    find_package(GLESv2)
+    message(STATUS "EGL_INCLUDE_DIRS: ${EGL_INCLUDE_DIRS}")
+    message(STATUS "EGL_LIBRARY: ${EGL_LIBRARY}")
+    message(STATUS "GLESv2_INCLUDE_DIRS: ${GLESv2_INCLUDE_DIRS}")
+    message(STATUS "GLESv2_LIBRARIES: ${GLESv2_LIBRARIES}")
 
     target_compile_definitions(ada PUBLIC 
         GL_ES
