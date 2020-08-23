@@ -344,6 +344,13 @@ int initGL (int argc, char **argv) {
             windowStyle = ALLWAYS_ON_TOP;
         #endif
         }
+        else if (   std::string(argv[i]) == "--display" ){
+            if (++i < argc) {
+        #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+            device_screen = std::string(argv[i]);
+        #endif
+            }
+        }
         else if (   std::string(argv[i]) == "-ss" ||
                     std::string(argv[i]) == "--screensaver") {
             windowStyle = FULLSCREEN;
