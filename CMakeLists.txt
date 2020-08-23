@@ -8,7 +8,7 @@ project(ada)
     
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-if (NO_X11)
+if (NO_X11 OR FORCE_GBM)
     add_compile_options(-std=c++14 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi)
 endif()
 

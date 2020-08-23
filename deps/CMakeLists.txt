@@ -1,6 +1,6 @@
 ## GLFW
 
-if (NOT NO_X11)
+if (NOT NO_X11 AND NOT FORCE_GBM)
 
     ## GLFW
     message(STATUS "LOADING GLFW")

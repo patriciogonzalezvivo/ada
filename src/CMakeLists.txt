@@ -35,17 +35,17 @@ set_target_properties(ada PROPERTIES
 )
 
 # WINDOW
-if (NO_X11)
+if (NO_X11 OR FORCE_GBM)
 
     message(STATUS "LOADING BROADCOM")
     find_package(BROADCOM)
 
     # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
     
-    if (BROADCOM_FOUND)
+    if (BROADCOM_FOUND AND NOT FORCE_GBM)
 
         message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
-        message(STATUS "BROADCOM_INCLUDE_DIRS:   ${BROADCOM_INCLUDE_DIRS}")
+        message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
         message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
 
         target_compile_definitions(ada PUBLIC 
