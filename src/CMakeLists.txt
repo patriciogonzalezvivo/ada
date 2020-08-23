@@ -53,7 +53,7 @@ if (NO_X11)
     if (BROADCOM_FOUND)
 
         message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
-        message(STATUS "BROADCOM_INCLUDE_DIR:   ${BROADCOM_INCLUDE_DIR}")
+        message(STATUS "BROADCOM_INCLUDE_DIRS:   ${BROADCOM_INCLUDE_DIRS}")
         message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
 
         target_compile_definitions(ada PUBLIC 
@@ -62,7 +62,7 @@ if (NO_X11)
         )
             
         include_directories(ada PUBLIC
-            ${BROADCOM_INCLUDE_DIR}
+            ${BROADCOM_INCLUDE_DIRS}
         )
 
         target_link_libraries(ada PUBLIC
