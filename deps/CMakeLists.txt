@@ -1,7 +1,9 @@
 ## GLFW
 
 if (NOT NO_X11)
-    message(STATUS "LOADING GLFW OPENGL")
+
+    ## GLFW
+    message(STATUS "LOADING GLFW")
 
     # Configure GLFW to build only the library.
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
@@ -10,12 +12,13 @@ if (NOT NO_X11)
     set(GLFW_INSTALL OFF CACHE BOOL "")
     add_subdirectory(glfw)
 
-    # Disable noisy deprecation warnings within CMake for macOS.
     if(APPLE)
     target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")
     endif()
 
     ## OpenGL
+    message(STATUS "LOADING OPENGL")
+
     if(NOT DEFINED OpenGL_GL_PREFERENCE)
         # set(OpenGL_GL_PREFERENCE "LEGACY")
         set(OPENGL_GL_PREFERENCE "GLVND")

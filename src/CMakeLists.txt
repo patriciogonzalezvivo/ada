@@ -45,10 +45,12 @@ target_include_directories(ada PUBLIC
 # WINDOW
 if (NO_X11)
 
+    message(STATUS "LOADING BROADCOM")
     find_package(BROADCOM)
+
+    # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
     
     if (BROADCOM_FOUND)
-        message(STATUS "LOADING BROADCOM")
 
         message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
         message(STATUS "BROADCOM_INCLUDE_DIR:   ${BROADCOM_INCLUDE_DIR}")
