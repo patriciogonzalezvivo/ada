@@ -1,22 +1,31 @@
 ## GLFW
 
 if (NO_GLFW)
-    message(STATUS "LOADING GBM EGL DRM GL_ESv2")
+    find_package(BCM)
+    
+    if (BCM_FOUND)
+        message(STATUS "LOADING BROADCOM")
 
-    find_package(GBM)
+    else()
+        message(STATUS "LOADING GBM/DRM")
+        
+        find_package(GBM)
+        find_package(DRM)
+        
+        message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
+        message(STATUS "DRM_LIBRARIES: ${DRM_LIBRARIES}")
+        message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
+        message(STATUS "GBM_LIBRARY: ${GBM_LIBRARY}")
+    endif()
+    
+    message(STATUS "LOADING EGL GL_ESv2")
     find_package(EGL)
-    find_package(DRM)
     find_package(GLESv2)
-
-    message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
-    message(STATUS "DRM_LIBRARIES: ${DRM_LIBRARIES}")
-    message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
-    message(STATUS "GBM_LIBRARY: ${GBM_LIBRARY}")
     message(STATUS "EGL_INCLUDE_DIRS: ${EGL_INCLUDE_DIRS}")
     message(STATUS "EGL_LIBRARY: ${EGL_LIBRARY}")
     message(STATUS "GLESv2_INCLUDE_DIRS: ${GLESv2_INCLUDE_DIRS}")
     message(STATUS "GLESv2_LIBRARIES: ${GLESv2_LIBRARIES}")
-
+    
 else()
     message(STATUS "LOADING GLFW OPENGL")
 

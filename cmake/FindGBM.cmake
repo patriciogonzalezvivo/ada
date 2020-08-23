@@ -14,7 +14,7 @@
 #   GBM::GBM   - The GBM library
 
 if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_GBM gbm QUIET)
+    pkg_check_modules(PC_GBM gbm QUIET)
 endif()
 
 find_path(GBM_INCLUDE_DIR NAMES gbm.h
@@ -48,21 +48,21 @@ check_c_source_compiles("#include <gbm.h>
                          " GBM_HAS_MODIFIERS)
 
 if(GBM_FOUND)
-  set(GBM_LIBRARIES ${GBM_LIBRARY})
-  set(GBM_INCLUDE_DIRS ${GBM_INCLUDE_DIR})
-  set(GBM_DEFINITIONS -DHAVE_GBM=1)
-  if(GBM_HAS_BO_MAP)
-    list(APPEND GBM_DEFINITIONS -DHAS_GBM_BO_MAP=1)
-  endif()
-  if(GBM_HAS_MODIFIERS)
-    list(APPEND GBM_DEFINITIONS -DHAS_GBM_MODIFIERS=1)
-  endif()
-  if(NOT TARGET GBM::GBM)
-    add_library(GBM::GBM UNKNOWN IMPORTED)
-    set_target_properties(GBM::GBM PROPERTIES
-                                   IMPORTED_LOCATION "${GBM_LIBRARY}"
-                                   INTERFACE_INCLUDE_DIRECTORIES "${GBM_INCLUDE_DIR}")
-  endif()
+    set(GBM_LIBRARIES ${GBM_LIBRARY})
+    set(GBM_INCLUDE_DIRS ${GBM_INCLUDE_DIR})
+    set(GBM_DEFINITIONS -DHAVE_GBM=1)
+    if(GBM_HAS_BO_MAP)
+        list(APPEND GBM_DEFINITIONS -DHAS_GBM_BO_MAP=1)
+    endif()
+    if(GBM_HAS_MODIFIERS)
+        list(APPEND GBM_DEFINITIONS -DHAS_GBM_MODIFIERS=1)
+    endif()
+    if(NOT TARGET GBM::GBM)
+        add_library(GBM::GBM UNKNOWN IMPORTED)
+        set_target_properties(GBM::GBM  PROPERTIES
+                                        IMPORTED_LOCATION "${GBM_LIBRARY}"
+                                        INTERFACE_INCLUDE_DIRECTORIES "${GBM_INCLUDE_DIR}")
+    endif()
 endif()
 
 mark_as_advanced(GBM_INCLUDE_DIR GBM_LIBRARY)

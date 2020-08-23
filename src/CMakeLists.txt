@@ -31,24 +31,59 @@ target_include_directories(ada PUBLIC
 
 # WINDOW
 if (NO_GLFW)
-    target_compile_definitions(ada PUBLIC DRIVER_GBM GL_ES)
+
+    if (BCM_FOUND)
+
+        target_compile_definitions(ada PUBLIC 
+            DRIVER_GBM 
+            ${BROADCOM_DEFINITIONS}
+        )
+            
+        include_directories(ada PUBLIC
+            ${BROADCOM_INCLUDE_DIR}
+        )
+
+        target_link_libraries(ada PUBLIC
+            ${BROADCOM_LIBRARIES}
+        )
+
+    else()
+
+        target_compile_definitions(ada PUBLIC 
+            DRIVER_GBM
+        )
+
+        include_directories(ada PUBLIC
+            ${DRM_INCLUDE_DIRS}
+            ${GBM_INCLUDE_DIRS}
+        )
+
+        target_link_libraries(ada PUBLIC
+            ${DRM_LIBRARIES}
+            ${GBM_LIBRARY}
+        )
+
+    endif()
+
+    target_compile_definitions(ada PUBLIC 
+        GL_ES
+    )
 
     include_directories(ada PUBLIC
-        ${DRM_INCLUDE_DIRS}
-        # ${GBM_INCLUDE_DIRS}
-        # ${EGL_INCLUDE_DIRS}
+        ${EGL_INCLUDE_DIRS}
         ${GLESv2_INCLUDE_DIRS}
     )
 
     target_link_libraries(ada PUBLIC
-        ${DRM_LIBRARIES}
         ${EGL_LIBRARY}
         ${GLESv2_LIBRARIES}
-        ${GBM_LIBRARY}
     )
 else()
     
-    target_compile_definitions(ada PUBLIC DRIVER_GLFW GL_OPENGL)
+    target_compile_definitions(ada PUBLIC 
+        DRIVER_GLFW 
+        GL_OPENGL
+    )
 
     target_link_libraries(ada PUBLIC 
         glfw

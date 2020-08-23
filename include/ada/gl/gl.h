@@ -1,6 +1,6 @@
 #pragma once
 
-// Default for RASPBERRYPI < 4
+// Default for RASPBERRYPI
 #if defined(GL_ES)
 
 #include <EGL/egl.h>

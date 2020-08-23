@@ -19,7 +19,7 @@ if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
 endif()
 
 if(PKG_CONFIG_FOUND)
-  pkg_check_modules(PC_EGL ${_brcmprefix}egl QUIET)
+    pkg_check_modules(PC_EGL ${_brcmprefix}egl QUIET)
 endif()
 
 find_path(EGL_INCLUDE_DIR EGL/egl.h
@@ -36,17 +36,17 @@ find_package_handle_standard_args(EGL
                                   VERSION_VAR EGL_VERSION)
 
 if(EGL_FOUND)
-  set(EGL_LIBRARIES ${EGL_LIBRARY})
-  set(EGL_INCLUDE_DIRS ${EGL_INCLUDE_DIR})
-  set(EGL_DEFINITIONS -DHAS_EGL=1)
+    set(EGL_LIBRARIES ${EGL_LIBRARY})
+    set(EGL_INCLUDE_DIRS ${EGL_INCLUDE_DIR})
+    set(EGL_DEFINITIONS -DHAS_EGL=1)
 
-  if(NOT TARGET EGL::EGL)
-    add_library(EGL::EGL UNKNOWN IMPORTED)
-    set_target_properties(EGL::EGL PROPERTIES
-                                   IMPORTED_LOCATION "${EGL_LIBRARY}"
-                                   INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}"
-                                   INTERFACE_COMPILE_DEFINITIONS HAS_EGL=1)
-  endif()
+    if(NOT TARGET EGL::EGL)
+        add_library(EGL::EGL UNKNOWN IMPORTED)
+        set_target_properties(EGL::EGL  PROPERTIES
+                                        IMPORTED_LOCATION "${EGL_LIBRARY}"
+                                        INTERFACE_INCLUDE_DIRECTORIES "${EGL_INCLUDE_DIR}"
+                                        INTERFACE_COMPILE_DEFINITIONS HAS_EGL=1)
+    endif()
 endif()
 
 mark_as_advanced(EGL_INCLUDE_DIR EGL_LIBRARY)
