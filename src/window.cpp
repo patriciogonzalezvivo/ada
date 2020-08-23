@@ -91,8 +91,8 @@ EGLContext context;
 EGLSurface surface;
 
 // unsigned long long timeStart;
-std::string device_mouse = "/dev/input/mice";
-std::string device_screen = "/dev/dri/card0";
+static std::string device_mouse = "/dev/input/mice";
+static std::string device_screen = "/dev/dri/card0";
 
 // get Time Function
 struct timespec time_start;
@@ -233,8 +233,8 @@ static void initHost() {
     bcm_host_init();
 
     #elif defined(DRIVER_GBM)
-    std::cout << "Use display " << device_screen << std::endl;
-    device = open(device_screen.c_str(), O_RDWR | O_CLOEXEC);
+    std::cout << "Use display " <<  device_screen << std::endl;
+    device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
     drmModeRes *resources = drmModeGetResources(device);
     if (resources == NULL) {
@@ -289,42 +289,40 @@ int initGL (int argc, char **argv) {
 
     // Set the size
     glm::ivec4 windowPosAndSize = glm::ivec4(0);
-    #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
-        // RASPBERRYPI default windows size (fullscreen)
-        glm::ivec2 screen = getScreenSize();
-        windowPosAndSize.z = screen.x;
-        windowPosAndSize.w = screen.y;
-    #else
-        // OSX/LINUX default windows size
-        windowPosAndSize.z = 500;
-        windowPosAndSize.w = 500;
-    #endif
+    windowPosAndSize.z = 500;
+    windowPosAndSize.w = 500;
+    // #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+    //     // RASPBERRYPI default windows size (fullscreen)
+    //     glm::ivec2 screen = getScreenSize();
+    //     windowPosAndSize.z = screen.x;
+    //     windowPosAndSize.w = screen.y;
+    // #endif
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
         if (        std::string(argv[i]) == "-x" ) {
-            if(++i < argc)
+            if (++i < argc)
                 windowPosAndSize.x = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-y" ) {
-            if(++i < argc)
+            if (++i < argc)
                 windowPosAndSize.y = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-w" ||
                     std::string(argv[i]) == "--width" ) {
-            if(++i < argc)
+            if (++i < argc)
                 windowPosAndSize.z = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-h" ||
                     std::string(argv[i]) == "--height" ) {
-            if(++i < argc)
+            if (++i < argc)
                 windowPosAndSize.w = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
@@ -347,7 +345,7 @@ int initGL (int argc, char **argv) {
         else if (   std::string(argv[i]) == "--display" ){
             if (++i < argc) {
         #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
-            device_screen = std::string(argv[i]);
+                device_screen = std::string(argv[i]);
         #endif
             }
         }
@@ -817,8 +815,7 @@ glm::ivec2 getScreenSize() {
         screen.y = mode->height;
 
     #elif defined(DRIVER_BROADCOM)
-        if (!bHostInited)
-            initHost();
+        initHost();
 
         uint32_t screen_width;
         uint32_t screen_height;
@@ -827,8 +824,7 @@ glm::ivec2 getScreenSize() {
         screen = glm::ivec2(screen_width, screen_height);
 
     #elif defined(DRIVER_GBM)
-        if (!bHostInited)
-            initHost();
+        initHost();
 
         screen = glm::ivec2(mode.hdisplay, mode.vdisplay);
 
