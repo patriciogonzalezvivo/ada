@@ -142,8 +142,8 @@ target_link_libraries(ada PUBLIC
 )
 
 # IDEs should put the headers in a nice place
-source_group(   TREE ${INCLUDE_FOLDER} 
-                PREFIX "Header Files" FILES ${ADA_HEADERS})
+# source_group(   TREE ${INCLUDE_FOLDER} 
+#                 PREFIX "Header Files" FILES ${ADA_HEADERS})
 
 # install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 # install(FILES ${ADA_HEADERS} DESTINATION include/ada)
