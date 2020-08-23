@@ -1,20 +1,51 @@
-file(GLOB ROOT_HEADER "${PROJECT_SOURCE_DIR}/include/ada/*.h")
-file(GLOB ROOT_SOURCE "${PROJECT_SOURCE_DIR}/src/*.cpp")
+set(ADA_HEADERS
+    ${PROJECT_SOURCE_DIR}/include/window.h
+    ${PROJECT_SOURCE_DIR}/include/gl/defines.h
+    ${PROJECT_SOURCE_DIR}/include/gl/face.h
+    ${PROJECT_SOURCE_DIR}/include/gl/fbo.h
+    ${PROJECT_SOURCE_DIR}/include/gl/gl.h
+    ${PROJECT_SOURCE_DIR}/include/gl/mesh.h
+    ${PROJECT_SOURCE_DIR}/include/gl/pingpong.h
+    ${PROJECT_SOURCE_DIR}/include/gl/shader.h
+    ${PROJECT_SOURCE_DIR}/include/gl/texture.h
+    ${PROJECT_SOURCE_DIR}/include/gl/textureCube.h
+    ${PROJECT_SOURCE_DIR}/include/gl/vbo.h 
+    ${PROJECT_SOURCE_DIR}/include/gl/vertexLayout.h
+    ${PROJECT_SOURCE_DIR}/include/scene/camera.h
+    ${PROJECT_SOURCE_DIR}/include/scene/light.h
+    ${PROJECT_SOURCE_DIR}/include/scene/node.h
+    ${PROJECT_SOURCE_DIR}/include/tools/fs.h 
+    ${PROJECT_SOURCE_DIR}/include/tools/list.h
+    ${PROJECT_SOURCE_DIR}/include/tools/math.h
+    ${PROJECT_SOURCE_DIR}/include/tools/pixels.h
+    ${PROJECT_SOURCE_DIR}/include/tools/text.h
+)
 
-file(GLOB GL_HEADER "${PROJECT_SOURCE_DIR}/include/ada/gl/*.h")
-file(GLOB GL_SOURCE "${PROJECT_SOURCE_DIR}/src/gl/*.cpp")
-
-file(GLOB SCENE_HEADER "${PROJECT_SOURCE_DIR}/include/ada/scene/*.h")
-file(GLOB SCENE_SOURCE "${PROJECT_SOURCE_DIR}/src/scene/*.cpp")
-
-file(GLOB TOOLS_HEADER "${PROJECT_SOURCE_DIR}/include/ada/tools/*.h")
-file(GLOB TOOLS_SOURCE "${PROJECT_SOURCE_DIR}/src/tools/*.cpp")
+set(ADA_SOURCES
+    window.cpp
+    gl/defines.cpp 
+    gl/fbo.cpp
+    gl/mesh.cpp 
+    gl/pingpong.cpp 
+    gl/shader.cpp
+    gl/texture.cpp 
+    gl/textureCube.cpp 
+    gl/vbo.cpp 
+    gl/vertexLayout.cpp 
+    scene/camera.cpp 
+    scene/light.cpp 
+    scene/node.cpp 
+    tools/fs.cpp 
+    tools/list.cpp
+    tools/pixels.cpp 
+    tools/text.cpp
+)
 
 set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
 
 # C++ LIBRAY
 #
-add_library(ada ${ROOT_SOURCE} ${GL_SOURCE} ${SCENE_SOURCE} ${TOOLS_SOURCE})
+add_library(ada ${ADA_SOURCES})
 
 set_target_properties(ada PROPERTIES
     CXX_STANDARD 11
@@ -32,7 +63,7 @@ target_include_directories(ada PUBLIC
 # WINDOW
 if (NO_GLFW)
 
-    if (BCM_FOUND)
+    if (BROADCOM_FOUND)
 
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM 
@@ -110,12 +141,9 @@ target_link_libraries(ada PUBLIC
     skymodel
 )
 
-# IDEs should put the headers in a nice place
-source_group(   TREE ${INCLUDE_FOLDER} 
-                PREFIX "Header Files" FILES ${ROOT_HEADER})
+# # IDEs should put the headers in a nice place
+# source_group(   TREE ${INCLUDE_FOLDER} 
+#                 PREFIX "Header Files" FILES ${ADA_HEADERS})
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(FILES ${ROOT_HEADER} DESTINATION include/ada)
-install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
-install(FILES ${SCENE_HEADER} DESTINATION include/ada/scene)
-install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
+# install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+# install(FILES ${HEADER_FILES} DESTINATION include/ada)

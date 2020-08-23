@@ -1,9 +1,9 @@
 ## GLFW
 
 if (NO_GLFW)
-    find_package(BCM)
+    find_package(BROADCOM)
     
-    if (BCM_FOUND)
+    if (BROADCOM_FOUND)
         message(STATUS "LOADING BROADCOM")
 
     else()
