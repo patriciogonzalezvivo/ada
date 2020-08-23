@@ -34,14 +34,6 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-# We need this directory, and users of our library will need it too
-target_include_directories(ada PUBLIC 
-    ${INCLUDE_FOLDER}
-    "${PROJECT_SOURCE_DIR}/deps/glm"
-    "${PROJECT_SOURCE_DIR}/deps/stb"
-    "${PROJECT_SOURCE_DIR}/deps/skymodel"
-)
-
 # WINDOW
 if (NO_X11)
 
@@ -144,6 +136,13 @@ else()
 
 endif()
 
+# We need this directory, and users of our library will need it too
+target_include_directories(ada PUBLIC 
+    ${INCLUDE_FOLDER}
+    "${PROJECT_SOURCE_DIR}/deps/glm"
+    "${PROJECT_SOURCE_DIR}/deps/stb"
+    "${PROJECT_SOURCE_DIR}/deps/skymodel"
+)
 
 ## SKYMODLE
 target_link_libraries(ada PUBLIC 
