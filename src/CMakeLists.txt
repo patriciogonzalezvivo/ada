@@ -1,25 +1,9 @@
-set(ADA_HEADERS
-    ${PROJECT_SOURCE_DIR}/include/window.h
-    ${PROJECT_SOURCE_DIR}/include/gl/defines.h
-    ${PROJECT_SOURCE_DIR}/include/gl/face.h
-    ${PROJECT_SOURCE_DIR}/include/gl/fbo.h
-    ${PROJECT_SOURCE_DIR}/include/gl/gl.h
-    ${PROJECT_SOURCE_DIR}/include/gl/mesh.h
-    ${PROJECT_SOURCE_DIR}/include/gl/pingpong.h
-    ${PROJECT_SOURCE_DIR}/include/gl/shader.h
-    ${PROJECT_SOURCE_DIR}/include/gl/texture.h
-    ${PROJECT_SOURCE_DIR}/include/gl/textureCube.h
-    ${PROJECT_SOURCE_DIR}/include/gl/vbo.h 
-    ${PROJECT_SOURCE_DIR}/include/gl/vertexLayout.h
-    ${PROJECT_SOURCE_DIR}/include/scene/camera.h
-    ${PROJECT_SOURCE_DIR}/include/scene/light.h
-    ${PROJECT_SOURCE_DIR}/include/scene/node.h
-    ${PROJECT_SOURCE_DIR}/include/tools/fs.h 
-    ${PROJECT_SOURCE_DIR}/include/tools/list.h
-    ${PROJECT_SOURCE_DIR}/include/tools/math.h
-    ${PROJECT_SOURCE_DIR}/include/tools/pixels.h
-    ${PROJECT_SOURCE_DIR}/include/tools/text.h
-)
+set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
+
+file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
+file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
+file(GLOB SCENE_HEADER "${INCLUDE_FOLDER}/ada/scene/*.h")
+file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
 
 set(ADA_SOURCES
     window.cpp
@@ -40,8 +24,6 @@ set(ADA_SOURCES
     tools/pixels.cpp 
     tools/text.cpp
 )
-
-set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
 
 # C++ LIBRAY
 #
@@ -145,7 +127,10 @@ target_link_libraries(ada PUBLIC
 
 # IDEs should put the headers in a nice place
 # source_group(   TREE ${INCLUDE_FOLDER} 
-#                 PREFIX "Header Files" FILES ${ADA_HEADERS})
+#                 PREFIX "Header Files" FILES ${ROOT_HEADER})
 
-# install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-# install(FILES ${ADA_HEADERS} DESTINATION include/ada)
+install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+install(FILES ${ROOT_HEADER} DESTINATION include/ada)
+install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
+install(FILES ${SCENE_HEADER} DESTINATION include/ada/scene)
+install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
