@@ -58,7 +58,7 @@ static GLFWwindow* window;
 
 #else
 
-#if defined(DRIVER_VC)
+#if defined(DRIVER_BROADCOM)
 #include "bcm_host.h"
 #undef countof
 #elif defined(DRIVER_GBM)
@@ -162,7 +162,7 @@ static const char *eglGetErrorStr() {
 }
 #endif
 
-#if defined(DRIVER_VC)
+#if defined(DRIVER_BROADCOM)
 DISPMANX_DISPLAY_HANDLE_T dispman_display;
 
 #elif defined(DRIVER_GBM)
@@ -228,7 +228,7 @@ static void initHost() {
     if (bHostInited)
         return;
 
-    #if defined(DRIVER_VC)
+    #if defined(DRIVER_BROADCOM)
     bcm_host_init();
 
     #elif defined(DRIVER_GBM)
@@ -274,7 +274,7 @@ static EGLDisplay getDisplay() {
     initHost();
     // printf("resolution: %ix%i\n", mode.hdisplay, mode.vdisplay);
 
-    #if defined(DRIVER_VC)
+    #if defined(DRIVER_BROADCOM)
     return eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
     #elif defined(DRIVER_GBM)
@@ -348,7 +348,7 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
             return EXIT_FAILURE;
         }
 
-        #ifdef DRIVER_VC
+        #ifdef DRIVER_BROADCOM
         static EGL_DISPMANX_WINDOW_T nativeviewport;
 
         VC_RECT_T dst_rect;
@@ -566,7 +566,7 @@ bool isGL(){
     #if defined(DRIVER_GLFW)
         return !glfwWindowShouldClose(window);
 
-    #elif defined(DRIVER_VC)
+    #elif defined(DRIVER_BROADCOM)
         return bHostInited;
 
     #elif defined(DRIVER_GBM)
@@ -697,7 +697,7 @@ void closeGL(){
         eglTerminate(display);
         eglReleaseThread();
 
-        #if defined(DRIVER_VC)
+        #if defined(DRIVER_BROADCOM)
         vc_dispmanx_display_close(dispman_display);
         bcm_host_deinit();
 
@@ -742,7 +742,7 @@ glm::ivec2 getScreenSize() {
         screen.x = mode->width;
         screen.y = mode->height;
 
-    #elif defined(DRIVER_VC)
+    #elif defined(DRIVER_BROADCOM)
         if (!bHostInited)
             initHost();
 

@@ -66,7 +66,7 @@ if (NO_GLFW)
     if (BROADCOM_FOUND)
 
         target_compile_definitions(ada PUBLIC 
-            DRIVER_GBM 
+            DRIVER_BROADCOM 
             ${BROADCOM_DEFINITIONS}
         )
             
@@ -141,9 +141,9 @@ target_link_libraries(ada PUBLIC
     skymodel
 )
 
-# # IDEs should put the headers in a nice place
-# source_group(   TREE ${INCLUDE_FOLDER} 
-#                 PREFIX "Header Files" FILES ${ADA_HEADERS})
+# IDEs should put the headers in a nice place
+source_group(   TREE ${INCLUDE_FOLDER} 
+                PREFIX "Header Files" FILES ${ADA_HEADERS})
 
 # install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-# install(FILES ${HEADER_FILES} DESTINATION include/ada)
+# install(FILES ${ADA_HEADERS} DESTINATION include/ada)
