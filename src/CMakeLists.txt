@@ -50,6 +50,10 @@ if (NO_X11)
     if (BROADCOM_FOUND)
         message(STATUS "LOADING BROADCOM")
 
+        message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
+        message(STATUS "BROADCOM_INCLUDE_DIR:   ${BROADCOM_INCLUDE_DIR}")
+        message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
+
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM 
             ${BROADCOM_DEFINITIONS}
@@ -70,10 +74,10 @@ if (NO_X11)
         find_package(GBM)
         find_package(DRM)
         
-        message(STATUS "DRM_INCLUDE_DIRS: ${DRM_INCLUDE_DIRS}")
-        message(STATUS "DRM_LIBRARIES: ${DRM_LIBRARIES}")
-        message(STATUS "GBM_INCLUDE_DIRS: ${GBM_INCLUDE_DIRS}")
-        message(STATUS "GBM_LIBRARY: ${GBM_LIBRARY}")
+        message(STATUS "DRM_INCLUDE_DIRS:       ${DRM_INCLUDE_DIRS}")
+        message(STATUS "DRM_LIBRARIES:          ${DRM_LIBRARIES}")
+        message(STATUS "GBM_INCLUDE_DIRS:       ${GBM_INCLUDE_DIRS}")
+        message(STATUS "GBM_LIBRARY:            ${GBM_LIBRARY}")
 
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM
@@ -94,10 +98,10 @@ if (NO_X11)
     message(STATUS "LOADING EGL GL_ESv2")
     find_package(EGL)
     find_package(GLESv2)
-    message(STATUS "EGL_INCLUDE_DIRS: ${EGL_INCLUDE_DIRS}")
-    message(STATUS "EGL_LIBRARY: ${EGL_LIBRARY}")
-    message(STATUS "GLESv2_INCLUDE_DIRS: ${GLESv2_INCLUDE_DIRS}")
-    message(STATUS "GLESv2_LIBRARIES: ${GLESv2_LIBRARIES}")
+    message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
+    message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+    message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
+    message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
 
     target_compile_definitions(ada PUBLIC 
         GL_ES
