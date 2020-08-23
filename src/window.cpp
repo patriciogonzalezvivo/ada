@@ -233,7 +233,7 @@ static void initHost() {
     bcm_host_init();
 
     #elif defined(DRIVER_GBM)
-    // You can try chaning this to "card0" if "card1" does not work.
+    std::cout << "Use display " << device_screen << std::endl;
     device = open(device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
     drmModeRes *resources = drmModeGetResources(device);
