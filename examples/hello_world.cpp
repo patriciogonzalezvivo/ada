@@ -1,5 +1,4 @@
 #include <string>
-#include "glm/glm.hpp"
 
 #include "ada/window.h"
 #include "ada/gl/gl.h"
@@ -85,21 +84,8 @@ void main(void) {
 )";
 
 int main(int argc, char **argv) {
-
-    glm::ivec4 windowPosAndSize = glm::ivec4(0);
-    #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-        // RASPBERRYPI default windows size (fullscreen)
-        glm::ivec2 screen = ada::getScreenSize();
-        windowPosAndSize.z = screen.x;
-        windowPosAndSize.w = screen.y;
-    #else
-        // OSX/WIN/LINUX default windows size
-        windowPosAndSize.z = 500;
-        windowPosAndSize.w = 500;
-    #endif
-
     // Initialize openGL context
-    ada::initGL ("triangle", windowPosAndSize);
+    ada::initGL(argc, argv);
 
     ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
     ada::Shader shader;

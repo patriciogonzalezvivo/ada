@@ -12,11 +12,12 @@
 #include <unistd.h>
 #endif 
 
-// #include "ada/gl/gl.h"
+#include "ada/tools/text.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 // Common global variables
 //----------------------------------------------------
+static ada::WindowStyle windowStyle = ada::REGULAR;
 static glm::mat4 orthoMatrix;
 typedef struct {
     float     x,y;
@@ -284,7 +285,71 @@ static EGLDisplay getDisplay() {
 }
 #endif
 
-void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _style) {
+int initGL (int argc, char **argv) {
+
+    // Set the size
+    glm::ivec4 windowPosAndSize = glm::ivec4(0);
+    #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+        // RASPBERRYPI default windows size (fullscreen)
+        glm::ivec2 screen = getScreenSize();
+        windowPosAndSize.z = screen.x;
+        windowPosAndSize.w = screen.y;
+    #else
+        // OSX/LINUX default windows size
+        windowPosAndSize.z = 500;
+        windowPosAndSize.w = 500;
+    #endif
+
+    for (int i = 1; i < argc ; i++) {
+        std::string argument = std::string(argv[i]);
+
+        if (        std::string(argv[i]) == "-x" ) {
+            if(++i < argc)
+                windowPosAndSize.x = toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-y" ) {
+            if(++i < argc)
+                windowPosAndSize.y = toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-w" ||
+                    std::string(argv[i]) == "--width" ) {
+            if(++i < argc)
+                windowPosAndSize.z = toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-h" ||
+                    std::string(argv[i]) == "--height" ) {
+            if(++i < argc)
+                windowPosAndSize.w = toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "--headless" ) {
+            windowStyle = HEADLESS;
+        }
+        else if (   std::string(argv[i]) == "-f" ||
+                    std::string(argv[i]) == "--fullscreen" ) {
+            windowStyle = FULLSCREEN;
+        }
+        else if (   std::string(argv[i]) == "--ontop" ){
+        #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+            windowPosAndSize.x = windowPosAndSize.z - 500;
+            windowPosAndSize.z = windowPosAndSize.w = 500;
+        #else
+            windowStyle = ALLWAYS_ON_TOP;
+        #endif
+        }
+        else if (   std::string(argv[i]) == "-ss" ||
+                    std::string(argv[i]) == "--screensaver") {
+            windowStyle = FULLSCREEN;
+        }
+        
+    }
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
@@ -355,23 +420,23 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
         VC_RECT_T src_rect;
 
         //  Initially the viewport is for all the screen
-        dst_rect.x = _viewport.x;
-        dst_rect.y = _viewport.y;
-        dst_rect.width = _viewport.z;
-        dst_rect.height = _viewport.w;
+        dst_rect.x = windowPosAndSize.x;
+        dst_rect.y = windowPosAndSize.y;
+        dst_rect.width = windowPosAndSize.z;
+        dst_rect.height = windowPosAndSize.w;
 
         src_rect.x = 0;
         src_rect.y = 0;
-        src_rect.width = _viewport.z << 16;
-        src_rect.height = _viewport.w << 16;
+        src_rect.width = windowPosAndSize.z << 16;
+        src_rect.height = windowPosAndSize.w << 16;
 
         DISPMANX_ELEMENT_HANDLE_T dispman_element;
         DISPMANX_UPDATE_HANDLE_T dispman_update;
 
-        if (_style == HEADLESS) {
+        if (windowStyle == HEADLESS) {
             uint32_t dest_image_handle;
             DISPMANX_RESOURCE_HANDLE_T dispman_resource;
-            dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, _viewport.z, _viewport.w, &dest_image_handle);
+            dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, windowPosAndSize.z, windowPosAndSize.w, &dest_image_handle);
             dispman_display = vc_dispmanx_display_open_offscreen(dispman_resource, DISPMANX_NO_ROTATE);
         } else {
             dispman_display = vc_dispmanx_display_open(0); // LCD
@@ -384,8 +449,8 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
                                                     0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
         nativeviewport.element = dispman_element;
-        nativeviewport.width = _viewport.z;
-        nativeviewport.height = _viewport.w;
+        nativeviewport.width = windowPosAndSize.z;
+        nativeviewport.height = windowPosAndSize.w;
         vc_dispmanx_update_submit_sync( dispman_update );
         check();
 
@@ -421,25 +486,25 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
             exit(-1);
         }
 
-        if (_style == HEADLESS)
+        if (windowStyle == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
             
-        else if (_style == ALLWAYS_ON_TOP)
+        else if (windowStyle == ALLWAYS_ON_TOP)
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
-        if (_style == FULLSCREEN) {
+        if (windowStyle == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-            _viewport.z = mode->width;
-            _viewport.w = mode->height;
+            windowPosAndSize.z = mode->width;
+            windowPosAndSize.w = mode->height;
             glfwWindowHint(GLFW_RED_BITS, mode->redBits);
             glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-            window = glfwCreateWindow(_viewport.z, _viewport.w, _appTitle.c_str(), monitor, NULL);
+            window = glfwCreateWindow(windowPosAndSize.z, windowPosAndSize.w, "", monitor, NULL);
         }
         else
-            window = glfwCreateWindow(_viewport.z, _viewport.w, _appTitle.c_str(), NULL, NULL);
+            window = glfwCreateWindow(windowPosAndSize.z, windowPosAndSize.w, "", NULL, NULL);
 
         if (!window) {
             glfwTerminate();
@@ -554,11 +619,13 @@ void initGL (const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _s
 
         glfwSwapInterval(1);
 
-        if (_viewport.x > 0 || _viewport.y > 0) {
-            glfwSetWindowPos(window, _viewport.x, _viewport.y);
+        if (windowPosAndSize.x > 0 || windowPosAndSize.y > 0) {
+            glfwSetWindowPos(window, windowPosAndSize.x, windowPosAndSize.y);
         }
     #endif
-    setViewport(_viewport.z,_viewport.w);
+    setViewport(windowPosAndSize.z,windowPosAndSize.w);
+
+    return 0;
 }
 
 bool isGL(){

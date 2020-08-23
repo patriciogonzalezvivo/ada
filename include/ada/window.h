@@ -18,7 +18,7 @@ enum WindowStyle {
 
 //	GL Context
 //----------------------------------------------
-void initGL(const std::string& _appTitle, glm::ivec4& _viewport, WindowStyle _prop = REGULAR);
+int initGL(int argc, char **argv);
 bool isGL();
 void updateGL();
 void renderGL();
