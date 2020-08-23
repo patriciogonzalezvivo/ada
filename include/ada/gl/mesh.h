@@ -5,10 +5,6 @@
 
 #include "vbo.h"
 
-#ifdef countof(x)
-#undef countof(x)
-#endif
-
 #include "glm/glm.hpp"
 
 namespace ada {
