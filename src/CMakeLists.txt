@@ -65,6 +65,7 @@ if (NO_GLFW)
 
     if (BROADCOM_FOUND)
 
+        message(STATUS "ADDING BROADCOM LIB")
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM 
             ${BROADCOM_DEFINITIONS}
@@ -80,6 +81,7 @@ if (NO_GLFW)
 
     else()
 
+        message(STATUS "ADDING GBM/DRM LIB")
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM
         )
