@@ -52,16 +52,18 @@ find_library(BCM_HOST_LIBRARY
 mark_as_advanced(BCM_HOST_LIBRARY)
 
 find_library(BCM_EGL 
-        NAMES libbrcmEGL.so 
+        # NAMES libbrcmEGL.so
+        NAMES libbrcmEGL_static.a
         DOC "Path to Broadcom EGL Library"
         PATHS /opt/vc/lib)
 mark_as_advanced(BCM_EGL)
 
-find_library(BCM_EGLV2
-        NAMES libbrcmGLESv2.so
+find_library(BCM_GLESv2
+        # NAMES libbrcmGLESv2.so
+        NAMES libbrcmGLESv2_static.a
         DOC "Path to Broadcom EGL Library"
         PATHS /opt/vc/lib)
-mark_as_advanced(BCM_EGLV2)
+mark_as_advanced(BCM_GLESv2)
         
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 
@@ -73,12 +75,12 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom
         # OPENMAXIL_LIBRARY 
         BCM_HOST_LIBRARY
         BCM_EGL
-        BCM_EGLV2
+        BCM_GLESv2
 )
 
 set(BROADCOM_LIBRARIES 
         ${BCM_HOST_LIBRARY} 
-        ${BCM_EGLV2} 
+        ${BCM_GLESv2} 
         ${BCM_EGL} 
         # ${OPENMAXIL_LIBRARY} 
         # ${VCHIQ_LIBRARY} 
