@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif 
 
+#include "ada/tools/fs.h"
 #include "ada/tools/text.h"
 #include "glm/gtc/matrix_transform.hpp"
 
@@ -233,7 +234,9 @@ static void initHost() {
     bcm_host_init();
 
     #elif defined(DRIVER_GBM)
-    // std::cout << "Use display " <<  device_screen << std::endl;
+    if (!urlExists(device_screen)) {
+        std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
+    }
     device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
     drmModeRes *resources = drmModeGetResources(device);
