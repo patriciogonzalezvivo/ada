@@ -43,7 +43,7 @@ if (NO_X11 OR FORCE_GBM)
     # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
     
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-
+    
         message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
         message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
         message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
@@ -87,29 +87,29 @@ if (NO_X11 OR FORCE_GBM)
             ${GBM_LIBRARY}
         )
 
+        message(STATUS "LOADING EGL GL_ESv2")
+        find_package(EGL)
+        find_package(GLESv2)
+        message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
+        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+        message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
+        message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
+    
+        target_compile_definitions(ada PUBLIC 
+            GL_ES
+        )
+    
+        include_directories(ada PUBLIC
+            ${EGL_INCLUDE_DIRS}
+            ${GLESv2_INCLUDE_DIRS}
+        )
+    
+        target_link_libraries(ada PUBLIC
+            ${EGL_LIBRARY}
+            ${GLESv2_LIBRARIES}
+        )
     endif()
 
-    message(STATUS "LOADING EGL GL_ESv2")
-    find_package(EGL)
-    find_package(GLESv2)
-    message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
-    message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
-    message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
-    message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
-
-    target_compile_definitions(ada PUBLIC 
-        GL_ES
-    )
-
-    include_directories(ada PUBLIC
-        ${EGL_INCLUDE_DIRS}
-        ${GLESv2_INCLUDE_DIRS}
-    )
-
-    target_link_libraries(ada PUBLIC
-        ${EGL_LIBRARY}
-        ${GLESv2_LIBRARIES}
-    )
 else()
     
     target_compile_definitions(ada PUBLIC 
