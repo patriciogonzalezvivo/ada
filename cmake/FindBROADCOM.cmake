@@ -68,10 +68,12 @@ include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom 
         DEFAULT_MSG 
         BROADCOM_INCLUDE_DIR 
-        VCOS_LIBRARY 
-        VCHIQ_LIBRARY 
-        OPENMAXIL_LIBRARY 
+        # VCOS_LIBRARY 
+        # VCHIQ_LIBRARY 
+        # OPENMAXIL_LIBRARY 
         BCM_HOST_LIBRARY
+        BCM_EGL
+        BCM_EGLV2
 )
 
 set(BROADCOM_LIBRARIES 
