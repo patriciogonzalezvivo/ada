@@ -52,15 +52,13 @@ find_library(BCM_HOST_LIBRARY
 mark_as_advanced(BCM_HOST_LIBRARY)
 
 find_library(BCM_EGL 
-        # NAMES libbrcmEGL.so
-        NAMES libbrcmEGL_static.a
+        NAMES libbrcmEGL.so
         DOC "Path to Broadcom EGL Library"
         PATHS /opt/vc/lib)
 mark_as_advanced(BCM_EGL)
 
 find_library(BCM_GLESv2
-        # NAMES libbrcmGLESv2.so
-        NAMES libbrcmGLESv2_static.a
+        NAMES libbrcmGLESv2.so
         DOC "Path to Broadcom EGL Library"
         PATHS /opt/vc/lib)
 mark_as_advanced(BCM_GLESv2)
