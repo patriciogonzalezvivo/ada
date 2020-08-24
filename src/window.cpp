@@ -294,7 +294,7 @@ int initGL (int argc, char **argv) {
     glm::ivec4 windowPosAndSize = glm::ivec4(0);
     windowPosAndSize.z = 500;
     windowPosAndSize.w = 500;
-    #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+    #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
         // RASPBERRYPI default windows size (fullscreen)
         glm::ivec2 screen = getScreenSize();
         windowPosAndSize.z = screen.x;
@@ -338,7 +338,7 @@ int initGL (int argc, char **argv) {
             windowStyle = FULLSCREEN;
         }
         else if (   std::string(argv[i]) == "--ontop" ){
-        #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+        #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
             windowPosAndSize.x = windowPosAndSize.z - 500;
             windowPosAndSize.z = windowPosAndSize.w = 500;
         #else
@@ -347,7 +347,7 @@ int initGL (int argc, char **argv) {
         }
         else if (   std::string(argv[i]) == "--display" ){
             if (++i < argc) {
-        #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+        #if defined(DRIVER_GBM) 
                 device_screen = std::string(argv[i]);
         #endif
             }
