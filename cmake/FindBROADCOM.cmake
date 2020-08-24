@@ -89,12 +89,12 @@ set(BROADCOM_INCLUDE_DIRS
         ${BROADCOM_INCLUDE_DIR}/interface/vcos/pthreads
 )
 
-set(BROADCOM_DEFINITIONS 
-        # USE_VCHIQ_ARM 
-        # HAVE_LIBOPENMAX=2 
-        # OMX 
-        # OMX_SKIP64BIT 
-        # USE_EXTERNAL_OMX 
-        HAVE_LIBBCM_HOST 
-        # USE_EXTERNAL_LIBBCM_HOST
-)
+# set(BROADCOM_DEFINITIONS 
+#         USE_VCHIQ_ARM 
+#         HAVE_LIBOPENMAX=2 
+#         OMX 
+#         OMX_SKIP64BIT 
+#         USE_EXTERNAL_OMX 
+#         HAVE_LIBBCM_HOST 
+#         USE_EXTERNAL_LIBBCM_HOST
+# )
