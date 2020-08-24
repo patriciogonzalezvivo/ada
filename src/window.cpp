@@ -92,7 +92,7 @@ EGLSurface surface;
 
 // unsigned long long timeStart;
 static std::string device_mouse = "/dev/input/mice";
-static std::string device_screen = "/dev/dri/card0";
+static std::string device_screen = "/dev/dri/card1";
 
 // get Time Function
 struct timespec time_start;
@@ -233,7 +233,7 @@ static void initHost() {
     bcm_host_init();
 
     #elif defined(DRIVER_GBM)
-    std::cout << "Use display " <<  device_screen << std::endl;
+    // std::cout << "Use display " <<  device_screen << std::endl;
     device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
     drmModeRes *resources = drmModeGetResources(device);
@@ -291,12 +291,12 @@ int initGL (int argc, char **argv) {
     glm::ivec4 windowPosAndSize = glm::ivec4(0);
     windowPosAndSize.z = 500;
     windowPosAndSize.w = 500;
-    // #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
-    //     // RASPBERRYPI default windows size (fullscreen)
-    //     glm::ivec2 screen = getScreenSize();
-    //     windowPosAndSize.z = screen.x;
-    //     windowPosAndSize.w = screen.y;
-    // #endif
+    #if defined(DRIVER_VC) || defined(DRIVER_GBM) 
+        // RASPBERRYPI default windows size (fullscreen)
+        glm::ivec2 screen = getScreenSize();
+        windowPosAndSize.z = screen.x;
+        windowPosAndSize.w = screen.y;
+    #endif
 
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
