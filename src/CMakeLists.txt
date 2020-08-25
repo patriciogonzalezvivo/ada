@@ -50,6 +50,7 @@ if (NO_X11 OR FORCE_GBM)
 
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM 
+            GL_ES
             ${BROADCOM_DEFINITIONS}
         )
             
