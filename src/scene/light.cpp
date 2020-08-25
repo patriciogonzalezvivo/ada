@@ -76,7 +76,7 @@ glm::mat4 Light::getBiasMVPMatrix() {
 
 void Light::bindShadowMap() {
     if (m_shadowMap.getDepthTextureId() == 0) {
-        #if defined(GL_ES) 
+        #if defined(PLATFORM_RPI) 
         // m_shadowMap.allocate(512, 512, DEPTH_TEXTURE);
         m_shadowMap.allocate(512, 512, COLOR_DEPTH_TEXTURES);
         #else

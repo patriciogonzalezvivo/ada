@@ -40,6 +40,12 @@ if (NO_X11 OR FORCE_GBM)
     message(STATUS "LOADING BROADCOM")
     find_package(BROADCOM)
 
+    if (BROADCOM_FOUND)
+        target_compile_definitions(ada PUBLIC 
+            DRIVER_BROADCOM
+        )
+    endif()
+
     # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
     
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
@@ -49,8 +55,7 @@ if (NO_X11 OR FORCE_GBM)
         message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
 
         target_compile_definitions(ada PUBLIC 
-            DRIVER_BROADCOM 
-            GL_ES
+            DRIVER_BROADCOM
             ${BROADCOM_DEFINITIONS}
         )
             
