@@ -338,7 +338,7 @@ int initGL (int argc, char **argv) {
             windowStyle = FULLSCREEN;
         }
         else if (   std::string(argv[i]) == "-l" ||
-                    std::string(argv[i]) == "--livecoding" ){
+                    std::string(argv[i]) == "--live-coding" ){
         #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
             windowPosAndSize.x = windowPosAndSize.z - 500;
             windowPosAndSize.z = windowPosAndSize.w = 500;
@@ -357,7 +357,6 @@ int initGL (int argc, char **argv) {
                     std::string(argv[i]) == "--screensaver") {
             windowStyle = FULLSCREEN;
         }
-        
     }
 
     // NON GLFW
