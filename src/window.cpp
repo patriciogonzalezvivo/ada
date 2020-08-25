@@ -337,7 +337,8 @@ int initGL (int argc, char **argv) {
                     std::string(argv[i]) == "--fullscreen" ) {
             windowStyle = FULLSCREEN;
         }
-        else if (   std::string(argv[i]) == "--ontop" ){
+        else if (   std::string(argv[i]) == "-l" ||
+                    std::string(argv[i]) == "--livecoding" ){
         #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
             windowPosAndSize.x = windowPosAndSize.z - 500;
             windowPosAndSize.z = windowPosAndSize.w = 500;
