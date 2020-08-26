@@ -90,6 +90,8 @@ int main(int argc, char **argv) {
     ada::Shader shader;
     shader.load(frag, vert);
     shader.use();
+    shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
+    shader.setUniform("u_time", 0.0f);
     
     // Render Loop
     while ( ada::isGL() ) {
