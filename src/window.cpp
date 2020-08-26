@@ -232,47 +232,48 @@ static const char *eglGetErrorStr() {
             return;
 
         #if defined(DRIVER_BROADCOM)
-        bcm_host_init();
+            bcm_host_init();
 
         #elif defined(DRIVER_GBM)
-        if (!urlExists(device_screen)) {
-            std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
-        }
-        device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
+            if (!urlExists(device_screen)) {
+                std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
+            }
+            device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
-        drmModeRes *resources = drmModeGetResources(device);
-        if (resources == NULL) {
-            std::cerr << "Unable to get DRM resources" << std::endl;
-            return EXIT_FAILURE;
-        }
+            drmModeRes *resources = drmModeGetResources(device);
+            if (resources == NULL) {
+                std::cerr << "Unable to get DRM resources" << std::endl;
+                return EXIT_FAILURE;
+            }
 
-        drmModeConnector *connector = getConnector(resources);
-        if (connector == NULL) {
-            std::cerr << "Unable to get connector" << std::endl;
-            drmModeFreeResources(resources);
-            return EXIT_FAILURE;
-        }
+            drmModeConnector *connector = getConnector(resources);
+            if (connector == NULL) {
+                std::cerr << "Unable to get connector" << std::endl;
+                drmModeFreeResources(resources);
+                return EXIT_FAILURE;
+            }
 
-        connectorId = connector->connector_id;
-        mode = connector->modes[0];
+            connectorId = connector->connector_id;
+            mode = connector->modes[0];
 
-        drmModeEncoder *encoder = findEncoder(resources, connector);
-        if (connector == NULL) {
-            std::cerr << "Unable to get encoder" << std::endl;
+            drmModeEncoder *encoder = findEncoder(resources, connector);
+            if (connector == NULL) {
+                std::cerr << "Unable to get encoder" << std::endl;
+                drmModeFreeConnector(connector);
+                drmModeFreeResources(resources);
+                return EXIT_FAILURE;
+            }
+
+            crtc = drmModeGetCrtc(device, encoder->crtc_id);
+            drmModeFreeEncoder(encoder);
             drmModeFreeConnector(connector);
             drmModeFreeResources(resources);
-            return EXIT_FAILURE;
-        }
-
-        crtc = drmModeGetCrtc(device, encoder->crtc_id);
-        drmModeFreeEncoder(encoder);
-        drmModeFreeConnector(connector);
-        drmModeFreeResources(resources);
-        gbmDevice = gbm_create_device(device);
-        gbmSurface = gbm_surface_create(gbmDevice, mode.hdisplay, mode.vdisplay, GBM_FORMAT_XRGB8888, GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+            gbmDevice = gbm_create_device(device);
+            gbmSurface = gbm_surface_create(gbmDevice, mode.hdisplay, mode.vdisplay, GBM_FORMAT_XRGB8888, GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
         #endif
 
         bHostInited = true;
+        std::cout << "bHostInitied" << std::endl;
     }
 
     static EGLDisplay getDisplay() {
@@ -637,7 +638,7 @@ int initGL (int argc, char **argv) {
     return 0;
 }
 
-bool isGL(){
+bool isGL() {
  
     #if defined(DRIVER_GLFW)
         return !glfwWindowShouldClose(window);
@@ -651,7 +652,7 @@ bool isGL(){
     #endif
 }
 
-void updateGL(){
+void updateGL() {
     // Update time
     // --------------------------------------------------------------------
 
