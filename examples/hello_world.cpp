@@ -82,19 +82,20 @@ int main(int argc, char **argv) {
     // Initialize openGL context
     ada::initGL(argc, argv);
 
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
     ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
     ada::Shader shader;
     shader.load(frag, vert);
+    shader.use();
     
     // Render Loop
     while ( ada::isGL() ) {
         // Update
         ada::updateGL();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
 
-        shader.use();
         shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
         shader.setUniform("u_time", (float)ada::getTime());
 

@@ -62,12 +62,12 @@ static GLFWwindow*      window;
 #else
 
 #if defined(DRIVER_BROADCOM)
-#include "bcm_host.h"
-#undef countof
+    #include "bcm_host.h"
+    #undef countof
 #elif defined(DRIVER_GBM)
-#include <xf86drm.h>
-#include <xf86drmMode.h>
-#include <gbm.h>
+    #include <xf86drm.h>
+    #include <xf86drmMode.h>
+    #include <gbm.h>
 #endif
 
 #include <EGL/egl.h>
@@ -166,127 +166,127 @@ static const char *eglGetErrorStr() {
 #endif
 
 #if defined(DRIVER_BROADCOM)
-DISPMANX_DISPLAY_HANDLE_T dispman_display;
+    DISPMANX_DISPLAY_HANDLE_T dispman_display;
 
 #elif defined(DRIVER_GBM)
-// https://github.com/matusnovak/rpi-opengl-without-x/blob/master/triangle_rpi4.c
+    // https://github.com/matusnovak/rpi-opengl-without-x/blob/master/triangle_rpi4.c
 
-int device;
-drmModeModeInfo mode;
-struct gbm_device *gbmDevice;
-struct gbm_surface *gbmSurface;
-drmModeCrtc *crtc;
-uint32_t connectorId;
+    int device;
+    drmModeModeInfo mode;
+    struct gbm_device *gbmDevice;
+    struct gbm_surface *gbmSurface;
+    drmModeCrtc *crtc;
+    uint32_t connectorId;
 
-static drmModeConnector *getConnector(drmModeRes *resources) {
-    for (int i = 0; i < resources->count_connectors; i++) {
-        drmModeConnector *connector = drmModeGetConnector(device, resources->connectors[i]);
-        if (connector->connection == DRM_MODE_CONNECTED)
-            return connector;
-        drmModeFreeConnector(connector);
+    static drmModeConnector *getConnector(drmModeRes *resources) {
+        for (int i = 0; i < resources->count_connectors; i++) {
+            drmModeConnector *connector = drmModeGetConnector(device, resources->connectors[i]);
+            if (connector->connection == DRM_MODE_CONNECTED)
+                return connector;
+            drmModeFreeConnector(connector);
+        }
+        return NULL;
     }
-    return NULL;
-}
 
-static drmModeEncoder *findEncoder(drmModeRes *resources, drmModeConnector *connector) {
-    if (connector->encoder_id)
-        return drmModeGetEncoder(device, connector->encoder_id);
-    return NULL;
-}
-
-static struct gbm_bo *previousBo = NULL;
-static uint32_t previousFb;
-
-static void gbmSwapBuffers() {
-    struct gbm_bo *bo = gbm_surface_lock_front_buffer(gbmSurface);
-    uint32_t handle = gbm_bo_get_handle(bo).u32;
-    uint32_t pitch = gbm_bo_get_stride(bo);
-    uint32_t fb;
-    drmModeAddFB(device, mode.hdisplay, mode.vdisplay, 24, 32, pitch, handle, &fb);
-    drmModeSetCrtc(device, crtc->crtc_id, fb, 0, 0, &connectorId, 1, &mode);
-    if (previousBo) {
-        drmModeRmFB(device, previousFb);
-        gbm_surface_release_buffer(gbmSurface, previousBo);
+    static drmModeEncoder *findEncoder(drmModeRes *resources, drmModeConnector *connector) {
+        if (connector->encoder_id)
+            return drmModeGetEncoder(device, connector->encoder_id);
+        return NULL;
     }
-    previousBo = bo;
-    previousFb = fb;
-}
 
-static void gbmClean() {
-    // set the previous crtc
-    drmModeSetCrtc(device, crtc->crtc_id, crtc->buffer_id, crtc->x, crtc->y, &connectorId, 1, &crtc->mode);
-    drmModeFreeCrtc(crtc);
-    if (previousBo) {
-        drmModeRmFB(device, previousFb);
-        gbm_surface_release_buffer(gbmSurface, previousBo);
+    static struct gbm_bo *previousBo = NULL;
+    static uint32_t previousFb;
+
+    static void gbmSwapBuffers() {
+        struct gbm_bo *bo = gbm_surface_lock_front_buffer(gbmSurface);
+        uint32_t handle = gbm_bo_get_handle(bo).u32;
+        uint32_t pitch = gbm_bo_get_stride(bo);
+        uint32_t fb;
+        drmModeAddFB(device, mode.hdisplay, mode.vdisplay, 24, 32, pitch, handle, &fb);
+        drmModeSetCrtc(device, crtc->crtc_id, fb, 0, 0, &connectorId, 1, &mode);
+        if (previousBo) {
+            drmModeRmFB(device, previousFb);
+            gbm_surface_release_buffer(gbmSurface, previousBo);
+        }
+        previousBo = bo;
+        previousFb = fb;
     }
-    gbm_surface_destroy(gbmSurface);
-    gbm_device_destroy(gbmDevice);
-}
+
+    static void gbmClean() {
+        // set the previous crtc
+        drmModeSetCrtc(device, crtc->crtc_id, crtc->buffer_id, crtc->x, crtc->y, &connectorId, 1, &crtc->mode);
+        drmModeFreeCrtc(crtc);
+        if (previousBo) {
+            drmModeRmFB(device, previousFb);
+            gbm_surface_release_buffer(gbmSurface, previousBo);
+        }
+        gbm_surface_destroy(gbmSurface);
+        gbm_device_destroy(gbmDevice);
+    }
 #endif
 
 #if !defined(DRIVER_GLFW)
-static bool bHostInited = false;
-static void initHost() {
-    if (bHostInited)
-        return;
+    static bool bHostInited = false;
+    static void initHost() {
+        if (bHostInited)
+            return;
 
-    #if defined(DRIVER_BROADCOM)
-    bcm_host_init();
+        #if defined(DRIVER_BROADCOM)
+        bcm_host_init();
 
-    #elif defined(DRIVER_GBM)
-    if (!urlExists(device_screen)) {
-        std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
-    }
-    device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
+        #elif defined(DRIVER_GBM)
+        if (!urlExists(device_screen)) {
+            std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
+        }
+        device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
 
-    drmModeRes *resources = drmModeGetResources(device);
-    if (resources == NULL) {
-        std::cerr << "Unable to get DRM resources" << std::endl;
-        return EXIT_FAILURE;
-    }
+        drmModeRes *resources = drmModeGetResources(device);
+        if (resources == NULL) {
+            std::cerr << "Unable to get DRM resources" << std::endl;
+            return EXIT_FAILURE;
+        }
 
-    drmModeConnector *connector = getConnector(resources);
-    if (connector == NULL) {
-        std::cerr << "Unable to get connector" << std::endl;
-        drmModeFreeResources(resources);
-        return EXIT_FAILURE;
-    }
+        drmModeConnector *connector = getConnector(resources);
+        if (connector == NULL) {
+            std::cerr << "Unable to get connector" << std::endl;
+            drmModeFreeResources(resources);
+            return EXIT_FAILURE;
+        }
 
-    connectorId = connector->connector_id;
-    mode = connector->modes[0];
+        connectorId = connector->connector_id;
+        mode = connector->modes[0];
 
-    drmModeEncoder *encoder = findEncoder(resources, connector);
-    if (connector == NULL) {
-        std::cerr << "Unable to get encoder" << std::endl;
+        drmModeEncoder *encoder = findEncoder(resources, connector);
+        if (connector == NULL) {
+            std::cerr << "Unable to get encoder" << std::endl;
+            drmModeFreeConnector(connector);
+            drmModeFreeResources(resources);
+            return EXIT_FAILURE;
+        }
+
+        crtc = drmModeGetCrtc(device, encoder->crtc_id);
+        drmModeFreeEncoder(encoder);
         drmModeFreeConnector(connector);
         drmModeFreeResources(resources);
-        return EXIT_FAILURE;
+        gbmDevice = gbm_create_device(device);
+        gbmSurface = gbm_surface_create(gbmDevice, mode.hdisplay, mode.vdisplay, GBM_FORMAT_XRGB8888, GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
+        #endif
+
+        bHostInited = true;
     }
 
-    crtc = drmModeGetCrtc(device, encoder->crtc_id);
-    drmModeFreeEncoder(encoder);
-    drmModeFreeConnector(connector);
-    drmModeFreeResources(resources);
-    gbmDevice = gbm_create_device(device);
-    gbmSurface = gbm_surface_create(gbmDevice, mode.hdisplay, mode.vdisplay, GBM_FORMAT_XRGB8888, GBM_BO_USE_SCANOUT | GBM_BO_USE_RENDERING);
-    #endif
+    static EGLDisplay getDisplay() {
+        initHost();
+        // printf("resolution: %ix%i\n", mode.hdisplay, mode.vdisplay);
 
-    bHostInited = true;
-}
+        #if defined(DRIVER_BROADCOM)
+            return eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
-static EGLDisplay getDisplay() {
-    initHost();
-    // printf("resolution: %ix%i\n", mode.hdisplay, mode.vdisplay);
+        #elif defined(DRIVER_GBM)
 
-    #if defined(DRIVER_BROADCOM)
-    return eglGetDisplay(EGL_DEFAULT_DISPLAY);
-
-    #elif defined(DRIVER_GBM)
-
-    return eglGetDisplay(gbmDevice);
-    #endif
-}
+            return eglGetDisplay(gbmDevice);
+        #endif
+    }
 #endif
 
 int initGL (int argc, char **argv) {
@@ -340,18 +340,18 @@ int initGL (int argc, char **argv) {
         }
         else if (   std::string(argv[i]) == "-l" ||
                     std::string(argv[i]) == "--live-coding" ){
-        #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-            desiredViewport.x = desiredViewport.z - 500;
-            desiredViewport.z = desiredViewport.w = 500;
-        #else
-            windowStyle = ALLWAYS_ON_TOP;
-        #endif
+            #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
+                desiredViewport.x = desiredViewport.z - 500;
+                desiredViewport.z = desiredViewport.w = 500;
+            #else
+                windowStyle = ALLWAYS_ON_TOP;
+            #endif
         }
         else if (   std::string(argv[i]) == "--display" ){
             if (++i < argc) {
-        #if defined(DRIVER_GBM) 
-                device_screen = std::string(argv[i]);
-        #endif
+            #if defined(DRIVER_GBM) 
+                    device_screen = std::string(argv[i]);
+            #endif
             }
         }
         else if (   std::string(argv[i]) == "-ss" ||
@@ -677,10 +677,10 @@ void updateGL(){
 
     // EVENTS
     // --------------------------------------------------------------------
-        #if defined(DRIVER_GLFW)
+    #if defined(DRIVER_GLFW)
         glfwPollEvents();
         
-        #else
+    #else
         const int XSIGN = 1<<4, YSIGN = 1<<5;
         static int fd = -1;
         if (fd<0) {
@@ -745,16 +745,16 @@ void updateGL(){
 
 void renderGL(){
     // NON GLFW
-#if defined(DRIVER_GLFW)
-    glfwSwapBuffers(window);
+    #if defined(DRIVER_GLFW)
+        glfwSwapBuffers(window);
 
-#else
-    eglSwapBuffers(display, surface);
-    #if defined(DRIVER_GBM)
-    gbmSwapBuffers();
+    #else
+        eglSwapBuffers(display, surface);
+        #if defined(DRIVER_GBM)
+            gbmSwapBuffers();
+        #endif
+
     #endif
-
-#endif
 }
 
 void closeGL(){
