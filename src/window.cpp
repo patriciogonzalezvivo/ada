@@ -296,6 +296,7 @@ int initGL (int argc, char **argv) {
     glm::ivec4 desiredViewport = glm::ivec4(0);
     desiredViewport.z = 500;
     desiredViewport.w = 500;
+
     #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
         // RASPBERRYPI default windows size (fullscreen)
         glm::ivec2 screen = getScreenSize();
@@ -525,9 +526,10 @@ int initGL (int argc, char **argv) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
         glfwMakeContextCurrent(window);
-#ifdef _WIN32
-        glewInit();
-#endif//
+        #ifdef _WIN32
+            glewInit();
+        #endif
+
         glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
             setViewport(_w,_h);
         });
@@ -633,7 +635,7 @@ int initGL (int argc, char **argv) {
             glfwSetWindowPos(window, desiredViewport.x, desiredViewport.y);
         }
     #endif
-    setViewport(desiredViewport.z,desiredViewport.w);
+    setViewport(desiredViewport.z, desiredViewport.w);
 
     return 0;
 }
@@ -684,10 +686,11 @@ void updateGL() {
     #else
         const int XSIGN = 1<<4, YSIGN = 1<<5;
         static int fd = -1;
-        if (fd<0) {
+        if (fd < 0) {
             fd = open(device_mouse.c_str(),O_RDONLY|O_NONBLOCK);
         }
-        if (fd>=0) {
+
+        if (fd >= 0) {
             // Set values to 0
             mouse.velX=0;
             mouse.velY=0;
@@ -697,11 +700,10 @@ void updateGL() {
             while (1) {
                 int bytes = read(fd, &m, sizeof m);
 
-                if (bytes < (int)sizeof m) {
+                if (bytes < (int)sizeof m)
                     return;
-                } else if (m.buttons&8) {
+                else if (m.buttons&8) 
                     break; // This bit should always be set
-                }
 
                 read(fd, &m, 1); // Try to sync up again
             }
@@ -732,9 +734,8 @@ void updateGL() {
                 mouse.button = button;
                 onMouseClick(mouse.x, mouse.y, mouse.button);
             }
-            else {
+            else
                 mouse.button = button;
-            }
 
             if (mouse.velX != 0.0 || mouse.velY != 0.0) {
                 if (button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
@@ -775,12 +776,12 @@ void closeGL(){
         eglReleaseThread();
 
         #if defined(DRIVER_BROADCOM)
-        vc_dispmanx_display_close(dispman_display);
-        bcm_host_deinit();
+            vc_dispmanx_display_close(dispman_display);
+            bcm_host_deinit();
 
         #elif defined(DRIVER_GBM)
-        gbmClean();
-        close(device);
+            gbmClean();
+            close(device);
         #endif
 
     #endif
@@ -803,9 +804,9 @@ void setViewport(float _width, float _height) {
 }
 
 void setWindowSize(int _width, int _height) {
-#if defined(DRIVER_GLFW)
-    glfwSetWindowSize(window, _width, _height);
-#endif
+    #if defined(DRIVER_GLFW)
+        glfwSetWindowSize(window, _width, _height);
+    #endif
     ada::setViewport((float)_width, (float)_height);
 }
 
@@ -865,35 +866,32 @@ glm::mat4 getOrthoMatrix() {
     return orthoMatrix;
 }
 
-
-
 glm::vec4 getDate() {
-#ifdef _MSC_VER
-    time_t tv = time(NULL);
+    #ifdef _MSC_VER
+        time_t tv = time(NULL);
 
-    struct tm tm_struct;
-    struct tm* tm = &tm_struct;
-    errno_t err = localtime_s(tm, &tv);
-    if (err)
-    {
-              
-    }
+        struct tm tm_struct;
+        struct tm* tm = &tm_struct;
+        errno_t err = localtime_s(tm, &tv);
+        if (err)
+        {
+                
+        }
 
-    return glm::vec4(tm->tm_year + 1900,
-        tm->tm_mon,
-        tm->tm_mday,
-        tm->tm_hour * 3600.0f + tm->tm_min * 60.0f + tm->tm_sec);
-#else
-    gettimeofday(&tv, NULL);
-    struct tm *tm;
-    tm = localtime(&tv.tv_sec);
-    // std::cout << "y: " << tm->tm_year+1900 << " m: " << tm->tm_mon << " d: " << tm->tm_mday << " s: " << tm->tm_hour*3600.0f+tm->tm_min*60.0f+tm->tm_sec+tv.tv_usec*0.000001 << std::endl;
-    return glm::vec4(tm->tm_year + 1900,
-        tm->tm_mon,
-        tm->tm_mday,
-        tm->tm_hour * 3600.0f + tm->tm_min * 60.0f + tm->tm_sec + tv.tv_usec * 0.000001);
-#endif 
-  
+        return glm::vec4(tm->tm_year + 1900,
+            tm->tm_mon,
+            tm->tm_mday,
+            tm->tm_hour * 3600.0f + tm->tm_min * 60.0f + tm->tm_sec);
+    #else
+        gettimeofday(&tv, NULL);
+        struct tm *tm;
+        tm = localtime(&tv.tv_sec);
+        // std::cout << "y: " << tm->tm_year+1900 << " m: " << tm->tm_mon << " d: " << tm->tm_mday << " s: " << tm->tm_hour*3600.0f+tm->tm_min*60.0f+tm->tm_sec+tv.tv_usec*0.000001 << std::endl;
+        return glm::vec4(tm->tm_year + 1900,
+            tm->tm_mon,
+            tm->tm_mday,
+            tm->tm_hour * 3600.0f + tm->tm_min * 60.0f + tm->tm_sec + tv.tv_usec * 0.000001);
+    #endif 
 }
 
 double getTime() {

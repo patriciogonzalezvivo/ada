@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
     // Initialize openGL context
     ada::initGL(argc, argv);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
