@@ -5,6 +5,7 @@
 
 #include "vbo.h"
 
+#define GLM_FORCE_CXX14
 #include "glm/glm.hpp"
 
 namespace ada {
