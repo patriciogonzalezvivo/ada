@@ -93,7 +93,8 @@ int main(int argc, char **argv) {
         // Update
         ada::updateGL();
 
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
         shader.setUniform("u_time", (float)ada::getTime());
