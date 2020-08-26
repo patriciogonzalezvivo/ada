@@ -47,14 +47,10 @@ attribute vec4 a_position;
 attribute vec2 a_texcoord;
 
 varying vec4 v_position;
-// varying vec4 v_color;
-// varying vec3 v_normal;
 varying vec2 v_texcoord;
 
 void main(void) {
     v_position =  a_position;
-    // v_color = vec4(1.0);
-    // v_normal = vec3(0.0,0.0,1.0);
     v_texcoord = a_texcoord;
     
     gl_Position = v_position;
@@ -67,7 +63,6 @@ precision mediump float;
 #endif
 
 uniform vec2    u_resolution;
-uniform vec2    u_mouse;
 uniform float   u_time;
 
 varying vec2    v_texcoord;
@@ -100,7 +95,7 @@ int main(int argc, char **argv) {
 
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        shader.setUniform("u_resolution", ada::getWindowWidth(), ada::getWindowHeight() );
+        shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
         shader.setUniform("u_time", (float)ada::getTime());
 
         billboard_vbo->render( &shader );
