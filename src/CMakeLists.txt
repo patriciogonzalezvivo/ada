@@ -134,6 +134,15 @@ else()
         target_link_libraries(ada PUBLIC 
             "-framework OpenGL"
         )
+
+    elseif (WIN32)
+        target_include_directories(ada PUBLIC 
+            "${PROJECT_SOURCE_DIR}/deps/glew/include"
+        )
+
+        target_link_libraries(ada PUBLIC 
+            libglew_shared
+        )
     else()
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}

@@ -30,6 +30,12 @@ if (NOT NO_X11 AND NOT FORCE_GBM)
     message(STATUS "OPENGL_opengl_LIBRARY: ${OPENGL_opengl_LIBRARY}")
 endif()
 
+if (WIN32)
+    set(glew-cmake_BUILD_SHARED ON CACHE BOOL "")
+    set(glew-cmake_BUILD_SINGLE_CONTEXT ON CACHE BOOL "")
+    add_subdirectory(glew)
+endif (WIN32)
+
 
 ## SkyModel
 add_subdirectory(skymodel)
