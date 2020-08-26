@@ -5,11 +5,11 @@
 #include <iostream>
 
 #ifdef _WIN32
-#define NOMINMAX
-#include <windows.h>
+    #define NOMINMAX
+    #include <windows.h>
 #else
-#include <sys/time.h>
-#include <unistd.h>
+    #include <sys/time.h>
+    #include <unistd.h>
 #endif 
 
 #include "ada/tools/fs.h"
@@ -19,44 +19,45 @@
 // Common global variables
 //----------------------------------------------------
 static ada::WindowStyle windowStyle = ada::REGULAR;
-static glm::mat4 orthoMatrix;
+static glm::mat4        orthoMatrix;
 typedef struct {
     float     x,y;
     int       button;
     float     velX,velY;
     glm::vec2 drag;
 } Mouse;
-struct timeval tv;
-static Mouse mouse;
-static glm::vec4 mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
-static glm::ivec4 viewport;
-static double fTime = 0.0f;
-static double fDelta = 0.0f;
-static double fFPS = 0.0f;
-static float fPixelDensity = 1.0;
+static Mouse            mouse;
+static glm::vec4        mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
+static glm::ivec4       viewport;
+
+struct timeval          tv;
+static double           fTime = 0.0f;
+static double           fDelta = 0.0f;
+static double           fFPS = 0.0f;
+static float            fPixelDensity = 1.0;
 
 extern void pal_sleep(uint64_t);
 
 #if defined(DRIVER_GLFW)
 
 #if defined(__APPLE__)
-#define GL_PROGRAM_BINARY_LENGTH 0x8741
-#include <GLFW/glfw3.h>
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
+    #define GL_PROGRAM_BINARY_LENGTH 0x8741
+    #include <GLFW/glfw3.h>
+    #include <OpenGL/gl.h>
+    #include <OpenGL/glext.h>
 #elif defined(_WIN32)
-// #include <GL/glew.h>
-#define APIENTRY __stdcall
+    // #include <GL/glew.h>
+    #define APIENTRY __stdcall
 #else
-// ANY LINUX using GLFW 
-#define GL_GLEXT_PROTOTYPES
-#include "GLFW/glfw3.h"
+    // ANY LINUX using GLFW 
+    #define GL_GLEXT_PROTOTYPES
+    #include "GLFW/glfw3.h"
 #endif
 
 namespace ada {
 //----------------------------------------------------
-static bool left_mouse_button_down = false;
-static GLFWwindow* window;
+static bool             left_mouse_button_down = false;
+static GLFWwindow*      window;
 
 #else
 
@@ -291,14 +292,14 @@ static EGLDisplay getDisplay() {
 int initGL (int argc, char **argv) {
 
     // Set the size
-    glm::ivec4 windowPosAndSize = glm::ivec4(0);
-    windowPosAndSize.z = 500;
-    windowPosAndSize.w = 500;
+    glm::ivec4 desiredViewport = glm::ivec4(0);
+    desiredViewport.z = 500;
+    desiredViewport.w = 500;
     #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
         // RASPBERRYPI default windows size (fullscreen)
         glm::ivec2 screen = getScreenSize();
-        windowPosAndSize.z = screen.x;
-        windowPosAndSize.w = screen.y;
+        desiredViewport.z = screen.x;
+        desiredViewport.w = screen.y;
     #endif
 
     for (int i = 1; i < argc ; i++) {
@@ -306,27 +307,27 @@ int initGL (int argc, char **argv) {
 
         if (        std::string(argv[i]) == "-x" ) {
             if (++i < argc)
-                windowPosAndSize.x = toInt(std::string(argv[i]));
+                desiredViewport.x = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-y" ) {
             if (++i < argc)
-                windowPosAndSize.y = toInt(std::string(argv[i]));
+                desiredViewport.y = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-w" ||
                     std::string(argv[i]) == "--width" ) {
             if (++i < argc)
-                windowPosAndSize.z = toInt(std::string(argv[i]));
+                desiredViewport.z = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
         else if (   std::string(argv[i]) == "-h" ||
                     std::string(argv[i]) == "--height" ) {
             if (++i < argc)
-                windowPosAndSize.w = toInt(std::string(argv[i]));
+                desiredViewport.w = toInt(std::string(argv[i]));
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
@@ -340,8 +341,8 @@ int initGL (int argc, char **argv) {
         else if (   std::string(argv[i]) == "-l" ||
                     std::string(argv[i]) == "--live-coding" ){
         #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-            windowPosAndSize.x = windowPosAndSize.z - 500;
-            windowPosAndSize.z = windowPosAndSize.w = 500;
+            desiredViewport.x = desiredViewport.z - 500;
+            desiredViewport.z = desiredViewport.w = 500;
         #else
             windowStyle = ALLWAYS_ON_TOP;
         #endif
@@ -361,6 +362,7 @@ int initGL (int argc, char **argv) {
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
+        std::cout << "About to create context with dimensions of: " << desiredViewport.x << "," << desiredViewport.y << "," << desiredViewport.z << "," << desiredViewport.w << std::endl;
         clock_gettime(CLOCK_MONOTONIC, &time_start);
 
         // Clear application state
@@ -422,60 +424,59 @@ int initGL (int argc, char **argv) {
         }
 
         #ifdef DRIVER_BROADCOM
-        static EGL_DISPMANX_WINDOW_T nativeviewport;
+            static EGL_DISPMANX_WINDOW_T nativeviewport;
 
-        VC_RECT_T dst_rect;
-        VC_RECT_T src_rect;
+            VC_RECT_T dst_rect;
+            VC_RECT_T src_rect;
 
-        //  Initially the viewport is for all the screen
-        dst_rect.x = windowPosAndSize.x;
-        dst_rect.y = windowPosAndSize.y;
-        dst_rect.width = windowPosAndSize.z;
-        dst_rect.height = windowPosAndSize.w;
+            //  Initially the viewport is for all the screen
+            dst_rect.x = desiredViewport.x;
+            dst_rect.y = desiredViewport.y;
+            dst_rect.width = desiredViewport.z;
+            dst_rect.height = desiredViewport.w;
 
-        src_rect.x = 0;
-        src_rect.y = 0;
-        src_rect.width = windowPosAndSize.z << 16;
-        src_rect.height = windowPosAndSize.w << 16;
+            src_rect.x = 0;
+            src_rect.y = 0;
+            src_rect.width = desiredViewport.z << 16;
+            src_rect.height = desiredViewport.w << 16;
 
-        DISPMANX_ELEMENT_HANDLE_T dispman_element;
-        DISPMANX_UPDATE_HANDLE_T dispman_update;
+            DISPMANX_ELEMENT_HANDLE_T dispman_element;
+            DISPMANX_UPDATE_HANDLE_T dispman_update;
 
-        if (windowStyle == HEADLESS) {
-            uint32_t dest_image_handle;
-            DISPMANX_RESOURCE_HANDLE_T dispman_resource;
-            dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, windowPosAndSize.z, windowPosAndSize.w, &dest_image_handle);
-            dispman_display = vc_dispmanx_display_open_offscreen(dispman_resource, DISPMANX_NO_ROTATE);
-        } else {
-            dispman_display = vc_dispmanx_display_open(0); // LCD
-        }
+            if (windowStyle == HEADLESS) {
+                uint32_t dest_image_handle;
+                DISPMANX_RESOURCE_HANDLE_T dispman_resource;
+                dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, desiredViewport.z, desiredViewport.w, &dest_image_handle);
+                dispman_display = vc_dispmanx_display_open_offscreen(dispman_resource, DISPMANX_NO_ROTATE);
+            } else {
+                dispman_display = vc_dispmanx_display_open(0); // LCD
+            }
 
-        dispman_update = vc_dispmanx_update_start(0);
-        dispman_element = vc_dispmanx_element_add(  dispman_update, dispman_display,
-                                                    0/*layer*/, &dst_rect, 0/*src*/,
-                                                    &src_rect, DISPMANX_PROTECTION_NONE,
-                                                    0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
+            dispman_update = vc_dispmanx_update_start(0);
+            dispman_element = vc_dispmanx_element_add(  dispman_update, dispman_display,
+                                                        0/*layer*/, &dst_rect, 0/*src*/,
+                                                        &src_rect, DISPMANX_PROTECTION_NONE,
+                                                        0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
-        nativeviewport.element = dispman_element;
-        nativeviewport.width = windowPosAndSize.z;
-        nativeviewport.height = windowPosAndSize.w;
-        vc_dispmanx_update_submit_sync( dispman_update );
-        check();
+            nativeviewport.element = dispman_element;
+            nativeviewport.width = desiredViewport.z;
+            nativeviewport.height = desiredViewport.w;
+            vc_dispmanx_update_submit_sync( dispman_update );
+            check();
 
-        surface = eglCreateWindowSurface( display, config, &nativeviewport, NULL );
-        assert(surface != EGL_NO_SURFACE);
-        check();
+            surface = eglCreateWindowSurface( display, config, &nativeviewport, NULL );
+            assert(surface != EGL_NO_SURFACE);
+            check();
 
         #elif defined(DRIVER_GBM)
-        surface = eglCreateWindowSurface(display, config, gbmSurface, NULL);
-        if (surface == EGL_NO_SURFACE) {
-            std::cerr << "Failed to create EGL surface! Error: " << eglGetErrorStr() << std::endl;
-            eglDestroyContext(display, context);
-            eglTerminate(display);
-            gbmClean();
-            return EXIT_FAILURE;
-        }
-
+            surface = eglCreateWindowSurface(display, config, gbmSurface, NULL);
+            if (surface == EGL_NO_SURFACE) {
+                std::cerr << "Failed to create EGL surface! Error: " << eglGetErrorStr() << std::endl;
+                eglDestroyContext(display, context);
+                eglTerminate(display);
+                gbmClean();
+                return EXIT_FAILURE;
+            }
         #endif
 
         // connect the context to the surface
@@ -503,16 +504,16 @@ int initGL (int argc, char **argv) {
         if (windowStyle == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-            windowPosAndSize.z = mode->width;
-            windowPosAndSize.w = mode->height;
+            desiredViewport.z = mode->width;
+            desiredViewport.w = mode->height;
             glfwWindowHint(GLFW_RED_BITS, mode->redBits);
             glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-            window = glfwCreateWindow(windowPosAndSize.z, windowPosAndSize.w, "", monitor, NULL);
+            window = glfwCreateWindow(desiredViewport.z, desiredViewport.w, "", monitor, NULL);
         }
         else
-            window = glfwCreateWindow(windowPosAndSize.z, windowPosAndSize.w, "", NULL, NULL);
+            window = glfwCreateWindow(desiredViewport.z, desiredViewport.w, "", NULL, NULL);
 
         if (!window) {
             glfwTerminate();
@@ -627,11 +628,11 @@ int initGL (int argc, char **argv) {
 
         glfwSwapInterval(1);
 
-        if (windowPosAndSize.x > 0 || windowPosAndSize.y > 0) {
-            glfwSetWindowPos(window, windowPosAndSize.x, windowPosAndSize.y);
+        if (desiredViewport.x > 0 || desiredViewport.y > 0) {
+            glfwSetWindowPos(window, desiredViewport.x, desiredViewport.y);
         }
     #endif
-    setViewport(windowPosAndSize.z,windowPosAndSize.w);
+    setViewport(desiredViewport.z,desiredViewport.w);
 
     return 0;
 }
