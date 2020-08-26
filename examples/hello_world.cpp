@@ -1,3 +1,4 @@
+#include <iostream.h>
 #include <string>
 
 #include "ada/window.h"
@@ -92,17 +93,23 @@ int main(int argc, char **argv) {
     
     // Render Loop
     while ( ada::isGL() ) {
+
         // Update
         ada::updateGL();
-
+        std::cout << "updateGL" << std::endl;
 
         shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
         shader.setUniform("u_time", (float)ada::getTime());
+        std::cout << "update uniforms" << std::endl;
 
         billboard_vbo->render( &shader );
+        std::cout << "render billboard" << std::endl;
 
         ada::renderGL();
+        std::cout << "renderGL" << std::endl;
+
         ada::updateViewport();
+        std::cout << "updateViewport" << std::endl;
     }
 
     ada::closeGL();
