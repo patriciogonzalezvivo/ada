@@ -268,8 +268,6 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
         return 0;
     }
 
-    std::cout << "COMPILED" << std::endl;
-
     return shader;
 }
 
