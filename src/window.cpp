@@ -47,6 +47,7 @@ extern void pal_sleep(uint64_t);
     #include <OpenGL/glext.h>
 #elif defined(_WIN32)
     #include <GL/glew.h>
+    #include "GLFW/glfw3.h"
     #define APIENTRY __stdcall
 #else
     // ANY LINUX using GLFW 

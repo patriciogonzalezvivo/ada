@@ -15,7 +15,7 @@
 #include <OpenGL/glext.h>
 
 #elif defined(_WIN32)
-#include <GLFW/glfw3.h>
+#include <GL/glew.h>
 #define APIENTRY __stdcall
 #else
 
