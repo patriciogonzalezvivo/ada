@@ -273,7 +273,6 @@ static const char *eglGetErrorStr() {
         #endif
 
         bHostInited = true;
-        std::cout << "bHostInitied" << std::endl;
     }
 
     static EGLDisplay getDisplay() {
@@ -364,7 +363,6 @@ int initGL (int argc, char **argv) {
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
-        std::cout << "About to create context with dimensions of: " << desiredViewport.x << "," << desiredViewport.y << "," << desiredViewport.z << "," << desiredViewport.w << std::endl;
         clock_gettime(CLOCK_MONOTONIC, &time_start);
 
         // Clear application state
