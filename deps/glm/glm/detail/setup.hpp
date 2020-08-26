@@ -794,21 +794,21 @@ namespace glm
 #	define __has_feature(x) 0 // Compatibility with non-clang compilers.
 #endif
 
-#if GLM_HAS_CONSTEXPR_PARTIAL
-	namespace glm
-	{
-		template <typename T, std::size_t N>
-		constexpr std::size_t countof(T const (&)[N])
-		{
-			return N;
-		}
-	}//namespace glm
-#	define GLM_COUNTOF(arr) glm::countof(arr)
-#elif defined(_MSC_VER)
-#	define GLM_COUNTOF(arr) _countof(arr)
-#else
-#	define GLM_COUNTOF(arr) sizeof(arr) / sizeof(arr[0])
-#endif
+// #if GLM_HAS_CONSTEXPR_PARTIAL
+// 	namespace glm
+// 	{
+// 		template <typename T, std::size_t N>
+// 		constexpr std::size_t countof(T const (&)[N])
+// 		{
+// 			return N;
+// 		}
+// 	}//namespace glm
+// #	define GLM_COUNTOF(arr) glm::countof(arr)
+// #elif defined(_MSC_VER)
+// #	define GLM_COUNTOF(arr) _countof(arr)
+// #else
+// #	define GLM_COUNTOF(arr) sizeof(arr) / sizeof(arr[0])
+// #endif
 
 ///////////////////////////////////////////////////////////////////////////////////
 // Uninitialize constructors
