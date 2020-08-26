@@ -85,9 +85,7 @@ int main(int argc, char **argv) {
     ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
     ada::Shader shader;
     shader.load(frag, vert);
-    shader.use();
-
-
+    
     // Render Loop
     while ( ada::isGL() ) {
         // Update
@@ -96,6 +94,7 @@ int main(int argc, char **argv) {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        shader.use();
         shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
         shader.setUniform("u_time", (float)ada::getTime());
 
