@@ -22,7 +22,7 @@ Shader::Shader():
     addDefine("PLATFORM_OSX");
     #elif defined(_WIN32)
     addDefine("PLATFORM_WIN");
-    #elif defined(PLATFORM_RPI) || defined(PLATFORM_RPI4)
+    #elif defined(PLATFORM_RPI)
     addDefine("PLATFORM_RPI");
     #else
     addDefine("PLATFORM_LINUX");

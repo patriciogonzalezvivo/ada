@@ -43,6 +43,7 @@ if (NO_X11 OR FORCE_GBM)
     if (BROADCOM_FOUND)
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM
+            GLM_FORCE_CXX14
             PLATFORM_RPI
         )
     endif()
