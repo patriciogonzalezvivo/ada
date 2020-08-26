@@ -1,7 +1,7 @@
 #pragma once
 
 // Default for RASPBERRYPI
-#if defined(PLATFORM_RPI) || defined(GL_ES)
+#if defined(GL_ES)
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
