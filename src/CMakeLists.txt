@@ -2,7 +2,6 @@ set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
 
 file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
 file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
-file(GLOB SCENE_HEADER "${INCLUDE_FOLDER}/ada/scene/*.h")
 file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
 
 set(ADA_SOURCES
@@ -16,9 +15,6 @@ set(ADA_SOURCES
     gl/textureCube.cpp 
     gl/vbo.cpp 
     gl/vertexLayout.cpp 
-    scene/camera.cpp 
-    scene/light.cpp 
-    scene/node.cpp 
     tools/fs.cpp 
     tools/list.cpp
     tools/pixels.cpp 
@@ -172,5 +168,4 @@ target_link_libraries(ada PUBLIC
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 install(FILES ${ROOT_HEADER} DESTINATION include/ada)
 install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
-install(FILES ${SCENE_HEADER} DESTINATION include/ada/scene)
 install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
