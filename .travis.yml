@@ -1,14 +1,22 @@
-sudo: required
-language: generic
-git:
-  depth: 1
-services:
-  - docker
+language: cpp
+compiler: clang
+sudo: false
+dist: bionic
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - ninja-build
+      - libglm-dev
+      - cmake 
+      - swig
+      - python3-numpy  
 script:
-  - wget -O- http://travis.debian.net/script.sh | sh -
-branches:
-  except:
-    - "/^debian\\/\\d/"
+  - mkdir build
+  - cd build
+  - cmake .. -GNinja
+  - cmake --build .
 deploy:
   - provider: launchpad
     slug: ~patriciogv/ada/+git/ada
