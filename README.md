@@ -1,4 +1,5 @@
-# ADA
+# ADA [![Build Status](https://travis-ci.org/patriciogonzalezvivo/ada.svg?branch=master)](https://travis-ci.org/patriciogonzalezvivo/ada)
+
 
 The fundation of any visual computational adventure. 
 Ada is an easy cross platform OpenGL ES 2.0 library for creating apps in Windows, MacOS and Linux (with or without X11 support like in RaspberrPi)
