@@ -31,8 +31,6 @@ if (NOT NO_X11 AND NOT FORCE_GBM)
 endif()
 
 if (WIN32)
-    set(glew-cmake_BUILD_SHARED ON CACHE BOOL "")
-    set(glew-cmake_BUILD_SINGLE_CONTEXT ON CACHE BOOL "")
     add_subdirectory(glew)
 endif (WIN32)
 

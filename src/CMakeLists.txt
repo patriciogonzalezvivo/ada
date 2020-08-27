@@ -141,7 +141,7 @@ else()
         )
 
         target_link_libraries(ada PUBLIC 
-            libglew_shared
+            libglew_static
         )
     else()
         target_link_libraries(ada PUBLIC 
