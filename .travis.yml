@@ -8,10 +8,9 @@ addons:
   apt:
     packages:
       - ninja-build
-      - libglm-dev
       - cmake 
-      - swig
-      - python3-numpy  
+      - xorg-dev
+      - libglu1-mesa-dev
 script:
   - mkdir build
   - cd build
