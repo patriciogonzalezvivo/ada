@@ -45,9 +45,9 @@ sudo dnf install git cmake mesa-libGLU-devel glfw-devel libXi-devel
 sudo pacman -S glu
 ```
 
-## Compiling Ada
+## Compiling Ada projects
 
-### For windows managers like Windows, MacOS, Linux wm like Gnome/KDE/etc (all through GLFW) 
+### For windows managers like MacOS, Windows or any Linux X11 enviroment like Gnome/KDE/etc (all through GLFW) 
 
 ```bash
 git clone https://github.com/patriciogonzalezvivo/ada.git
@@ -57,9 +57,10 @@ cd build
 cmake ..
 make
 sudo make install
+example/./hello_world
 ```
 
-### Compiling ADA for no X11 context (GBM by default or BROADCOM drivers on Raspberry PI)
+### For no X11 context (GBM by default or BROADCOM the older VC drivers on Raspberry PI < 4)
 
 ```bash
 git clone https://github.com/patriciogonzalezvivo/ada.git
@@ -69,9 +70,42 @@ cd build
 cmake -DNO_X11=TRUE ..
 make
 sudo make install
+example/./hello_world
 ```
 
 **Note**: Newer RaspberryPi distribution do have BROADCOM drivers but work only on GBM for that use `-DFORCE_GBM=TRUE` instead
+
+### As a emscripten WebAssembly project
+
+1. [Install emscripten](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions) which already includes glfw: 
+```sh
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+git pull
+./emsdk update-tags
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+cd ..
+```
+
+2. Then build the project
+```sh
+git clone https://github.com/patriciogonzalezvivo/ada.git
+cd ada
+mkdir build
+cd build
+cmake .. -DCMAKE_TOOLCHAIN_FILE=$EMSDK/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake
+make
+```
+
+3. Serve the file either using node or python
+```
+npx http-server
+```
+Then open http://localhost:8000/examples/hello_world.html
+
+
 
 ## Building your own app with ADA
 

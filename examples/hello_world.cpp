@@ -1,3 +1,8 @@
+#ifdef __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+// #define GLFW_INCLUDE_ES3
+#endif
+
 #include <iostream>
 #include <string>
 
@@ -79,6 +84,23 @@ void main(void) {
 }
 )";
 
+ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
+ada::Shader shader;
+
+static void generate_frame() {
+    // Update
+        ada::updateGL();
+
+    shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
+    shader.setUniform("u_time", (float)ada::getTime());
+
+    billboard_vbo->render( &shader );
+
+    ada::renderGL();
+    ada::updateViewport();
+}
+
+
 int main(int argc, char **argv) {
     // Initialize openGL context
     ada::initGL(argc, argv);
@@ -86,26 +108,25 @@ int main(int argc, char **argv) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
-    ada::Shader shader;
+    // ada::Vbo* billboard_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
+    // ada::Shader shader;
     shader.load(frag, vert);
     shader.use();
+
+      // Run the loop correctly for the target environmen
+
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(generate_frame, 0, false);
+#else
     
     // Render Loop
     while ( ada::isGL() ) {
-        // Update
-        ada::updateGL();
-
-        shader.setUniform("u_resolution", (float)ada::getWindowWidth(), (float)ada::getWindowHeight() );
-        shader.setUniform("u_time", (float)ada::getTime());
-
-        billboard_vbo->render( &shader );
-
-        ada::renderGL();
-        ada::updateViewport();
+        generate_frame();
     }
 
     ada::closeGL();
+
+#endif
 
     return 1;
 }

@@ -49,6 +49,13 @@ extern void pal_sleep(uint64_t);
     #include <GL/glew.h>
     #include "GLFW/glfw3.h"
     #define APIENTRY __stdcall
+
+#elif defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#define GL_GLEXT_PROTOTYPES
+#define EGL_EGLEXT_PROTOTYPES
+#include <GLFW/glfw3.h>
+
 #else
     // ANY LINUX using GLFW 
     #define GL_GLEXT_PROTOTYPES
