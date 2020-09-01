@@ -101,7 +101,7 @@ make
 
 3. Serve the file either using node or python
 ```
-npx http-server
+python3 -m http.server 
 ```
 Then open http://localhost:8000/examples/hello_world.html
 
