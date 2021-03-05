@@ -32,7 +32,6 @@ set_target_properties(ada PROPERTIES
 
 # WINDOW
 if (NO_X11 OR FORCE_GBM)
-
     message(STATUS "LOADING BROADCOM")
     find_package(BROADCOM)
 
