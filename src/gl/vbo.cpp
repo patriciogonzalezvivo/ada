@@ -3,11 +3,26 @@
 
 namespace ada {
 
-Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) : m_vertexLayout(_vertexLayout), m_glVertexBuffer(0), m_nVertices(0), m_glIndexBuffer(0), m_nIndices(0), m_isUploaded(false) {
-    setDrawMode(_drawMode);
+Vbo::Vbo() : 
+    m_vertexLayout(NULL),
+    m_glVertexBuffer(0),
+    m_nVertices(0),
+    m_glIndexBuffer(0),
+    m_nIndices(0),
+    m_drawType(GL_STATIC_DRAW),
+    m_drawMode(GL_TRIANGLES),
+    m_isUploaded(false) {
 }
 
-Vbo::Vbo() : m_vertexLayout(NULL), m_glVertexBuffer(0), m_nVertices(0), m_glIndexBuffer(0), m_nIndices(0), m_isUploaded(false) {
+Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) : 
+    m_vertexLayout(_vertexLayout), 
+    m_glVertexBuffer(0), 
+    m_nVertices(0), 
+    m_glIndexBuffer(0), 
+    m_nIndices(0), 
+    m_drawType(GL_STATIC_DRAW), 
+    m_isUploaded(false) {
+    setDrawMode(_drawMode);
 }
 
 Vbo::~Vbo() {
@@ -27,6 +42,19 @@ void Vbo::setVertexLayout(VertexLayout* _vertexLayout) {
         delete m_vertexLayout;
     }
     m_vertexLayout = _vertexLayout;
+}
+
+void Vbo::setDrawType(GLenum _drawType) {
+    switch (_drawType) {
+        case GL_STREAM_DRAW:
+        case GL_STATIC_DRAW:
+        case GL_DYNAMIC_DRAW:
+            m_drawType = _drawType;
+            break;
+        default:
+            std::cout << "Invalid draw type for mesh! Defaulting to GL_STATIC_DRAW" << std::endl;
+            m_drawType = GL_STATIC_DRAW;
+    }
 }
 
 void Vbo::setDrawMode(GLenum _drawMode) {
@@ -96,7 +124,7 @@ void Vbo::upload() {
 
         // Buffer vertex data
         glBindBuffer(GL_ARRAY_BUFFER, m_glVertexBuffer);
-        glBufferData(GL_ARRAY_BUFFER, m_vertexData.size(), m_vertexData.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, m_vertexData.size(), m_vertexData.data(), m_drawType);
     }
 
     if (m_nIndices > 0) {
@@ -107,10 +135,12 @@ void Vbo::upload() {
 
         // Buffer element index data
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIndexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(INDEX_TYPE_GL), m_indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(INDEX_TYPE_GL), m_indices.data(), m_drawType);
     }
 
-    m_vertexData.clear();
+    if (m_drawType == GL_STATIC_DRAW)
+        m_vertexData.clear();
+
     m_indices.clear();
 
     m_isUploaded = true;

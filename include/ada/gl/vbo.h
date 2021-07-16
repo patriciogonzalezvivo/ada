@@ -26,6 +26,7 @@ public:
     Vbo(VertexLayout* _vertexlayout, GLenum _drawMode = GL_TRIANGLES);
     virtual ~Vbo();
 
+    void setDrawType(GLenum _drawType = GL_STATIC_DRAW);
     void setDrawMode(GLenum _drawMode = GL_TRIANGLES);  // Set Draw mode for the Vbo object
     void setVertexLayout(VertexLayout* _vertexLayout);  // Set Vertex Layout for the Vbo object
 
@@ -68,7 +69,6 @@ public:
     void printInfo();
 
 private:
-
     VertexLayout* m_vertexLayout;
 
     std::vector<GLbyte> m_vertexData;
@@ -79,6 +79,7 @@ private:
     GLuint  m_glIndexBuffer;
     int     m_nIndices;
 
+    GLenum  m_drawType;
     GLenum  m_drawMode;
 
     bool    m_isUploaded;
