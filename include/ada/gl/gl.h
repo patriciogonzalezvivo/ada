@@ -1,7 +1,10 @@
 #pragma once
 
 // Default for RASPBERRYPI
-#if defined(GL_ES)
+#if defined(PLATFORM_RPI)
+
+#include "bcm_host.h"
+#undef countof
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>

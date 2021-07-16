@@ -45,7 +45,7 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
     else if (_channels == 3) {
         format = GL_RGB;
     }
-#if !defined(GL_ES)
+#if !defined(PLATFORM_RPI)
     else if (_channels == 2) {
         format = GL_RG;
     } 
