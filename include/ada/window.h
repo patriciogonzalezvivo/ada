@@ -1,11 +1,6 @@
 #pragma once
 
-#include <string>
 #include "glm/glm.hpp"
-
-#ifndef REST_SEC
-#define REST_SEC 0.016 // 60fps
-#endif
 
 namespace ada {
 
@@ -18,7 +13,7 @@ enum WindowStyle {
 
 //	GL Context
 //----------------------------------------------
-int initGL(int argc, char **argv);
+int  initGL(glm::ivec4 &_viewport, WindowStyle _style = REGULAR);
 bool isGL();
 void updateGL();
 void renderGL();
@@ -29,6 +24,7 @@ void closeGL();
 void updateViewport();
 void setViewport(float _width, float _height);
 void setWindowSize(int _width, int _height);
+void setFps(int _fps);
 
 //	GET
 //----------------------------------------------
@@ -40,11 +36,11 @@ glm::mat4 getOrthoMatrix();
 int getWindowWidth();
 int getWindowHeight();
 
-
 glm::vec4 getDate();
 double getTime();
 double getDelta();
-double getFPS();
+double getFps();
+float  getRestSec();
 
 float getMouseX();
 float getMouseY();
@@ -64,4 +60,8 @@ void onMouseDrag(float _x, float _y, int _button);
 void onViewportResize(int _width, int _height);
 void onScroll(float _yoffset);
 
+#ifdef PLATFORM_RPI
+EGLDisplay getEGLDisplay();
+EGLContext getEGLContext();
+#endif
 }

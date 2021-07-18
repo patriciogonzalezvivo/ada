@@ -18,7 +18,6 @@
 
 // Common global variables
 //----------------------------------------------------
-static ada::WindowStyle windowStyle = ada::REGULAR;
 static glm::mat4        orthoMatrix;
 typedef struct {
     float     x,y;
@@ -35,8 +34,15 @@ static double           fTime = 0.0f;
 static double           fDelta = 0.0f;
 static double           fFPS = 0.0f;
 static float            fPixelDensity = 1.0;
+static float            fRestSec = 0.0167f; // default 60fps 
 
-extern void pal_sleep(uint64_t);
+void pal_sleep(uint64_t value){
+#if defined(PLATFORM_WINDOWS)
+    std::this_thread::sleep_for(std::chrono::microseconds(value));
+#else
+    usleep(value);
+#endif 
+}
 
 #if defined(DRIVER_GLFW)
 
@@ -66,6 +72,12 @@ namespace ada {
 //----------------------------------------------------
 static bool             left_mouse_button_down = false;
 static GLFWwindow*      window;
+
+#ifdef PLATFORM_RPI
+#include "GLFW/glfw3native.h"
+EGLDisplay getEGLDisplay() { return glfwGetEGLDisplay(); }
+EGLContext getEGLContext() { return glfwGetEGLContext(window); }
+#endif
 
 #else
 
@@ -100,9 +112,17 @@ EGLDisplay display;
 EGLContext context;
 EGLSurface surface;
 
+EGLDisplay getEGLDisplay() { return display; }
+EGLContext getEGLContext() { return context; }
+
 // unsigned long long timeStart;
 static std::string device_mouse = "/dev/input/mice";
-static std::string device_screen = "/dev/dri/card1";
+
+#ifdef DRIVER_CARD0
+std::string device_screen = "/dev/dri/card0";
+#else
+std::string device_screen = "/dev/dri/card1";
+#endif
 
 // get Time Function
 struct timespec time_start;
@@ -297,77 +317,7 @@ static const char *eglGetErrorStr() {
     }
 #endif
 
-int initGL (int argc, char **argv) {
-
-    // Set the size
-    glm::ivec4 desiredViewport = glm::ivec4(0);
-    desiredViewport.z = 500;
-    desiredViewport.w = 500;
-
-    #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-        // RASPBERRYPI default windows size (fullscreen)
-        glm::ivec2 screen = getScreenSize();
-        desiredViewport.z = screen.x;
-        desiredViewport.w = screen.y;
-    #endif
-
-    for (int i = 1; i < argc ; i++) {
-        std::string argument = std::string(argv[i]);
-
-        if (        std::string(argv[i]) == "-x" ) {
-            if (++i < argc)
-                desiredViewport.x = toInt(std::string(argv[i]));
-            else
-                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
-        }
-        else if (   std::string(argv[i]) == "-y" ) {
-            if (++i < argc)
-                desiredViewport.y = toInt(std::string(argv[i]));
-            else
-                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
-        }
-        else if (   std::string(argv[i]) == "-w" ||
-                    std::string(argv[i]) == "--width" ) {
-            if (++i < argc)
-                desiredViewport.z = toInt(std::string(argv[i]));
-            else
-                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
-        }
-        else if (   std::string(argv[i]) == "-h" ||
-                    std::string(argv[i]) == "--height" ) {
-            if (++i < argc)
-                desiredViewport.w = toInt(std::string(argv[i]));
-            else
-                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
-        }
-        else if (   std::string(argv[i]) == "--headless" ) {
-            windowStyle = HEADLESS;
-        }
-        else if (   std::string(argv[i]) == "-f" ||
-                    std::string(argv[i]) == "--fullscreen" ) {
-            windowStyle = FULLSCREEN;
-        }
-        else if (   std::string(argv[i]) == "-l" ||
-                    std::string(argv[i]) == "--live-coding" ){
-            #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-                desiredViewport.x = desiredViewport.z - 500;
-                desiredViewport.z = desiredViewport.w = 500;
-            #else
-                windowStyle = ALLWAYS_ON_TOP;
-            #endif
-        }
-        else if (   std::string(argv[i]) == "--display" ){
-            if (++i < argc) {
-            #if defined(DRIVER_GBM) 
-                    device_screen = std::string(argv[i]);
-            #endif
-            }
-        }
-        else if (   std::string(argv[i]) == "-ss" ||
-                    std::string(argv[i]) == "--screensaver") {
-            windowStyle = FULLSCREEN;
-        }
-    }
+int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
@@ -438,23 +388,23 @@ int initGL (int argc, char **argv) {
             VC_RECT_T src_rect;
 
             //  Initially the viewport is for all the screen
-            dst_rect.x = desiredViewport.x;
-            dst_rect.y = desiredViewport.y;
-            dst_rect.width = desiredViewport.z;
-            dst_rect.height = desiredViewport.w;
+            dst_rect.x = _viewport.x;
+            dst_rect.y = _viewport.y;
+            dst_rect.width = _viewport.z;
+            dst_rect.height = _viewport.w;
 
             src_rect.x = 0;
             src_rect.y = 0;
-            src_rect.width = desiredViewport.z << 16;
-            src_rect.height = desiredViewport.w << 16;
+            src_rect.width = _viewport.z << 16;
+            src_rect.height = _viewport.w << 16;
 
             DISPMANX_ELEMENT_HANDLE_T dispman_element;
             DISPMANX_UPDATE_HANDLE_T dispman_update;
 
-            if (windowStyle == HEADLESS) {
+            if (_style == HEADLESS) {
                 uint32_t dest_image_handle;
                 DISPMANX_RESOURCE_HANDLE_T dispman_resource;
-                dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, desiredViewport.z, desiredViewport.w, &dest_image_handle);
+                dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, _viewport.z, _viewport.w, &dest_image_handle);
                 dispman_display = vc_dispmanx_display_open_offscreen(dispman_resource, DISPMANX_NO_ROTATE);
             } else {
                 dispman_display = vc_dispmanx_display_open(0); // LCD
@@ -467,8 +417,8 @@ int initGL (int argc, char **argv) {
                                                         0 /*alpha*/, 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
             nativeviewport.element = dispman_element;
-            nativeviewport.width = desiredViewport.z;
-            nativeviewport.height = desiredViewport.w;
+            nativeviewport.width = _viewport.z;
+            nativeviewport.height = _viewport.w;
             vc_dispmanx_update_submit_sync( dispman_update );
             check();
 
@@ -503,25 +453,25 @@ int initGL (int argc, char **argv) {
             exit(-1);
         }
 
-        if (windowStyle == HEADLESS)
+        if (_style == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
             
-        else if (windowStyle == ALLWAYS_ON_TOP)
+        else if (_style == ALLWAYS_ON_TOP)
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
-        if (windowStyle == FULLSCREEN) {
+        if (_style == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-            desiredViewport.z = mode->width;
-            desiredViewport.w = mode->height;
+            _viewport.z = mode->width;
+            _viewport.w = mode->height;
             glfwWindowHint(GLFW_RED_BITS, mode->redBits);
             glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-            window = glfwCreateWindow(desiredViewport.z, desiredViewport.w, "", monitor, NULL);
+            window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
         }
         else
-            window = glfwCreateWindow(desiredViewport.z, desiredViewport.w, "", NULL, NULL);
+            window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
 
         if (!window) {
             glfwTerminate();
@@ -637,11 +587,11 @@ int initGL (int argc, char **argv) {
 
         glfwSwapInterval(1);
 
-        if (desiredViewport.x > 0 || desiredViewport.y > 0) {
-            glfwSetWindowPos(window, desiredViewport.x, desiredViewport.y);
+        if (_viewport.x > 0 || _viewport.y > 0) {
+            glfwSetWindowPos(window, _viewport.x, _viewport.y);
         }
     #endif
-    setViewport(desiredViewport.z, desiredViewport.w);
+    setViewport(_viewport.z, _viewport.w);
 
     return 0;
 }
@@ -666,6 +616,12 @@ void updateGL() {
 
     #if defined(DRIVER_GLFW)
         double now = glfwGetTime();
+
+        float diff = now - fTime;
+        if (diff < fRestSec) {
+            pal_sleep(int((fRestSec - diff) * 1000000));
+            now = glfwGetTime();
+        }
     #else 
         // NON GLFW (VC or GBM) 
         double now = getTimeSec();       
@@ -759,7 +715,7 @@ void renderGL(){
     #else
         eglSwapBuffers(display, surface);
         #if defined(DRIVER_GBM)
-            gbmSwapBuffers();
+        gbmSwapBuffers();
         #endif
 
     #endif
@@ -782,12 +738,12 @@ void closeGL(){
         eglReleaseThread();
 
         #if defined(DRIVER_BROADCOM)
-            vc_dispmanx_display_close(dispman_display);
-            bcm_host_deinit();
+        vc_dispmanx_display_close(dispman_display);
+        bcm_host_deinit();
 
         #elif defined(DRIVER_GBM)
-            gbmClean();
-            close(device);
+        gbmClean();
+        close(device);
         #endif
 
     #endif
@@ -908,8 +864,16 @@ double getDelta() {
     return fDelta;
 }
 
-double getFPS() {
+void setFps(int _fps) {
+    fRestSec = 1.0f/(float)_fps;
+}
+
+double getFps() {
     return fFPS;
+}
+
+float  getRestSec() {
+    return fRestSec;
 }
 
 float getMouseX(){
