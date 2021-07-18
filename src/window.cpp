@@ -624,7 +624,13 @@ void updateGL() {
         }
     #else 
         // NON GLFW (VC or GBM) 
-        double now = getTimeSec();       
+        double now = getTimeSec();   
+
+        float diff = now - fTime;
+        if (diff < fRestSec) {
+            pal_sleep(int((fRestSec - diff) * 1000000));
+            now = getTimeSec();
+        }    
     #endif
 
     fDelta = now - fTime;
