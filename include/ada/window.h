@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gl/gl.h"
 #include "glm/glm.hpp"
 
 namespace ada {
