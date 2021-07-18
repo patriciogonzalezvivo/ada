@@ -39,40 +39,24 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     GLenum format = GL_RGBA;
-    if (_channels == 4) {
+    if (_channels == 4)
         format = GL_RGBA;
-    }
-    else if (_channels == 3) {
+    else if (_channels == 3)
         format = GL_RGB;
-    }
-#if defined(PLATFORM_RPI)
-    else if (_channels == 2) {
+    else if (_channels == 2)
         format = GL_LUMINANCE_ALPHA;
-    } 
-    else if (_channels == 1) {
+    else if (_channels == 1)
         format = GL_LUMINANCE;
-    }
-#else
-    else if (_channels == 2) {
-        format = GL_RG;
-    } 
-    else if (_channels == 1) {
-        format = GL_RED;
-    }
-#endif
     else
         std::cout << "Unrecognize GLenum format " << _channels << std::endl;
 
     GLenum type = GL_UNSIGNED_BYTE;
-    if (_bits == 32) {
+    if (_bits == 32)
         type = GL_FLOAT;
-    }
-    else if (_bits == 16) {
+    else if (_bits == 16)
         type = GL_UNSIGNED_SHORT;
-    } 
-    else if (_bits == 8) {
+    else if (_bits == 8)
         type = GL_UNSIGNED_BYTE;
-    }
     else 
         std::cout << "Unrecognize GLenum type for " << _bits << " bits" << std::endl;
 
@@ -109,6 +93,7 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
     }
     else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, type, _data);
+    
 #else
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, type, _data);
 #endif
