@@ -55,7 +55,7 @@ if (NO_X11 OR FORCE_GBM)
             ${BROADCOM_DEFINITIONS}
         )
             
-        include_directories(ada PUBLIC
+        target_include_directories(ada PUBLIC
             ${BROADCOM_INCLUDE_DIRS}
         )
 
@@ -77,9 +77,10 @@ if (NO_X11 OR FORCE_GBM)
 
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM
+            PLATFORM_RPI
         )
 
-        include_directories(ada PUBLIC
+        target_include_directories(ada PUBLIC
             ${DRM_INCLUDE_DIRS}
             ${GBM_INCLUDE_DIRS}
         )
@@ -97,11 +98,11 @@ if (NO_X11 OR FORCE_GBM)
         message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
         message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
     
-        target_compile_definitions(ada PUBLIC 
-            GL_ES
-        )
+        # target_compile_definitions(ada PUBLIC 
+        #     GL_ES
+        # )
     
-        include_directories(ada PUBLIC
+        target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
         )
