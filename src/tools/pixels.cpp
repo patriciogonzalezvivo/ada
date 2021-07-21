@@ -110,4 +110,8 @@ bool savePixelsHDR(const std::string& _path, float* _pixels, int _width, int _he
     return true;
 }
 
+void freePixels(void *pixels) {
+    stbi_image_free(pixels);
+}
+
 }
