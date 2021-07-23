@@ -37,7 +37,7 @@ static float            fPixelDensity = 1.0;
 static float            fRestSec = 0.0167f; // default 60fps 
 
 void pal_sleep(uint64_t value){
-#if defined(PLATFORM_WINDOWS)
+#if defined(_WIN32)
     std::this_thread::sleep_for(std::chrono::microseconds(value));
 #else
     usleep(value);

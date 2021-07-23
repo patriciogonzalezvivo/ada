@@ -11,7 +11,7 @@
 // #define USE_BILINEAR_INTERPOLATION
 #include "ArHosekSkyModel.h"
 
-#ifdef PLATFORM_WINDOWS
+#ifdef _WIN32
 #include <cmath>
 #include <algorithm>
 #endif
