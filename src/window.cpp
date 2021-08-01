@@ -73,6 +73,23 @@ namespace ada {
 static bool             left_mouse_button_down = false;
 static GLFWwindow*      window;
 
+// get Time Function
+struct timespec time_start;
+double getTimeSec() {
+    timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    timespec temp;
+    if ((now.tv_nsec-time_start.tv_nsec)<0) {
+        temp.tv_sec = now.tv_sec-time_start.tv_sec-1;
+        temp.tv_nsec = 1000000000+now.tv_nsec-time_start.tv_nsec;
+    } else {
+        temp.tv_sec = now.tv_sec-time_start.tv_sec;
+        temp.tv_nsec = now.tv_nsec-time_start.tv_nsec;
+    }
+    return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
+}
+
+
 #ifdef PLATFORM_RPI
 #include "GLFW/glfw3native.h"
 EGLDisplay getEGLDisplay() { return glfwGetEGLDisplay(); }
@@ -123,22 +140,6 @@ std::string device_screen = "/dev/dri/card0";
 #else
 std::string device_screen = "/dev/dri/card1";
 #endif
-
-// get Time Function
-struct timespec time_start;
-double getTimeSec() {
-    timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-    timespec temp;
-    if ((now.tv_nsec-time_start.tv_nsec)<0) {
-        temp.tv_sec = now.tv_sec-time_start.tv_sec-1;
-        temp.tv_nsec = 1000000000+now.tv_nsec-time_start.tv_nsec;
-    } else {
-        temp.tv_sec = now.tv_sec-time_start.tv_sec;
-        temp.tv_nsec = now.tv_nsec-time_start.tv_nsec;
-    }
-    return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
-}
 
 // Get the EGL error back as a string. Useful for debugging.
 static const char *eglGetErrorStr() {
@@ -614,27 +615,16 @@ void updateGL() {
     // Update time
     // --------------------------------------------------------------------
 
-    #if defined(DRIVER_GLFW)
-        double now = glfwGetTime();
+    double now = getTimeSec();
 
-        float diff = now - fTime;
-        if (diff < fRestSec) {
-            pal_sleep(int((fRestSec - diff) * 1000000));
-            now = glfwGetTime();
-        }
-    #else 
-        // NON GLFW (VC or GBM) 
-        double now = getTimeSec();   
+    float diff = now - fTime;
+    if (diff < fRestSec) {
+        pal_sleep(int((fRestSec - diff) * 1000000));
+        now = getTimeSec();
+    }    
 
-        float diff = now - fTime;
-        if (diff < fRestSec) {
-            pal_sleep(int((fRestSec - diff) * 1000000));
-            now = getTimeSec();
-        }    
-    #endif
-
-    fDelta = now - fTime;
     fTime = now;
+    fDelta = now - fTime;
 
     static int frame_count = 0;
     static double lastTime = 0.0;

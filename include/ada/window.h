@@ -39,6 +39,7 @@ int getWindowHeight();
 
 glm::vec4 getDate();
 double getTime();
+double getTimeSec();
 double getDelta();
 double getFps();
 float  getRestSec();
