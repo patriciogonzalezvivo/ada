@@ -18,6 +18,7 @@
 
 // Common global variables
 //----------------------------------------------------
+struct timespec         time_start;
 static glm::mat4        orthoMatrix;
 typedef struct {
     float     x,y;
@@ -72,22 +73,6 @@ namespace ada {
 //----------------------------------------------------
 static bool             left_mouse_button_down = false;
 static GLFWwindow*      window;
-
-// get Time Function
-struct timespec time_start;
-double getTimeSec() {
-    timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-    timespec temp;
-    if ((now.tv_nsec-time_start.tv_nsec)<0) {
-        temp.tv_sec = now.tv_sec-time_start.tv_sec-1;
-        temp.tv_nsec = 1000000000+now.tv_nsec-time_start.tv_nsec;
-    } else {
-        temp.tv_sec = now.tv_sec-time_start.tv_sec;
-        temp.tv_nsec = now.tv_nsec-time_start.tv_nsec;
-    }
-    return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
-}
 
 #ifdef PLATFORM_RPI
 #include "GLFW/glfw3native.h"
@@ -594,6 +579,20 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
     setViewport(_viewport.z, _viewport.w);
 
     return 0;
+}
+// get Time Function
+double getTimeSec() {
+    timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    timespec temp;
+    if ((now.tv_nsec-time_start.tv_nsec)<0) {
+        temp.tv_sec = now.tv_sec-time_start.tv_sec-1;
+        temp.tv_nsec = 1000000000+now.tv_nsec-time_start.tv_nsec;
+    } else {
+        temp.tv_sec = now.tv_sec-time_start.tv_sec;
+        temp.tv_nsec = now.tv_nsec-time_start.tv_nsec;
+    }
+    return double(temp.tv_sec) + double(temp.tv_nsec/1000000000.);
 }
 
 bool isGL() {
