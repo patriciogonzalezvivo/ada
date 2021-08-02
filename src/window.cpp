@@ -613,26 +613,26 @@ void updateGL() {
     // Update time
     // --------------------------------------------------------------------
 
-    double now = getTimeSec();
+    // double now = getTimeSec();
 
-    float diff = now - fTime;
-    if (diff < fRestSec) {
-        pal_sleep(int((fRestSec - diff) * 1000000));
-        now = getTimeSec();
-    }    
+    // float diff = now - fTime;
+    // if (diff < fRestSec) {
+    //     pal_sleep(int((fRestSec - diff) * 1000000));
+    //     now = getTimeSec();
+    // }    
 
-    fTime = now;
-    fDelta = now - fTime;
+    // fTime = now;
+    // fDelta = now - fTime;
 
-    static int frame_count = 0;
-    static double lastTime = 0.0;
-    frame_count++;
-    lastTime += fDelta;
-    if (lastTime >= 1.) {
-        fFPS = double(frame_count);
-        frame_count = 0;
-        lastTime -= 1.;
-    }
+    // static int frame_count = 0;
+    // static double lastTime = 0.0;
+    // frame_count++;
+    // lastTime += fDelta;
+    // if (lastTime >= 1.) {
+    //     fFPS = double(frame_count);
+    //     frame_count = 0;
+    //     lastTime -= 1.;
+    // }
 
     // EVENTS
     // --------------------------------------------------------------------
@@ -850,25 +850,25 @@ glm::vec4 getDate() {
     #endif 
 }
 
-double getTime() {
-    return fTime;
-}
+// double getTime() {
+//     return fTime;
+// }
 
-double getDelta() {
-    return fDelta;
-}
+// double getDelta() {
+//     return fDelta;
+// }
 
-void setFps(int _fps) {
-    fRestSec = 1.0f/(float)_fps;
-}
+// void setFps(int _fps) {
+//     fRestSec = 1.0f/(float)_fps;
+// }
 
-double getFps() {
-    return fFPS;
-}
+// double getFps() {
+//     return fFPS;
+// }
 
-float  getRestSec() {
-    return fRestSec;
-}
+// float  getRestSec() {
+//     return fRestSec;
+// }
 
 float getMouseX(){
     return mouse.x;

@@ -38,11 +38,11 @@ int getWindowWidth();
 int getWindowHeight();
 
 glm::vec4 getDate();
-double getTime();
 double getTimeSec();
-double getDelta();
-double getFps();
-float  getRestSec();
+// double getTime();
+// double getDelta();
+// double getFps();
+// float  getRestSec();
 
 float getMouseX();
 float getMouseY();
