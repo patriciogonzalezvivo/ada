@@ -31,11 +31,11 @@ static glm::vec4        mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
 static glm::ivec4       viewport;
 
 struct timeval          tv;
-static double           fTime = 0.0f;
-static double           fDelta = 0.0f;
-static double           fFPS = 0.0f;
+static double           elapseTime = 0.0;
+static double           delta = 0.0;
+static double           FPS = 0.0;
+static double           restSec = 0.0167; // default 60fps 
 static float            fPixelDensity = 1.0;
-static float            fRestSec = 0.0167f; // default 60fps 
 
 void pal_sleep(uint64_t value){
 #if defined(_WIN32)
@@ -303,10 +303,10 @@ static const char *eglGetErrorStr() {
 #endif
 
 int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
+    clock_gettime(CLOCK_MONOTONIC, &time_start);
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
-        clock_gettime(CLOCK_MONOTONIC, &time_start);
 
         // Clear application state
         EGLBoolean result;
@@ -613,26 +613,25 @@ void updateGL() {
     // Update time
     // --------------------------------------------------------------------
 
-    // double now = getTimeSec();
-
-    // float diff = now - fTime;
-    // if (diff < fRestSec) {
-    //     pal_sleep(int((fRestSec - diff) * 1000000));
+    double now = getTimeSec();
+    // float diff = now - elapseTime;
+    // if (diff < restSec) {
+    //     pal_sleep(int((restSec - diff) * 1000000));
     //     now = getTimeSec();
     // }    
 
-    // fTime = now;
-    // fDelta = now - fTime;
+    delta = now - elapseTime;
+    elapseTime = now;
 
-    // static int frame_count = 0;
-    // static double lastTime = 0.0;
-    // frame_count++;
-    // lastTime += fDelta;
-    // if (lastTime >= 1.) {
-    //     fFPS = double(frame_count);
-    //     frame_count = 0;
-    //     lastTime -= 1.;
-    // }
+    static int frame_count = 0;
+    static double lastTime = 0.0;
+    frame_count++;
+    lastTime += delta;
+    if (lastTime >= 1.) {
+        FPS = double(frame_count);
+        frame_count = 0;
+        lastTime -= 1.;
+    }
 
     // EVENTS
     // --------------------------------------------------------------------
@@ -850,25 +849,25 @@ glm::vec4 getDate() {
     #endif 
 }
 
-// double getTime() {
-//     return fTime;
-// }
+double getTime() {
+    return elapseTime;
+}
 
-// double getDelta() {
-//     return fDelta;
-// }
+double getDelta() {
+    return delta;
+}
 
 // void setFps(int _fps) {
-//     fRestSec = 1.0f/(float)_fps;
+//     restSec = 1.0f/(float)_fps;
 // }
 
-// double getFps() {
-//     return fFPS;
-// }
+double getFps() {
+    return FPS;
+}
 
-// float  getRestSec() {
-//     return fRestSec;
-// }
+float  getRestSec() {
+    return restSec;
+}
 
 float getMouseX(){
     return mouse.x;
