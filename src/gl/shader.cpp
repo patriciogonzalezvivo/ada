@@ -11,8 +11,9 @@
 namespace ada {
 
 Shader::Shader():
-    m_program(0), 
-    m_fragmentShader(0),m_vertexShader(0) {
+    m_program(0),
+    m_fragmentShader(0),
+    m_vertexShader(0) {
 
     // Adding default defines
     addDefine("GLSLVIEWER", 160);
@@ -54,6 +55,10 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
         return false;
     }
 
+
+    if (m_program != 0)
+        glDeleteProgram(m_program);
+        
     m_program = glCreateProgram();
 
     glAttachShader(m_program, m_vertexShader);
@@ -151,7 +156,7 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
     bool zeroBasedLineDirective; // true for GLSL core 1.10 to 1.50
     bool srcVersionFound = _src.substr(0, 8) == "#version"; // true if user provided a #version directive at the beginning of _src
 
-    if(srcVersionFound) {
+    if (srcVersionFound) {
 
         //
         // split _src into srcVersion and srcBody
@@ -202,10 +207,6 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
         // no #version directive found at the beginning of _src, which means...
         srcBody = _src; // ... _src contains the whole shader body and ...
         zeroBasedLineDirective = true; // ... glsl defaults to version 1.10, which starts numbering #line directives from 0.
-    }
-
-    for(DefinesList_it it = m_defines.begin(); it != m_defines.end(); it++) {
-        prolog += "#define " + it->first + " " + it->second + '\n';
     }
 
     //

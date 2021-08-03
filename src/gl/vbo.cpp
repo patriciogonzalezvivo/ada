@@ -26,15 +26,14 @@ Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) :
 }
 
 Vbo::~Vbo() {
-    glDeleteBuffers(1, &m_glVertexBuffer);
-    glDeleteBuffers(1, &m_glIndexBuffer);
-
     m_vertexData.clear();
     m_indices.clear();
 
-    if (m_vertexLayout != NULL){
+    if (m_vertexLayout != NULL)
         delete m_vertexLayout;
-    }
+
+    glDeleteBuffers(1, &m_glVertexBuffer);
+    glDeleteBuffers(1, &m_glIndexBuffer);
 }
 
 void Vbo::setVertexLayout(VertexLayout* _vertexLayout) {
