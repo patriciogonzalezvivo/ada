@@ -43,7 +43,7 @@ std::string purifyString(const std::string& _string) {
 }
 
 bool isDigit(const std::string& _string) {
-  return _string.find_first_not_of( "0123456789" ) == std::string::npos;
+  return _string.find_first_not_of( "-0123456789." ) == std::string::npos;
 }
 
 bool isFloat(const std::string& _string) {
