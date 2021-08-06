@@ -102,8 +102,79 @@ static void generate_frame() {
 
 
 int main(int argc, char **argv) {
+    // Set the size and type of window
+    ada::WindowStyle window_style = ada::REGULAR;
+    glm::ivec4 window_viewport = glm::ivec4(0);
+    window_viewport.z = 1080/2;
+    window_viewport.w = 1920/2;
+
+    #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
+    // RASPBERRYPI default windows size (fullscreen)
+    glm::ivec2 screen = ada::getScreenSize();
+    window_viewport.z = screen.x;
+    window_viewport.w = screen.y;
+    #endif
+
+    for (int i = 1; i < argc ; i++) {
+        std::string argument = std::string(argv[i]);
+
+        if (        std::string(argv[i]) == "-x" ) {
+            if (++i < argc)
+                window_viewport.x = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-y" ) {
+            if (++i < argc)
+                window_viewport.y = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-w" ||
+                    std::string(argv[i]) == "--width" ) {
+            if (++i < argc)
+                window_viewport.z = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "-h" ||
+                    std::string(argv[i]) == "--height" ) {
+            if (++i < argc)
+                window_viewport.w = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "--headless" ) {
+            window_style = ada::HEADLESS;
+        }
+        else if (   std::string(argv[i]) == "-f" ||
+                    std::string(argv[i]) == "--fullscreen" ) {
+            window_style = ada::FULLSCREEN;
+        }
+        else if (   std::string(argv[i]) == "-t" ||
+                    std::string(argv[i]) == "--top" ){
+            #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
+                window_viewport.x = window_viewport.z - 512;
+                window_viewport.z = window_viewport.w = 512;
+            #else
+                window_style = ada::ALLWAYS_ON_TOP;
+            #endif
+        }
+        else if (   std::string(argv[i]) == "--display" ){
+            if (++i < argc) {
+            #if defined(DRIVER_GBM) 
+                    device_screen = std::string(argv[i]);
+            #endif
+            }
+        }
+        else if (   std::string(argv[i]) == "-ss" ||
+                    std::string(argv[i]) == "--screensaver") {
+            window_style = ada::FULLSCREEN;
+        }
+    }
+
     // Initialize openGL context
-    ada::initGL(argc, argv);
+    ada::initGL(window_viewport, window_style);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
