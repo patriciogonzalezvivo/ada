@@ -10,6 +10,7 @@
 #include "ada/gl/gl.h"
 #include "ada/gl/mesh.h"
 #include "ada/gl/shader.h"
+#include "ada/tools/text.h"
 
 ada::Mesh rect (float _x, float _y, float _w, float _h) {
     float x = _x-1.0f;
@@ -105,8 +106,8 @@ int main(int argc, char **argv) {
     // Set the size and type of window
     ada::WindowStyle window_style = ada::REGULAR;
     glm::ivec4 window_viewport = glm::ivec4(0);
-    window_viewport.z = 1080/2;
-    window_viewport.w = 1920/2;
+    window_viewport.z = 512;
+    window_viewport.w = 512;
 
     #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
     // RASPBERRYPI default windows size (fullscreen)
