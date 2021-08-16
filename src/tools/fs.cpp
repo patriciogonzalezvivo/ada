@@ -149,7 +149,7 @@ bool loadFromPath(const std::string &_path, std::string *_into, const std::vecto
 
 std::vector<std::string> glob(const std::string& _pattern) {
     std::vector<std::string> files;
-#ifdef _WIN32
+#if defined(_WIN32)
     int err = 0;
     WIN32_FIND_DATAA finddata;
     HANDLE hfindfile = FindFirstFileA(_pattern.c_str(), &finddata);
@@ -160,7 +160,8 @@ std::vector<std::string> glob(const std::string& _pattern) {
         } while (FindNextFileA(hfindfile, &finddata));
         FindClose(hfindfile);
     }
-
+#elif defined(__EMSCRIPTEN__)
+    std::cout << "GLOB NOT SUPPORTED ON EMSCRIPTEN YET" << std::endl;
 #else
     glob_t glob_result;
     glob(_pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
