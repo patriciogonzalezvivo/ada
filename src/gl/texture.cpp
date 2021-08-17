@@ -21,8 +21,11 @@ void Texture::clear() {
 }
 
 bool Texture::load(const std::string& _path, bool _vFlip) {
+    if (!ada::urlExists(_path))
+        return false;
     
     std::string ext = getExt(_path);
+    bool loaded = false;
 
     // BMP non-1bpp, non-RLE
     // GIF (*comp always reports as 4-channel)
@@ -33,7 +36,7 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
         ext == "jpeg"   || ext == "JPEG" ) {
 
         unsigned char* pixels = loadPixels(_path, &m_width, &m_height, RGB_ALPHA, _vFlip);
-        load(m_width, m_height, 4, 8, pixels);
+        loaded = load(m_width, m_height, 4, 8, pixels);
         freePixels(pixels);
     }
 
@@ -50,7 +53,7 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
         freePixels(pixels);
 #else
         uint16_t* pixels = loadPixels16(_path, &m_width, &m_height, RGB_ALPHA, _vFlip);
-        load(m_width, m_height, 4, 16, pixels);
+        loaded = load(m_width, m_height, 4, 16, pixels);
         freePixels(pixels);
 #endif
     }
@@ -58,54 +61,40 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
     // HDR (radiance rgbE format)
     else if (ext == "hdr" || ext == "HDR") {
         float* pixels = loadPixelsHDR(_path, &m_width, &m_height, _vFlip);
-        load(m_width, m_height, 3, 32, pixels);
+        loaded = load(m_width, m_height, 3, 32, pixels);
         freePixels(pixels);
     }
 
-    m_path = _path;
+    if (loaded)
+        m_path = _path;
 
-    return true;
+    return loaded;
 }
 
 
 bool Texture::load(int _width, int _height, int _channels, int _bits, const void* _data, TextureFilter _filter, TextureWrap _wrap) {
 
     GLenum format = GL_RGBA;
-    if (_channels == 4) {
-        format = GL_RGBA;
-    }
-    else if (_channels == 3) {
-        format = GL_RGB;
-    }
+    if (_channels == 4)         format = GL_RGBA;
+    else if (_channels == 3)    format = GL_RGB;
 #if !defined(PLATFORM_RPI)
-    else if (_channels == 2) {
-        format = GL_RG;
-    } 
-    else if (_channels == 1) {
-        format = GL_RED;
-    }
+    else if (_channels == 2)    format = GL_RG;
+    else if (_channels == 1)    format = GL_RED;
 #endif
     else
         std::cout << "Unrecognize GLenum format " << _channels << std::endl;
 
     GLenum type = GL_UNSIGNED_BYTE;
-    if (_bits == 32) {
-        type = GL_FLOAT;
-    }
-    else if (_bits == 16) {
-        type = GL_UNSIGNED_SHORT;
-    } 
-    else if (_bits == 8) {
-        type = GL_UNSIGNED_BYTE;
-    }
+    if (_bits == 32)        type = GL_FLOAT;
+    else if (_bits == 16)   type = GL_UNSIGNED_SHORT;
+    else if (_bits == 8)    type = GL_UNSIGNED_BYTE;
     else 
         std::cout << "Unrecognize GLenum type for " << _bits << " bits" << std::endl;
 
     if (_width == m_width && _height == m_height &&
         _filter == m_filter && _wrap == m_wrap &&
-        format == m_format && type == m_type) {
+        format == m_format && type == m_type)
         return update(0,0,_width,_height, _data);
-    }
 
     m_width = _width;
     m_height = _height;
