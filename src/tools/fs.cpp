@@ -1,4 +1,6 @@
 #include "ada/tools/fs.h"
+#include "ada/tools/text.h"
+
 
 #include <iostream>     // cout
 #include <fstream>      // File
@@ -6,15 +8,16 @@
 #include <algorithm>    // std::unique
 #include <sys/stat.h>
 
-#ifdef _WIN32
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
-#else
-#include <glob.h>
-#endif
+// #ifdef _WIN32
+// #include <stdlib.h>
+// #include <stdio.h>
+// #include <errno.h>
+// #define WIN32_LEAN_AND_MEAN 1
+// #include <windows.h>
+// #else
+// #include <glob.h>
+// #endif
+#include "glob.h"
 
 namespace ada {
 
@@ -160,15 +163,27 @@ std::vector<std::string> glob(const std::string& _pattern) {
         } while (FindNextFileA(hfindfile, &finddata));
         FindClose(hfindfile);
     }
-#elif defined(__EMSCRIPTEN__)
-    std::cout << "GLOB NOT SUPPORTED ON EMSCRIPTEN YET" << std::endl;
 #else
-    glob_t glob_result;
-    glob(_pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-    for (unsigned int i = 0; i < glob_result.gl_pathc; ++i) {
-        files.push_back(std::string(glob_result.gl_pathv[i]));
+    // glob_t glob_result;
+    // glob(_pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
+    // for (unsigned int i = 0; i < glob_result.gl_pathc; ++i) {
+    //     files.push_back(std::string(glob_result.gl_pathv[i]));
+    // }
+    // globfree(&glob_result);
+
+    std::vector<std::string> folders = split(_pattern, '/', true);
+    std::string folder = "";
+
+    for (size_t i = 0; i < folders.size() - 1; i++)
+        folder += folders[i] + "/";
+
+    glob::glob glob(_pattern.c_str());
+    while (glob) {
+        std::cout << folder << glob.current_match() << std::endl;
+        files.push_back( folder + glob.current_match() );
+        glob.next();
     }
-    globfree(&glob_result);
+
 #endif
     return files;
 }

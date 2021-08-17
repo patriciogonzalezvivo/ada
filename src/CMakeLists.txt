@@ -157,11 +157,12 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/glm"
     "${PROJECT_SOURCE_DIR}/deps/stb"
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
+    "${PROJECT_SOURCE_DIR}/deps/glob"
 )
 
 ## SKYMODLE
 target_link_libraries(ada PUBLIC 
-    skymodel
+    skymodel glob
 )
 
 # IDEs should put the headers in a nice place

@@ -37,3 +37,6 @@ endif (WIN32)
 
 ## SkyModel
 add_subdirectory(skymodel)
+
+## Glob
+add_subdirectory(glob)

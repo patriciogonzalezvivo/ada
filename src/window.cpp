@@ -464,7 +464,9 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             exit(-1);
         }
 
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        #ifndef __EMSCRIPTEN__
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        #endif
 
         glfwMakeContextCurrent(window);
         #ifdef _WIN32
