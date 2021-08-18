@@ -59,6 +59,7 @@ void pal_sleep(uint64_t value){
 
 #elif defined(__EMSCRIPTEN__)
 #include <emscripten.h>
+#include <emscripten/html5.h>
 #define GL_GLEXT_PROTOTYPES
 #define EGL_EGLEXT_PROTOTYPES
 #include <GLFW/glfw3.h>
@@ -566,11 +567,13 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             }
         });
 
+#ifndef __EMSCRIPTEN__
         glfwSetWindowPosCallback(window, [](GLFWwindow* _window, int x, int y) {
             if (fPixelDensity != getPixelDensity()) {
-                updateViewport();
+                ada::updateViewport();
             }
         });
+#endif
 
         glfwSwapInterval(1);
 
@@ -639,7 +642,17 @@ void updateGL() {
     // --------------------------------------------------------------------
     #if defined(DRIVER_GLFW)
         glfwPollEvents();
-        
+
+        #ifdef __EMSCRIPTEN__
+        double width,  height;
+        emscripten_get_element_css_size("canvas", &width, &height);
+
+        if (width != (double)viewport.z  || height != (double)viewport.w) {
+            // setViewport(width, height);
+            setWindowSize(width, height);
+        }
+        #endif
+            
     #else
         const int XSIGN = 1<<4, YSIGN = 1<<5;
         static int fd = -1;
