@@ -179,7 +179,6 @@ std::vector<std::string> glob(const std::string& _pattern) {
 
     glob::glob glob(_pattern.c_str());
     while (glob) {
-        std::cout << folder << glob.current_match() << std::endl;
         files.push_back( folder + glob.current_match() );
         glob.next();
     }
