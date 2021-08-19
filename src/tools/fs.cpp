@@ -8,16 +8,16 @@
 #include <algorithm>    // std::unique
 #include <sys/stat.h>
 
-// #ifdef _WIN32
-// #include <stdlib.h>
-// #include <stdio.h>
-// #include <errno.h>
-// #define WIN32_LEAN_AND_MEAN 1
-// #include <windows.h>
-// #else
-// #include <glob.h>
-// #endif
+#ifdef _WIN32
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+#else
 #include "glob.h"
+#endif
+
 
 namespace ada {
 
@@ -152,6 +152,7 @@ bool loadFromPath(const std::string &_path, std::string *_into, const std::vecto
 
 std::vector<std::string> glob(const std::string& _pattern) {
     std::vector<std::string> files;
+
 #if defined(_WIN32)
     int err = 0;
     WIN32_FIND_DATAA finddata;
@@ -163,14 +164,8 @@ std::vector<std::string> glob(const std::string& _pattern) {
         } while (FindNextFileA(hfindfile, &finddata));
         FindClose(hfindfile);
     }
-#else
-    // glob_t glob_result;
-    // glob(_pattern.c_str(), GLOB_TILDE, NULL, &glob_result);
-    // for (unsigned int i = 0; i < glob_result.gl_pathc; ++i) {
-    //     files.push_back(std::string(glob_result.gl_pathv[i]));
-    // }
-    // globfree(&glob_result);
 
+#else
     std::vector<std::string> folders = split(_pattern, '/', true);
     std::string folder = "";
 

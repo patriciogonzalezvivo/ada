@@ -99,8 +99,7 @@ public:
 };
 
 glob::glob(const std::string &pattern):
-    impl_(std::make_unique<glob_impl>())
-{
+    impl_(std::make_unique<glob_impl>()) {
     open(pattern);
 }
 

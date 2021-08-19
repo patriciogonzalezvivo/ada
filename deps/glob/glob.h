@@ -8,8 +8,7 @@ namespace glob {
 
 class glob_impl;
 
-class glob final
-{
+class glob final {
 public:
     glob(const std::string &pattern);
     ~glob();
