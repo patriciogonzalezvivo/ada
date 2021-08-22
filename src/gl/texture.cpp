@@ -20,7 +20,7 @@ void Texture::clear() {
     m_id = 0;
 }
 
-bool Texture::load(const std::string& _path, bool _vFlip) {
+bool Texture::load(const std::string& _path, bool _vFlip, TextureFilter _filter, TextureWrap _wrap) {
     if (!ada::urlExists(_path))
         return false;
     
@@ -36,7 +36,7 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
         ext == "jpeg"   || ext == "JPEG" ) {
 
         unsigned char* pixels = loadPixels(_path, &m_width, &m_height, RGB_ALPHA, _vFlip);
-        loaded = load(m_width, m_height, 4, 8, pixels);
+        loaded = load(m_width, m_height, 4, 8, pixels, _filter, _wrap);
         freePixels(pixels);
     }
 
@@ -46,14 +46,14 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
     else if (   ext == "png" || ext == "PNG" ||
                 ext == "psd" || ext == "PSD" ||
                 ext == "tga" || ext == "TGA") {
-#ifdef PLATFORM_RPI
+#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
         // If we are in a Raspberry Pi don't take the risk of loading a 16bit image
         unsigned char* pixels = loadPixels(_path, &m_width, &m_height, RGB_ALPHA, _vFlip);
-        load(m_width, m_height, 4, 8, pixels);
+        load(m_width, m_height, 4, 8, pixels, _filter, _wrap);
         freePixels(pixels);
 #else
         uint16_t* pixels = loadPixels16(_path, &m_width, &m_height, RGB_ALPHA, _vFlip);
-        loaded = load(m_width, m_height, 4, 16, pixels);
+        loaded = load(m_width, m_height, 4, 16, pixels, _filter, _wrap);
         freePixels(pixels);
 #endif
     }
@@ -61,7 +61,7 @@ bool Texture::load(const std::string& _path, bool _vFlip) {
     // HDR (radiance rgbE format)
     else if (ext == "hdr" || ext == "HDR") {
         float* pixels = loadPixelsHDR(_path, &m_width, &m_height, _vFlip);
-        loaded = load(m_width, m_height, 3, 32, pixels);
+        loaded = load(m_width, m_height, 3, 32, pixels, _filter, _wrap);
         freePixels(pixels);
     }
 
@@ -115,7 +115,7 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(m_wrap));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(m_wrap));
     
-#ifdef PLATFORM_RPI
+#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
     int max_size = std::max(m_width, m_height);
     if ( max_size > 1024) {
         float factor = max_size/1024.0;

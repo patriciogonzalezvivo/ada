@@ -25,6 +25,8 @@ Shader::Shader():
     addDefine("PLATFORM_WIN");
     #elif defined(PLATFORM_RPI)
     addDefine("PLATFORM_RPI");
+    #elif defined(__EMSCRIPTEN__)
+    addDefine("PLATFORM_EMSCRIPTEN");
     #else
     addDefine("PLATFORM_LINUX");
     #endif
