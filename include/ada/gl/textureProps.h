@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string>
 #include "gl.h"
 
 namespace ada {
@@ -19,9 +20,11 @@ enum TextureWrap {
     // MIRROR
 };
 
-GLenum getFilter( TextureFilter _filter );
-GLenum getMagnificationFilter( TextureFilter _filter );
-GLenum getMinificationFilter( TextureFilter _filter );
-GLenum getWrap( TextureWrap _wrap );
+GLenum  getFilter( TextureFilter _filter );
+GLenum  getMagnificationFilter( TextureFilter _filter );
+GLenum  getMinificationFilter( TextureFilter _filter );
+GLenum  getWrap( TextureWrap _wrap );
+
+bool    screenshot(const std::string& _filename );
 
 }

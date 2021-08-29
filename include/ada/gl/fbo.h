@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gl.h"
-#include "props.h"
+#include "textureProps.h"
 
 namespace ada {
 

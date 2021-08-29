@@ -1,4 +1,6 @@
-#include "ada/gl/props.h"
+#include "ada/window.h"
+#include "ada/tools/pixels.h"
+#include "ada/gl/textureProps.h"
 
 namespace ada {
 
@@ -30,6 +32,14 @@ GLenum getMinificationFilter( TextureFilter _filter )  {
 GLenum getWrap( TextureWrap _wrap ) {
     static GLenum wraps[3] = {GL_REPEAT, GL_CLAMP_TO_EDGE, GL_MIRRORED_REPEAT };
     return wraps[_wrap];
+}
+
+bool screenshot( const std::string& _filename ) {
+    int width = getWindowWidth();
+    int height = getWindowHeight();
+    unsigned char* pixels = new unsigned char[width*height*4];
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    return savePixels(_filename, pixels, width, height);
 }
 
 }
