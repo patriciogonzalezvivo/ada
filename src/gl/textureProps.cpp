@@ -34,6 +34,8 @@ GLenum getWrap( TextureWrap _wrap ) {
     return wraps[_wrap];
 }
 
+
+#ifndef __EMSCRIPTEN__
 bool screenshot( const std::string& _filename ) {
     int width = getWindowWidth();
     int height = getWindowHeight();
@@ -41,5 +43,6 @@ bool screenshot( const std::string& _filename ) {
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     return savePixels(_filename, pixels, width, height);
 }
+#endif
 
 }

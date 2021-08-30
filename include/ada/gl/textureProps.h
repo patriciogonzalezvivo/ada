@@ -25,6 +25,8 @@ GLenum  getMagnificationFilter( TextureFilter _filter );
 GLenum  getMinificationFilter( TextureFilter _filter );
 GLenum  getWrap( TextureWrap _wrap );
 
+#ifndef __EMSCRIPTEN__
 bool    screenshot(const std::string& _filename );
+#endif
 
 }
