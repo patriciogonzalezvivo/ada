@@ -91,17 +91,13 @@ double toDouble(const std::string& _string) {
 }
 
 bool toBool(const std::string& _string) {
-    static const std::string trueString = "true";
-    static const std::string falseString = "false";
-
     std::string lower = toLower(_string);
 
-    if(lower == trueString) {
+    if (lower == "true")
         return true;
-    }
-    if(lower == falseString) {
+    
+    if (lower == "false")
         return false;
-    }
 
     bool x = false;
     std::istringstream cur(lower);

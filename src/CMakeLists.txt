@@ -142,6 +142,21 @@ else()
         target_link_libraries(ada PUBLIC 
             libglew_static
         )
+
+    elseif (EMSCRIPTEN)
+
+    add_compile_options(-fpermissive -Wno-psabi -lpthread)
+    set(LFLAGS "${LFLAGS} -pthread")
+    set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
+    
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
+    set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
+    target_link_libraries(ada PUBLIC 
+        ${OPENGL_LIBRARIES}
+        ${OPENGL_opengl_LIBRARY}
+        -pthread
+    )
+
     else()
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
