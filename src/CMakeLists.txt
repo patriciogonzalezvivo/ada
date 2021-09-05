@@ -101,10 +101,6 @@ if (NO_X11 OR FORCE_GBM)
         message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
         message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
     
-        # target_compile_definitions(ada PUBLIC 
-        #     GL_ES
-        # )
-    
         target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
@@ -145,17 +141,38 @@ else()
 
     elseif (EMSCRIPTEN)
 
-    add_compile_options(-fpermissive -Wno-psabi -lpthread)
-    set(LFLAGS "${LFLAGS} -pthread")
-    set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
+        add_compile_options(-fpermissive -Wno-psabi -lpthread)
+        set(LFLAGS "${LFLAGS} -pthread")
+        set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
+        
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
+        set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
+        target_link_libraries(ada PUBLIC 
+            ${OPENGL_LIBRARIES}
+            ${OPENGL_opengl_LIBRARY}
+            -pthread
+        )
+
+    elseif (RPI)
+
+        message(STATUS "LOADING EGL GL_ESv2")
+        find_package(EGL)
+        find_package(GLESv2)
+        message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
+        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+        message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
+        message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
     
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
-    set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
-    target_link_libraries(ada PUBLIC 
-        ${OPENGL_LIBRARIES}
-        ${OPENGL_opengl_LIBRARY}
-        -pthread
-    )
+        target_include_directories(ada PUBLIC
+            ${EGL_INCLUDE_DIRS}
+            ${GLESv2_INCLUDE_DIRS}
+        )
+    
+        target_link_libraries(ada PUBLIC
+            ${EGL_LIBRARY}
+            ${GLESv2_LIBRARIES}
+            ${OPENGL_LIBRARIES}
+        )
 
     else()
         target_link_libraries(ada PUBLIC 
