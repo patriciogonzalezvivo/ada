@@ -22,6 +22,8 @@ set(ADA_SOURCES
     tools/list.cpp
     tools/pixels.cpp 
     tools/text.cpp
+    scene/node.cpp
+    scene/camera.cpp
 )
 
 # C++ LIBRAY
