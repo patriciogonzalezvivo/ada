@@ -157,4 +157,7 @@ set_target_properties(myApp PROPERTIES
 target_link_libraries (myApp PRIVATE ada)
 ```
 
+# Acknowledgements
+
+This library is highly inspired on [OpenFramewors](https://github.com/openframeworks/openFrameworks), a dear framework and community very close to my heart. The Mesh, Node and Camera clases are VERY similar. The reason to branch ADA was to minimize the amount of code, dependencies and be hable to add it through CMake.
 
