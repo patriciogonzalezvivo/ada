@@ -470,10 +470,6 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             glewInit();
         #endif
 
-        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
-            setViewport(_w,_h);
-        });
-
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
             onKeyPress(_key);
         });
@@ -563,6 +559,10 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             }
         });
 
+        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
+            setViewport(_w,_h);
+        });
+
 #ifndef __EMSCRIPTEN__
         glfwSetWindowPosCallback(window, [](GLFWwindow* _window, int x, int y) {
             if (fPixelDensity != getPixelDensity()) {
@@ -643,10 +643,9 @@ void updateGL() {
         double width,  height;
         emscripten_get_element_css_size("canvas", &width, &height);
 
-        if (width != (double)viewport.z  || height != (double)viewport.w) {
-            // setViewport(width, height);
+        if (width != (double)viewport.z  || height != (double)viewport.w)
             setWindowSize(width, height);
-        }
+        
         #endif
             
     #else
@@ -771,7 +770,22 @@ void setViewport(float _width, float _height) {
 
 void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW)
-        glfwSetWindowSize(window, _width, _height);
+
+    #ifdef __EMSCRIPTEN__
+    static int wasFullscreen = 0;
+
+    int isInFullscreen = EM_ASM_INT_V(return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement));
+    if (isInFullscreen && !wasFullscreen) {
+        // printf("Successfully transitioned to fullscreen mode!\n");
+        wasFullscreen = isInFullscreen;
+
+        // Set canvas size to full screen, all the pixels
+        EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
+    }
+    #endif
+    
+    glfwSetWindowSize(window, _width, _height);
+
     #endif
     ada::setViewport((float)_width, (float)_height);
 }
