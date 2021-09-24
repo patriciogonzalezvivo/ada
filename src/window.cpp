@@ -643,9 +643,9 @@ void updateGL() {
         double width,  height;
         emscripten_get_element_css_size("canvas", &width, &height);
 
-        if (width != (double)viewport.z  || height != (double)viewport.w)
+        if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w) {
             setWindowSize(width, height);
-        
+        }
         #endif
             
     #else
@@ -752,22 +752,6 @@ void closeGL(){
     #endif
 }
 //-------------------------------------------------------------
-void updateViewport() {
-    fPixelDensity = getPixelDensity();
-    glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
-                (float)viewport.z * fPixelDensity, (float)viewport.w * fPixelDensity);
-    orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, (float)viewport.z * fPixelDensity, 
-                                (float)viewport.y * fPixelDensity, (float)viewport.w * fPixelDensity);
-
-    onViewportResize(getWindowWidth(), getWindowHeight());
-}
-
-void setViewport(float _width, float _height) {
-    viewport.z = _width;
-    viewport.w = _height;
-    ada::updateViewport();
-}
-
 void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW)
 
@@ -787,7 +771,23 @@ void setWindowSize(int _width, int _height) {
     glfwSetWindowSize(window, _width, _height);
 
     #endif
-    ada::setViewport((float)_width, (float)_height);
+    // ada::setViewport((float)_width, (float)_height);
+}
+
+void setViewport(float _width, float _height) {
+    viewport.z = _width;
+    viewport.w = _height;
+    ada::updateViewport();
+}
+
+void updateViewport() {
+    fPixelDensity = getPixelDensity();
+    glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
+                (float)viewport.z * fPixelDensity, (float)viewport.w * fPixelDensity);
+    orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, (float)viewport.z * fPixelDensity, 
+                                (float)viewport.y * fPixelDensity, (float)viewport.w * fPixelDensity);
+
+    onViewportResize(getWindowWidth(), getWindowHeight());
 }
 
 glm::ivec2 getScreenSize() {
