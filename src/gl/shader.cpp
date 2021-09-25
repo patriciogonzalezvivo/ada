@@ -10,6 +10,29 @@
 
 namespace ada {
 
+static const std::string error_vert = R"(
+#ifdef GL_ES
+precision mediump float;
+#endif
+uniform mat4    u_modelViewProjectionMatrix;
+attribute vec4  a_position;
+varying vec4    v_position;
+void main(void) {
+    v_position = a_position;
+    gl_Position = u_modelViewProjectionMatrix * v_position;
+}
+)";
+
+static const std::string error_frag = R"(
+#ifdef GL_ES
+precision mediump float;
+#endif
+void main(void) {
+    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
+}
+)";
+
+
 Shader::Shader():
     m_program(0),
     m_fragmentShader(0),
@@ -38,7 +61,7 @@ Shader::~Shader() {
         glDeleteProgram(m_program);
 }
 
-bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc, bool _verbose) {
+bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc, bool _verbose, bool _error_screen) {
     std::chrono::time_point<std::chrono::steady_clock> start_time, end_time;
     start_time = std::chrono::steady_clock::now();
     m_defineChange = false;
@@ -46,17 +69,22 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
     m_vertexShader = compileShader(_vertexSrc, GL_VERTEX_SHADER, _verbose);
 
     if (!m_vertexShader) {
-        // load(error_frag, error_vert, false);
+        if (_error_screen)
+            load(error_frag, error_vert, false);
+        else
+            load(m_fragmentSource, m_vertexSource, false);
+
         return false;
     }
 
     m_fragmentShader = compileShader(_fragmentSrc, GL_FRAGMENT_SHADER, _verbose);
 
     if (!m_fragmentShader) {
-        // load(error_frag, error_vert, false);
-        return false;
+        if (_error_screen)
+            load(error_frag, error_vert, false);
+        else
+            load(m_fragmentSource, m_vertexSource, false);
     }
-
 
     if (m_program != 0)
         glDeleteProgram(m_program);

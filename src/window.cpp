@@ -3,6 +3,7 @@
 #include <time.h>
 #include <string>
 #include <iostream>
+#include <cstring>
 
 #ifdef _WIN32
     #define NOMINMAX
@@ -21,6 +22,7 @@
 struct timespec         time_start;
 static glm::mat4        orthoMatrix;
 typedef struct {
+    bool      entered;
     float     x,y;
     int       button;
     float     velX,velY;
@@ -456,6 +458,39 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
         }
+        else if (_style == HOLOPLAY) {
+            glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+            glfwWindowHint(GLFW_DECORATED, false);
+
+            int count;
+            GLFWmonitor **monitors = glfwGetMonitors(&count);
+            int monitorID = 1;
+
+            if(count > 2){ //if we have more than 2 screens, try and find the looking glass screen ID 
+                monitorID = -1;
+                for (int i = 0; i < count; i++){
+                    const char* name = glfwGetMonitorName(monitors[i]);
+                    if(name && strlen(name) >= 3){ // if monitor name is > than 3 chars
+                        if(name[0] == 'L' && name[1] == 'K' && name[2] == 'G'){ // found a match for the looking glass screen
+                            monitorID = i;
+                        }
+                    }
+                }
+                if(monitorID == -1){ //could not find the looking glass screen
+                    monitorID = 1;
+                }
+            }
+
+            const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitorID]);
+            _viewport.z = mode->width;
+            _viewport.w = mode->height;
+
+            int xpos, ypos;
+            glfwGetMonitorPos(monitors[monitorID], &xpos, &ypos);
+            window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
+            
+            glfwSetWindowPos(window, xpos, ypos);
+        }
         else
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
 
@@ -498,6 +533,11 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
 
         glfwSetScrollCallback(window, [](GLFWwindow* _window, double xoffset, double yoffset) {
             onScroll(-yoffset * fPixelDensity);
+        });
+
+        // callback when the mouse cursor enters/leaves
+        glfwSetCursorEnterCallback(window, [](GLFWwindow* _window, int entered) {
+            mouse.entered = (bool)entered;
         });
 
         // callback when the mouse cursor moves
@@ -615,11 +655,11 @@ void updateGL() {
     // --------------------------------------------------------------------
 
     double now = getTimeSec();
-    // float diff = now - elapseTime;
-    // if (diff < restSec) {
-    //     pal_sleep(int((restSec - diff) * 1000000));
-    //     now = getTimeSec();
-    // }    
+    float diff = now - elapseTime;
+    if (diff < restSec) {
+        pal_sleep(int((restSec - diff) * 1000000));
+        now = getTimeSec();
+    }    
 
     delta = now - elapseTime;
     elapseTime = now;
@@ -830,21 +870,10 @@ float getPixelDensity() {
     #endif
 }
 
-glm::ivec4 getViewport() {
-    return viewport;
-}
-
-int getWindowWidth() {
-    return viewport.z * fPixelDensity;
-}
-
-int getWindowHeight() {
-    return viewport.w * fPixelDensity;
-}
-
-glm::mat4 getOrthoMatrix() {
-    return orthoMatrix;
-}
+glm::ivec4  getViewport() { return viewport; }
+int         getWindowWidth() { return viewport.z * fPixelDensity; }
+int         getWindowHeight() { return viewport.w * fPixelDensity; }
+glm::mat4   getOrthoMatrix() { return orthoMatrix; }
 
 glm::vec4 getDate() {
     #ifdef _MSC_VER
@@ -874,56 +903,39 @@ glm::vec4 getDate() {
     #endif 
 }
 
-double getTime() {
-    return elapseTime;
+double  getTime() { return elapseTime;}
+double  getDelta() { return delta; }
+
+void    setFps(int _fps) { restSec = 1.0f/(float)_fps; }
+double  getFps() { return FPS; }
+
+float   getRestSec() { return restSec; }
+int     getRestMs() { return restSec * 1000; }
+int     getRestUs() { return restSec * 1000000; }
+
+void        setMousePosition( float _x, float _y ) {
+    mouse.x = _x;
+    mouse.y = _y;
+    mouse.velX = 0.0f;
+    mouse.velY = 0.0f;
+    mouse.drag.x = _x;
+    mouse.drag.y = _y;
+    #if defined(DRIVER_GLFW)
+    float y = glm::clamp(_y, 0.0f, (float)getWindowHeight());
+    glfwSetCursorPos(window, _x, getWindowHeight() - y);
+    #endif
 }
 
-double getDelta() {
-    return delta;
-}
+void        setMousePosition( glm::vec2 _pos ) { setMousePosition(_pos.x, _pos.y); }
 
-// void setFps(int _fps) {
-//     restSec = 1.0f/(float)_fps;
-// }
-
-double getFps() {
-    return FPS;
-}
-
-float  getRestSec() {
-    return restSec;
-}
-
-float getMouseX(){
-    return mouse.x;
-}
-
-float getMouseY(){
-    return mouse.y;
-}
-
-glm::vec2 getMousePosition() {
-    return glm::vec2(mouse.x,mouse.y);
-}
-
-float getMouseVelX(){
-    return mouse.velX;
-}
-
-float getMouseVelY(){
-    return mouse.velY;
-}
-
-glm::vec2 getMouseVelocity() {
-    return glm::vec2(mouse.velX,mouse.velY);
-}
-
-int getMouseButton(){
-    return mouse.button;
-}
-
-glm::vec4 getMouse4() {
-    return mouse4;
-}
+float       getMouseX(){ return mouse.x; }
+float       getMouseY(){ return mouse.y; }
+glm::vec2   getMousePosition() { return glm::vec2(mouse.x,mouse.y); }
+float       getMouseVelX(){ return mouse.velX; }
+float       getMouseVelY(){ return mouse.velY;}
+glm::vec2   getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
+int         getMouseButton(){ return mouse.button;}
+glm::vec4   getMouse4() {return mouse4;}
+bool        getMouseEntered() { return mouse.entered; }
 
 }
