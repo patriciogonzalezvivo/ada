@@ -10,11 +10,11 @@
     #include <windows.h>
 #else
     #include <sys/time.h>
-    #include <unistd.h>
 #endif 
 
 #include "ada/tools/fs.h"
 #include "ada/tools/text.h"
+#include "ada/tools/time.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 // Common global variables
@@ -38,14 +38,6 @@ static double           delta = 0.0;
 static double           FPS = 0.0;
 static double           restSec = 0.0167; // default 60fps 
 static float            fPixelDensity = 1.0;
-
-void pal_sleep(uint64_t value){
-#if defined(_WIN32)
-    std::this_thread::sleep_for(std::chrono::microseconds(value));
-#else
-    usleep(value);
-#endif 
-}
 
 #if defined(DRIVER_GLFW)
 
@@ -657,7 +649,7 @@ void updateGL() {
     double now = getTimeSec();
     float diff = now - elapseTime;
     if (diff < restSec) {
-        pal_sleep(int((restSec - diff) * 1000000));
+        sleep_ms(int((restSec - diff) * 1000000));
         now = getTimeSec();
     }    
 

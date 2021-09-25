@@ -42,6 +42,10 @@ std::string purifyString(const std::string& _string) {
     return std;
 }
 
+bool isInt(const std::string& _string) {
+  return _string.find_first_not_of( "0123456789-" ) == std::string::npos;
+}
+
 bool isDigit(const std::string& _string) {
   return _string.find_first_not_of( "0123456789" ) == std::string::npos;
 }
@@ -227,6 +231,29 @@ bool find_id(const std::string& program, const char* id) {
     return std::strstr(program.c_str(), id) != 0;
 }
 
+std::string get_version(const std::string& _src, size_t& _versionNumber) {
+    bool srcVersionFound = _src.substr(0, 8) == "#version"; 
+    std::string srcVersion = "";
+
+    if (srcVersionFound) {
+        // split _src into srcVersion and srcBody
+        std::istringstream srcIss(_src);
+
+        // the version line can be read without checking the result of getline(), srcVersionFound == true implies this
+        std::getline(srcIss, srcVersion);
+
+        std::istringstream versionIss(srcVersion);
+        std::string dataRead;
+        versionIss >> dataRead;             // consume the "#version" string which is guaranteed to be there
+        versionIss >> _versionNumber;    // try to read the next token and convert it to a number
+
+    }
+    else
+        _versionNumber = 100;
+
+    return srcVersion;
+}
+
 // Count how many BUFFERS are in the shader
 int count_buffers(const std::string& _source) {
     // Split Source code in lines
@@ -320,9 +347,73 @@ bool check_for_postprocessing(const std::string& _source) {
     return false;
 }
 
+// Count how many CONVOLUTION_PYRAMID_ are in the shader
+int count_convolution_pyramid(const std::string& _source) {
+    // Split Source code in lines
+    std::vector<std::string> lines = split(_source, '\n');
+
+    // Group results in a vector to check for duplicates
+    std::vector<std::string> results;
+
+    // Regext to search for #ifdef BUFFER_[NUMBER], #if defined( BUFFER_[NUMBER] ) and #elif defined( BUFFER_[NUMBER] ) occurences
+    std::regex re(R"((?:^\s*#if|^\s*#elif)(?:\s+)(defined\s*\(\s*CONVOLUTION_PYRAMID_)(\d+)(?:\s*\))|(?:^\s*#ifdef\s+CONVOLUTION_PYRAMID_)(\d+))");
+    std::smatch match;
+
+    // For each line search for
+    for (unsigned int l = 0; l < lines.size(); l++) {
+
+        // if there are matches
+        if (std::regex_search(lines[l], match, re)) {
+            // Depending the case can be in the 2nd or 3rd group
+            std::string number = std::ssub_match(match[2]).str();
+            if (number.size() == 0) {
+                number = std::ssub_match(match[3]).str();
+            }
+
+            // Check if it's already defined
+            bool already = false;
+            for (unsigned int i = 0; i < results.size(); i++) {
+                if (results[i] == number) {
+                    already = true;
+                    break;
+                }
+            }
+
+            // If it's not add it
+            if (!already) {
+                results.push_back(number);
+            }
+        }
+    }
+
+    // return the number of results
+    return results.size();
+}
+
+bool check_for_convolution_pyramid_algorithm(const std::string& _source) {
+    // Split Source code in lines
+    std::vector<std::string> lines = split(_source, '\n');
+
+    std::regex re(R"((?:^\s*#if|^\s*#elif)(?:\s+)(defined\s*\(\s*CONVOLUTION_PYRAMID_ALGORITHM)(?:\s*\))|(?:^\s*#ifdef\s+CONVOLUTION_PYRAMID_ALGORITHM)|(?:^\s*#ifndef\s+CONVOLUTION_PYRAMID_ALGORITHM))");
+    std::smatch match;
+
+    for (unsigned int l = 0; l < lines.size(); l++) {
+        if (std::regex_search(lines[l], match, re)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 std::string getUniformName(const std::string& _str) {
     std::vector<std::string> values = split(_str, '.');
     return "u_" + toLower( toUnderscore( purifyString( values[0] ) ) );
+}
+
+bool check_for_pattern(const std::string& _str) {
+    return  (_str.find('*') != std::string::npos) ||
+            (_str.find('?') != std::string::npos);
 }
 
 }

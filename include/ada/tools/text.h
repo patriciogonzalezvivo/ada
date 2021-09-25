@@ -15,8 +15,13 @@ namespace ada {
 bool find_id(const std::string& program, const char* id);
 bool check_for_floor(const std::string& _source);
 bool check_for_background(const std::string& _source);
+int  count_buffers(const std::string& _source);
+int  count_convolution_pyramid(const std::string& _source);
+bool check_for_convolution_pyramid_algorithm(const std::string& _source);
 bool check_for_postprocessing(const std::string& _source);
-int count_buffers(const std::string& _source);
+bool check_for_pattern(const std::string& _str);
+
+std::string get_version(const std::string& program, size_t& _version);
 
 // Get the line number
 std::string getLineNumber(const std::string& _source, unsigned _lineNumber);
@@ -31,6 +36,7 @@ std::string purifyString(const std::string& _string);
 // If match the first letters of stringA
 bool beginsWith(const std::string& _stringA, const std::string& _stringB);
 
+bool isInt(const std::string& _string);
 bool isDigit(const std::string& _string);
 bool isNumber(const std::string& _string);
 

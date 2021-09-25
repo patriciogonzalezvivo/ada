@@ -3,6 +3,7 @@ set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
 file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
 file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
 file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
+file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
 set(ADA_SOURCES
     window.cpp
@@ -16,14 +17,24 @@ set(ADA_SOURCES
     gl/textureCube.cpp 
     gl/textureProps.cpp 
     gl/textureStreamSequence.cpp
+    gl/textureStreamAV.cpp
+    gl/textureStreamOMX.cpp
+    gl/textureStreamMMAL.cpp
+    gl/textureAudio.cpp
+    gl/convolutionPyramid.cpp
     gl/vbo.cpp 
     gl/vertexLayout.cpp 
     tools/fs.cpp 
     tools/list.cpp
     tools/pixels.cpp 
+    tools/geom.cpp
     tools/text.cpp
+    tools/time.cpp
     scene/node.cpp
+    scene/model.cpp
+    scene/light.cpp
     scene/camera.cpp
+    shaders/defaultShaders.cpp
 )
 
 # C++ LIBRAY
