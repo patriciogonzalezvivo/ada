@@ -806,6 +806,12 @@ void setWindowSize(int _width, int _height) {
     // ada::setViewport((float)_width, (float)_height);
 }
 
+void setWindowTitle( const char* _title) {
+    #if defined(DRIVER_GLFW)
+    glfwSetWindowTitle(window, _title);
+    #endif
+}
+
 void setViewport(float _width, float _height) {
     viewport.z = _width;
     viewport.w = _height;
@@ -867,7 +873,7 @@ int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
 glm::mat4   getOrthoMatrix() { return orthoMatrix; }
 
-glm::vec4 getDate() {
+glm::vec4   getDate() {
     #ifdef _MSC_VER
         time_t tv = time(NULL);
 
