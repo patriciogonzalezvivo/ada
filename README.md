@@ -9,9 +9,16 @@ Ada is an easy cross platform OpenGL ES 2.0 library for creating apps in Windows
 
 ### Ubuntu 
 
-```
+```bash
 sudo apt install git cmake xorg-dev libglu1-mesa-dev
 ```
+
+For video support (using FFMpeg library LIBAV)
+
+```bash
+sudo apt install ffmpeg libavcodec-dev libavcodec-extra libavfilter-dev libavfilter-extra libavdevice-dev libavformat-dev libavutil-dev libswscale-dev libv4l-dev libjpeg-dev libpng-dev libtiff-dev
+```
+
 
 ### RaspberryPi OS (with X11)
 
