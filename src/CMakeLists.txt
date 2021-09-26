@@ -34,6 +34,7 @@ set(ADA_SOURCES
     scene/model.cpp
     scene/light.cpp
     scene/camera.cpp
+    scene/material.cpp
     shaders/defaultShaders.cpp
 )
 
@@ -205,14 +206,12 @@ target_include_directories(ada PUBLIC
     ${INCLUDE_FOLDER}
     "${PROJECT_SOURCE_DIR}/deps/glm"
     "${PROJECT_SOURCE_DIR}/deps/stb"
-    "${PROJECT_SOURCE_DIR}/deps/skymodel"
     "${PROJECT_SOURCE_DIR}/deps/glob"
+    "${PROJECT_SOURCE_DIR}/deps/skymodel"
 )
 
-## SKYMODLE
-target_link_libraries(ada PUBLIC 
-    skymodel glob
-)
+## DEPS
+target_link_libraries(ada PUBLIC stb glob skymodel )
 
 # IDEs should put the headers in a nice place
 # source_group(   TREE ${INCLUDE_FOLDER} 

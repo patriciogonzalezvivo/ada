@@ -427,7 +427,7 @@ bool TextureCube::load(const std::string &_path, bool _vFlip) {
     return true;
 }
 
-#ifdef SKYMODEL
+// #ifdef SKYMODEL
 bool TextureCube::generate(SkyBox* _skybox, int _width ) {
 
     if (m_id != 0) {
@@ -561,7 +561,7 @@ bool TextureCube::generate(SkyBox* _skybox, int _width ) {
 
     return true;
 }
-#endif
+// #endif
 
 void TextureCube::bind() {
     glActiveTexture(GL_TEXTURE0);

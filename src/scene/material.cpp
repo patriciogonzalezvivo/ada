@@ -1,5 +1,4 @@
-#include "material.h"
-
+#include "ada/scene/material.h"
 #include "ada/tools/text.h"
 
 namespace ada {

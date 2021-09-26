@@ -12,6 +12,10 @@ namespace ada {
 #define M_2_SQRTPI 1.12837916709551257390
 #endif
 
+#ifndef M_MIN
+#define M_MIN(_a, _b) ((_a)<(_b)?(_a):(_b))
+#endif
+
 // #ifndef PI
 // #define PI 3.14159265358979323846
 // #endif 
@@ -52,9 +56,7 @@ namespace ada {
 // #define ABS(x) (((x) < 0) ? -(x) : (x))
 // #endif
 
-#ifndef M_MIN
-#define M_MIN(_a, _b) ((_a)<(_b)?(_a):(_b))
-#endif
+
 
 
 static float angleBetween(float thetav, float phiv, float theta, float phi) {
@@ -63,7 +65,7 @@ static float angleBetween(float thetav, float phiv, float theta, float phi) {
 }
 
 
-float clamp ( float value , float min , float max ) {
+inline float clamp ( float value , float min , float max ) {
     if (value < min)
         return min;
     if (value > max)

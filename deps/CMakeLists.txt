@@ -34,8 +34,12 @@ if (WIN32)
     add_subdirectory(glew)
 endif (WIN32)
 
+## stb
+add_subdirectory(stb)
+
 ## Glob
 add_subdirectory(glob)
 
 ## SkyModel
 add_subdirectory(skymodel)
+
