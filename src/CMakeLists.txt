@@ -17,11 +17,11 @@ set(ADA_SOURCES
     gl/textureBump.cpp
     gl/textureCube.cpp 
     gl/textureProps.cpp 
-    gl/textureStreamSequence.cpp
+    gl/textureAudio.cpp
     gl/textureStreamAV.cpp
     gl/textureStreamOMX.cpp
     gl/textureStreamMMAL.cpp
-    gl/textureAudio.cpp
+    gl/textureStreamSequence.cpp
     gl/convolutionPyramid.cpp
     gl/vbo.cpp 
     gl/vertexLayout.cpp 
@@ -53,17 +53,6 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD 11
     CXX_STANDARD_REQUIRED ON
 )
-
-# LIBAV / FFMPEG Support
-# find_package(LIBAV)
-# find_package(SWSCALE)
-# if (LIBAV_FOUND AND SWSCALE_FOUND)
-#     message(STATUS "LIBAV Supported")
-#     target_compile_definitions(ada PUBLIC SUPPORT_FOR_LIBAV )
-#     target_include_directories(ada PUBLIC ${LIBAV_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR} )
-#     target_link_libraries(ada PUBLIC ${LIBAV_LIBRARIES} ${SWSCALE_LIBRARIES} )
-
-# endif()
 
 find_package(FFMPEG)
 if (FFMPEG_FOUND)
