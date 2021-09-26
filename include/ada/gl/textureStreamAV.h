@@ -3,7 +3,6 @@
 
 #include "textureStream.h"
 
-// #define SUPPORT_FOR_LIBAV
 #ifdef SUPPORT_FOR_LIBAV
 
 extern "C" {

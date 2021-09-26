@@ -423,7 +423,9 @@ bool TextureCube::load(const std::string &_path, bool _vFlip) {
     
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
-    m_path = _path;             
+    m_path = _path;
+    m_vFlip = _vFlip;
+    
     return true;
 }
 

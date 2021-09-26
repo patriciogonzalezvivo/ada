@@ -7,7 +7,7 @@
 namespace ada {
 
 // TEXTURE
-Texture::Texture():m_path(""), m_width(0), m_height(0), m_id(0) {
+Texture::Texture():m_path(""), m_width(0), m_height(0), m_id(0), m_vFlip(false) {
 }
 
 Texture::~Texture() {
@@ -65,8 +65,10 @@ bool Texture::load(const std::string& _path, bool _vFlip, TextureFilter _filter,
         freePixels(pixels);
     }
 
-    if (loaded)
+    if (loaded) {
+        m_vFlip = _vFlip;
         m_path = _path;
+    }
 
     return loaded;
 }

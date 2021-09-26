@@ -1,9 +1,10 @@
 set(INCLUDE_FOLDER "${PROJECT_SOURCE_DIR}/include")
+set(SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/src")
 
 file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
 file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
 file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
-file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
+file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
 set(ADA_SOURCES
     window.cpp
@@ -38,6 +39,12 @@ set(ADA_SOURCES
     shaders/defaultShaders.cpp
 )
 
+# file(GLOB ROOT_SOURCES  "${SOURCE_FOLDER}/*.cpp")
+# file(GLOB GL_SOURCES  "${SOURCE_FOLDER}/gl/*.cpp")
+# file(GLOB TOOLS_SOURCES  "${SOURCE_FOLDER}/tools/*.cpp")
+# file(GLOB SHADERS_SOURCES  "${SOURCE_FOLDER}/shaders/*.cpp")
+# set(ADA_SOURCES ${ROOT_SOURCES} ${GL_SOURCES} ${TOOLS_SOURCES} ${SHADERS_SOURCES})
+
 # C++ LIBRAY
 #
 add_library(ada ${ADA_SOURCES})
@@ -47,8 +54,27 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-# WINDOW
+# LIBAV / FFMPEG Support
+# find_package(LIBAV)
+# find_package(SWSCALE)
+# if (LIBAV_FOUND AND SWSCALE_FOUND)
+#     message(STATUS "LIBAV Supported")
+#     target_compile_definitions(ada PUBLIC SUPPORT_FOR_LIBAV )
+#     target_include_directories(ada PUBLIC ${LIBAV_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR} )
+#     target_link_libraries(ada PUBLIC ${LIBAV_LIBRARIES} ${SWSCALE_LIBRARIES} )
+
+# endif()
+
+find_package(FFMPEG)
+if (FFMPEG_FOUND)
+    message(STATUS "LIBAV Supported")
+    target_compile_definitions(ada PUBLIC SUPPORT_FOR_LIBAV )
+    target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
+endif()
+
 if (NO_X11 OR FORCE_GBM)
+
     message(STATUS "LOADING BROADCOM")
     find_package(BROADCOM)
 
@@ -127,7 +153,8 @@ if (NO_X11 OR FORCE_GBM)
     endif()
 
 else()
-    
+    message(STATUS "LOADING GLFW")
+
     target_compile_definitions(ada PUBLIC 
         DRIVER_GLFW 
         GL_OPENGL
@@ -221,3 +248,5 @@ install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 install(FILES ${ROOT_HEADER} DESTINATION include/ada)
 install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
 install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
+install(FILES ${SHADERS_SOURCES} DESTINATION include/ada/shaders)
+

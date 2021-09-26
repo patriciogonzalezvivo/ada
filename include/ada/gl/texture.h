@@ -37,6 +37,7 @@ protected:
     GLenum          m_type;
     TextureFilter   m_filter; 
     TextureWrap     m_wrap;
+    bool	        m_vFlip;
 
     GLuint          m_id;
 };

@@ -75,6 +75,7 @@ bool TextureBump::load(const std::string& _path, bool _vFlip) {
     }
 
     m_path = _path;
+    m_vFlip = _vFlip;
 
     return true;
 }

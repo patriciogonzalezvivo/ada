@@ -12,9 +12,9 @@ extern "C" {
 #include <libswresample/swresample.h>
 }
 
-#include "../io/pixels.h"
-#include "../tools/text.h"
-#include "../window.h"
+#include "ada/window.h"
+#include "ada/tools/text.h"
+#include "ada/tools/pixels.h"
 
 #define EPS 0.000025
 

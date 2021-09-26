@@ -15,6 +15,7 @@ TextureStreamSequence::~TextureStreamSequence() {
 
 bool TextureStreamSequence::load(const std::string& _path, bool _vFlip) {
     m_path = _path;
+    m_vFlip = _vFlip;
 
     std::vector<std::string> files = glob(_path);
     for (size_t i = 0; i < files.size(); i++) {

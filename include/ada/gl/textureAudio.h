@@ -1,6 +1,6 @@
 #pragma once
 
-#ifdef SUPPORT_FOR_LIBAV
+#if defined(SUPPORT_FOR_LIBAV) && defined(SUPPORT_FOR_MINIAUDIO)
 
 #include "textureStream.h"
 #include <vector>
