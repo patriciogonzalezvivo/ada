@@ -6,28 +6,46 @@ Ada is an easy cross platform OpenGL ES 2.0 library for creating apps in Windows
 
 ## Dependencies
 
+### MacOS
+
+```bash
+brew install glfw3 pkg-config
+```
+
+For video support (using FFMpeg library LIBAV), also do:
+
+```bash
+brew install ffmpeg --build-from-source
+```
 
 ### Ubuntu 
 
-```
+```bash
 sudo apt install git cmake xorg-dev libglu1-mesa-dev
 ```
 
+For video support (using FFMpeg library LIBAV), also do:
+
+```bash
+sudo apt install ffmpeg libavcodec-dev libavcodec-extra libavfilter-dev libavfilter-extra libavdevice-dev libavformat-dev libavutil-dev libswscale-dev libv4l-dev libjpeg-dev libpng-dev libtiff-dev
+```
+
+
 ### RaspberryPi OS (with X11)
 
-```
+```bash
 sudo apt install git cmake xorg-dev libglu1-mesa-dev
 ```
 
 ### RaspberryPi OS (without X11)
 
-```
+```bash
 sudo apt install git cmake libegl1-mesa-dev libgbm-dev libgles2-mesa-dev
 ```
 
 Make sure on your `/boot/config.txt` you have the following lines present and uncommented:
 
-```
+```bash
 dtoverlay=vc4-fkms-v3d
 max_framebuffers=2
 hdmi_force_hotplug=1
@@ -35,15 +53,29 @@ hdmi_force_hotplug=1
 
 ### Fedora
 
+```bash
+sudo dnf install git gcc-c++ cmake mesa-libGLU-devel glfw-devel libXi-devel libXxf86vm-devel 
+sudo yum install libXdamage-devel 
+
 ```
-sudo dnf install git cmake mesa-libGLU-devel glfw-devel libXi-devel
+
+For video support (using FFMpeg library LIBAV), also do:
+```bash
+sudo dnf install ffmpeg ffmpeg-devel
 ```
 
 ### Arch 
 
+```bash
+sudo pacman -S glu glfw-x11
 ```
-sudo pacman -S glu
+
+For video support (using FFMpeg library LIBAV), also do:
+
+```bash
+sudo pacman -S ffmpeg
 ```
+
 
 ## Compiling Ada projects
 
@@ -78,7 +110,7 @@ example/./hello_world
 ### As a emscripten WebAssembly project
 
 1. [Install emscripten](https://emscripten.org/docs/getting_started/downloads.html#installation-instructions) which already includes glfw: 
-```sh
+```bash
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 git pull
@@ -89,7 +121,7 @@ cd ..
 ```
 
 2. Then build the project
-```sh
+```bash
 git clone https://github.com/patriciogonzalezvivo/ada.git
 cd ada
 mkdir build
@@ -99,11 +131,10 @@ make
 ```
 
 3. Serve the file either using node or python
-```
+```bash
 python3 -m http.server 
 ```
 Then open http://localhost:8000/examples/hello_world.html
-
 
 
 ## Building your own app with ADA
@@ -146,7 +177,7 @@ int main(int argc, char **argv) {
 
 Then on the `CMakeList.txt` you just need to do:
 
-```
+```cmake
 add_executable (myApp myApp.cpp)
 
 set_target_properties(myApp PROPERTIES

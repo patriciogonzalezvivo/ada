@@ -25,7 +25,7 @@ find_path(BROADCOM_INCLUDE_DIR
         NAMES bcm_host.h
         DOC "Broadcom include directory"
         PATHS /opt/vc/include)
-        mark_as_advanced(BCM_INCLUDE_DIR)
+mark_as_advanced(BCM_INCLUDE_DIR)
 
 # find_library(VCOS_LIBRARY
 #         NAMES libvcos.so
@@ -39,11 +39,11 @@ find_path(BROADCOM_INCLUDE_DIR
 #         PATHS /opt/vc/lib)
 # mark_as_advanced(VCHIQ_LIBRARY)
 
-# find_library(OPENMAXIL_LIBRARY
-#         NAMES libopenmaxil.so
-#         DOC "Path to OpenMAX IL Library"
-#         PATHS /opt/vc/lib)
-# mark_as_advanced(OPENMAXIL_LIBRARY)
+find_library(OPENMAXIL_LIBRARY
+        NAMES libopenmaxil.so
+        DOC "Path to OpenMAX IL Library"
+        PATHS /opt/vc/lib)
+mark_as_advanced(OPENMAXIL_LIBRARY)
 
 find_library(BCM_HOST_LIBRARY
         NAMES libbcm_host.so
@@ -70,7 +70,7 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom
         BROADCOM_INCLUDE_DIR 
         # VCOS_LIBRARY 
         # VCHIQ_LIBRARY 
-        # OPENMAXIL_LIBRARY 
+        OPENMAXIL_LIBRARY 
         BCM_HOST_LIBRARY
         BCM_EGL
         BCM_GLESv2
@@ -80,7 +80,7 @@ set(BROADCOM_LIBRARIES
         ${BCM_HOST_LIBRARY} 
         ${BCM_GLESv2} 
         ${BCM_EGL} 
-        # ${OPENMAXIL_LIBRARY} 
+        ${OPENMAXIL_LIBRARY} 
         # ${VCHIQ_LIBRARY} 
         # ${VCOS_LIBRARY}
 )
