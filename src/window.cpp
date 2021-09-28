@@ -297,6 +297,48 @@ static const char *eglGetErrorStr() {
     }
 #endif
 
+#ifdef __EMSCRIPTEN__
+static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
+    double width, height;
+    emscripten_get_element_css_size("canvas", &width, &height);
+    setWindowSize(width, height);
+    return EM_FALSE;
+}
+
+static void maximize_canvas() {
+    EmscriptenFullscreenStrategy strategy = {
+        .scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH,
+        .canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF,
+        .filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT,
+        .canvasResizedCallback = on_canvassize_changed,
+        .canvasResizedCallbackUserData = NULL
+    };
+
+    emscripten_enter_soft_fullscreen("#canvas", &strategy);
+    on_canvassize_changed(0, NULL, NULL);
+}
+
+void on_window_size(GLFWwindow* window, int width, int height) {
+    static int wasFullscreen = 0;
+
+    int isInFullscreen = EM_ASM_INT_V(return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement));
+    if (isInFullscreen && !wasFullscreen) {
+        printf("Successfully transitioned to fullscreen mode!\n");
+        wasFullscreen = isInFullscreen;
+
+        // Set canvas size to full screen, all the pixels
+        EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
+    }
+
+    if (wasFullscreen && !isInFullscreen) {
+        wasFullscreen = isInFullscreen;
+        maximize_canvas();
+    }
+
+    setWindowSize(width, height);
+}
+#endif
+
 int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
     clock_gettime(CLOCK_MONOTONIC, &time_start);
 
@@ -591,15 +633,16 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             }
         });
 
-        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
-            setViewport(_w,_h);
-        });
 
 #ifndef __EMSCRIPTEN__
         glfwSetWindowPosCallback(window, [](GLFWwindow* _window, int x, int y) {
             if (fPixelDensity != getPixelDensity()) {
-                ada::updateViewport();
+                updateViewport();
             }
+        });
+
+        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
+            setViewport(_w,_h);
         });
 #endif
 
@@ -676,7 +719,8 @@ void updateGL() {
         emscripten_get_element_css_size("canvas", &width, &height);
 
         if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w) {
-            setWindowSize(width, height);
+            // setWindowSize(width, height);
+            on_window_size(window, width, height);
         }
         #endif
             
@@ -783,27 +827,15 @@ void closeGL(){
 
     #endif
 }
+
+
+
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
-    #if defined(DRIVER_GLFW)
-
-    #ifdef __EMSCRIPTEN__
-    static int wasFullscreen = 0;
-
-    int isInFullscreen = EM_ASM_INT_V(return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement));
-    if (isInFullscreen && !wasFullscreen) {
-        // printf("Successfully transitioned to fullscreen mode!\n");
-        wasFullscreen = isInFullscreen;
-
-        // Set canvas size to full screen, all the pixels
-        EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
-    }
-    #endif
-    
+    #if defined(DRIVER_GLFW)    
     glfwSetWindowSize(window, _width, _height);
-
     #endif
-    // ada::setViewport((float)_width, (float)_height);
+    setViewport((float)_width, (float)_height);
 }
 
 void setWindowTitle( const char* _title) {
@@ -815,7 +847,7 @@ void setWindowTitle( const char* _title) {
 void setViewport(float _width, float _height) {
     viewport.z = _width;
     viewport.w = _height;
-    ada::updateViewport();
+    updateViewport();
 }
 
 void updateViewport() {
