@@ -306,6 +306,7 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
 }
 
 void Shader::detach(GLenum _type) {
+#ifndef __EMSCRIPTEN__
     bool vert = (GL_VERTEX_SHADER & _type) == GL_VERTEX_SHADER;
     bool frag = (GL_FRAGMENT_SHADER & _type) == GL_FRAGMENT_SHADER;
 
@@ -318,6 +319,7 @@ void Shader::detach(GLenum _type) {
         glDeleteShader(m_fragmentShader);
         glDetachShader(m_fragmentShader, GL_FRAGMENT_SHADER);
     }
+#endif
 }
 
 GLint Shader::getUniformLocation(const std::string& _uniformName) const {

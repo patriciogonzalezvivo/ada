@@ -83,7 +83,7 @@ struct Face {
             type = GL_UNSIGNED_BYTE;
         }
         
-    #if defined(PLATFORM_RPI)
+    #if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
         GLenum InternalFormat = GL_RGB;
     #elif defined (_WIN32)
         GLenum InternalFormat = GL_RGB16F;

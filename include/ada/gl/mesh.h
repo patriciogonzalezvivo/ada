@@ -9,7 +9,7 @@
 
 namespace ada {
 
-#if defined(PLATFORM_RPI) 
+#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
 #define INDEX_TYPE uint16_t
 #else
 #define INDEX_TYPE uint32_t
