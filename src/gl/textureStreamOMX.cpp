@@ -30,7 +30,7 @@ extern "C" {
 #include "interface/vmcs_host/vchost.h"
 #include "interface/vmcs_host/vcilcs_common.h"
 
-#ifdef SUPPORT_FOR_LIBAV
+#ifdef LIBAV
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -65,7 +65,7 @@ static COMPONENT_T* egl_render = NULL;
 static OMX_VIDEO_CODINGTYPE decoderType = OMX_VIDEO_CodingAVC;
 int thread_run = 0;
 
-#ifdef SUPPORT_FOR_LIBAV
+#ifdef LIBAV
 static AVStream *video_stream = NULL;
 AVFormatContext *pFormatCtx = NULL;
 static int video_stream_idx = -1;
@@ -165,7 +165,7 @@ bool TextureStreamOMX::load(const std::string& _filepath, bool _vFlip, TextureFi
     // TODOs:
     //  - get video width and height
 
-    #ifdef SUPPORT_FOR_LIBAV
+    #ifdef LIBAV
     get_info(_filepath.c_str(), &m_width, &m_height);
     #endif
 

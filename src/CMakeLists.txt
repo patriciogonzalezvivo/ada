@@ -57,7 +57,7 @@ set_target_properties(ada PROPERTIES
 find_package(FFMPEG)
 if (FFMPEG_FOUND)
     message(STATUS "LIBAV Supported")
-    target_compile_definitions(ada PUBLIC SUPPORT_FOR_LIBAV )
+    target_compile_definitions(ada PUBLIC LIBAV )
     target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
     target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()

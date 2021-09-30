@@ -84,7 +84,7 @@ void Light::bindShadowMap() {
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     if (m_shadowMap.getDepthTextureId() == 0) {
-        #if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
+        #if defined(PLATFORM_RPI)
         // m_shadowMap.allocate(512, 512, DEPTH_TEXTURE);
         m_shadowMap.allocate(512, 512, COLOR_DEPTH_TEXTURES);
         #else

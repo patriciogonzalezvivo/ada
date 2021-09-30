@@ -77,6 +77,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 
     if (!m_allocated) {
         // Create a frame buffer
+
         glGenFramebuffers(1, &m_fbo_id);
 
         // Create a texture to hold the depth buffer
@@ -88,7 +89,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     m_height = _height;
 
     bind();
-
+    
     if (color_texture) {
 
         // Generate a texture to hold the colour buffer
@@ -106,8 +107,8 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(_wrap));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(_wrap));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getMagnificationFilter(_filter));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getMinificationFilter(_filter));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getMagnificationFilter(_filter));
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_id, 0);
     }
 
@@ -130,10 +131,10 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
                 glGenTextures(1, &m_depth_id);
 
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
+            
 #if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-            // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-            // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+//             // glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, NULL);
 #else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
 #endif
@@ -146,16 +147,12 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         }
     }
 
+    // CHECK
     GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (result == GL_FRAMEBUFFER_COMPLETE) {
-        m_allocated = true;
-    }
-    else {
-        std::cout << "FBO: not complete " << result << std::endl;
-    }
+    if (result == GL_FRAMEBUFFER_COMPLETE) m_allocated = true;
+    else std::cout << "FBO: not complete " << result << std::endl;
+    
     unbind();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     if (m_depth)
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
@@ -164,17 +161,18 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 void Fbo::bind() {
     if (!m_binded) {
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&m_old_fbo_id);
-
         glBindTexture(GL_TEXTURE_2D, 0);
-        glEnable(GL_TEXTURE_2D);
+        
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_id);
         glViewport(0.0f, 0.0f, m_width, m_height);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
+        #if !defined(PLATFORM_RPI) && !defined(__EMSCRIPTEN__)
         if (m_depth)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         else
             glClear(GL_COLOR_BUFFER_BIT);
+        #endif
 
         m_binded = true;
     }
@@ -183,6 +181,7 @@ void Fbo::bind() {
 void Fbo::unbind() {
     if (m_binded) {
         glBindFramebuffer(GL_FRAMEBUFFER, m_old_fbo_id);
+        glBindTexture(GL_TEXTURE_2D, 0);
         m_binded = false;
     }
 }
