@@ -110,22 +110,22 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
         glDeleteShader(m_vertexShader);
         glDeleteShader(m_fragmentShader);
 
-        if (_verbose) {
-            std::cerr << "shader load time: " << load_time.count() << "s";
-#ifdef GL_PROGRAM_BINARY_LENGTH
-            GLint proglen = 0;
-            glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &proglen);
-            if (proglen > 0)
-                std::cerr << " size: " << proglen;
-#endif
-#ifdef GL_PROGRAM_INSTRUCTIONS_ARB
-            GLint icount = 0;
-            glGetProgramivARB(m_program, GL_PROGRAM_INSTRUCTIONS_ARB, &icount);
-            if (icount > 0)
-                std::cerr << " #instructions: " << icount;
-#endif
-            std::cerr << std::endl;
-        }
+//         if (_verbose) {
+//             std::cerr << "shader load time: " << load_time.count() << "s";
+// #ifdef GL_PROGRAM_BINARY_LENGTH
+//             GLint proglen = 0;
+//             glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &proglen);
+//             if (proglen > 0)
+//                 std::cerr << " size: " << proglen;
+// #endif
+// #ifdef GL_PROGRAM_INSTRUCTIONS_ARB
+//             GLint icount = 0;
+//             glGetProgramivARB(m_program, GL_PROGRAM_INSTRUCTIONS_ARB, &icount);
+//             if (icount > 0)
+//                 std::cerr << " #instructions: " << icount;
+// #endif
+//             std::cerr << std::endl;
+//         }
         return true;
     }
 }
