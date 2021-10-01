@@ -8,11 +8,13 @@ file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
 set(ADA_SOURCES
     window.cpp
-    gl/defines.cpp 
+    gl/gl.cpp 
     gl/fbo.cpp
+    gl/vbo.cpp 
     gl/mesh.cpp 
-    gl/pingpong.cpp
     gl/shader.cpp
+    gl/defines.cpp 
+    gl/pingpong.cpp
     gl/texture.cpp 
     gl/textureBump.cpp
     gl/textureCube.cpp 
@@ -23,7 +25,6 @@ set(ADA_SOURCES
     gl/textureStreamMMAL.cpp
     gl/textureStreamSequence.cpp
     gl/convolutionPyramid.cpp
-    gl/vbo.cpp 
     gl/vertexLayout.cpp 
     tools/fs.cpp 
     tools/list.cpp
@@ -64,9 +65,9 @@ endif()
 
 if (NO_X11 OR FORCE_GBM)
 
-    message(STATUS "LOADING BROADCOM")
-    find_package(BROADCOM)
+message(STATUS "LOADING BROADCOM")
 
+    find_package(BROADCOM)
     if (BROADCOM_FOUND)
         target_compile_definitions(ada PUBLIC 
             DRIVER_BROADCOM
@@ -87,13 +88,8 @@ if (NO_X11 OR FORCE_GBM)
             ${BROADCOM_DEFINITIONS}
         )
             
-        target_include_directories(ada PUBLIC
-            ${BROADCOM_INCLUDE_DIRS}
-        )
-
-        target_link_libraries(ada PUBLIC
-            ${BROADCOM_LIBRARIES}
-        )
+        target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
+        target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
 
     else()
 

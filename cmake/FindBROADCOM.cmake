@@ -27,17 +27,17 @@ find_path(BROADCOM_INCLUDE_DIR
         PATHS /opt/vc/include)
 mark_as_advanced(BCM_INCLUDE_DIR)
 
-# find_library(VCOS_LIBRARY
-#         NAMES libvcos.so
-#         DOC "Path to VCOS Library"
-#         PATHS /opt/vc/lib)
-# mark_as_advanced(VCOS_LIBRARY)
+find_library(VCOS_LIBRARY
+        NAMES libvcos.so
+        DOC "Path to VCOS Library"
+        PATHS /opt/vc/lib)
+mark_as_advanced(VCOS_LIBRARY)
 
-# find_library(VCHIQ_LIBRARY
-#         NAMES libvchiq_arm.so
-#         DOC "Path to VCHIQ Library"
-#         PATHS /opt/vc/lib)
-# mark_as_advanced(VCHIQ_LIBRARY)
+find_library(VCHIQ_LIBRARY
+        NAMES libvchiq_arm.so
+        DOC "Path to VCHIQ Library"
+        PATHS /opt/vc/lib)
+mark_as_advanced(VCHIQ_LIBRARY)
 
 find_library(   OPENMAXIL_LIBRARY
                 NAMES libopenmaxil.so
@@ -62,18 +62,46 @@ find_library(   BCM_GLESv2
                 DOC "Path to Broadcom EGL Library"
                 PATHS /opt/vc/lib)
 mark_as_advanced(BCM_GLESv2)
+
+find_library(   MMAL_LIBRARY
+                NAMES libmmal.so
+                DOC "Path to MMAL Library"
+                PATHS /opt/vc/lib)
+mark_as_advanced(MMAL_LIBRARY)
+
+find_library(   MMAL_CORE_LIBRARY
+                NAMES libmmal_core.so
+                DOC "Path to MMAL CORE Library"
+                PATHS /opt/vc/lib)
+mark_as_advanced(MMAL_CORE_LIBRARY)
+
+find_library(   MMAL_UTIL_LIBRARY
+                NAMES libmmal_util.so
+                DOC "Path to MMAL UTIL Library"
+                PATHS /opt/vc/lib)
+mark_as_advanced(MMAL_UTIL_LIBRARY)
+
+find_library(   MMAL_VC_CLIENT_LIBRARY
+                NAMES libmmal_vc_client.so
+                DOC "Path to MMAL VC CLIENT Library"
+                PATHS /opt/vc/lib)
+mark_as_advanced(MMAL_VC_CLIENT_LIBRARY)
         
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom 
     DEFAULT_MSG 
     BROADCOM_INCLUDE_DIR 
-    # VCOS_LIBRARY 
-    # VCHIQ_LIBRARY 
+    VCOS_LIBRARY 
+    VCHIQ_LIBRARY 
     OPENMAXIL_LIBRARY 
     BCM_HOST_LIBRARY
     BCM_EGL
     BCM_GLESv2
+    MMAL_LIBRARY
+    MMAL_CORE_LIBRARY
+    MMAL_UTIL_LIBRARY
+    MMAL_VC_CLIENT_LIBRARY
 )
 
 set(BROADCOM_LIBRARIES 
@@ -81,8 +109,12 @@ set(BROADCOM_LIBRARIES
     ${BCM_GLESv2} 
     ${BCM_EGL} 
     ${OPENMAXIL_LIBRARY} 
-    # ${VCHIQ_LIBRARY} 
-    # ${VCOS_LIBRARY}
+    ${VCHIQ_LIBRARY} 
+    ${VCOS_LIBRARY}
+    ${MMAL_LIBRARY}
+    ${MMAL_CORE_LIBRARY}
+    ${MMAL_UTIL_LIBRARY}
+    ${MMAL_VC_CLIENT_LIBRARY}
 )
 
 set(BROADCOM_INCLUDE_DIRS 
