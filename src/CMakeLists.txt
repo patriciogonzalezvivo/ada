@@ -65,8 +65,8 @@ endif()
 
 find_package(BROADCOM)
 if (BROADCOM_FOUND)
-    message(STATUS "LOADING BROADCOM")
     target_compile_definitions(ada PUBLIC   PLATFORM_RPI)
+    message(STATUS "LOADING BROADCOM")
     message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
     message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
     message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
@@ -81,19 +81,25 @@ if (NO_X11 OR FORCE_GBM)
     # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
 
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-        target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
+
+        target_compile_definitions(ada PUBLIC   
+            PLATFORM_RPI 
+            DRIVER_BROADCOM
+        )
+
+        message(STATUS "LOADING BROADCOM versions of EGL GL_ESv2")
+        message(STATUS "EGL_LIBRARY:            ${BCM_EGL}")
+        message(STATUS "GLESv2_LIBRARIES:       ${BCM_GLESv2}")
+        target_link_libraries(ada PUBLIC        
+            ${BCM_EGL} 
+            ${BCM_GLESv2}
+        )
+
         target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
         )
 
-        target_compile_definitions(ada PUBLIC   
-            ${BCM_EGL} 
-            ${BCM_GLESv2}
-        )
-
-        message(STATUS "EGL_LIBRARY:            ${BCM_EGL}")
-        message(STATUS "GLESv2_LIBRARIES:       ${BCM_GLESv2}")
             
     else()
 
