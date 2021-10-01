@@ -63,34 +63,38 @@ if (FFMPEG_FOUND)
     target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()
 
+find_package(BROADCOM)
+if (BROADCOM_FOUND)
+    message(STATUS "LOADING BROADCOM")
+    target_compile_definitions(ada PUBLIC   PLATFORM_RPI)
+    message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
+    message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
+    message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
+    target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
+    target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+endif()
+
+
 if (NO_X11 OR FORCE_GBM)
 
-message(STATUS "LOADING BROADCOM")
-
-    find_package(BROADCOM)
-    if (BROADCOM_FOUND)
-        target_compile_definitions(ada PUBLIC 
-            DRIVER_BROADCOM
-            PLATFORM_RPI
-        )
-    endif()
-
     # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
-    
+
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-    
-        message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
-        message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
-        message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
-
-        target_compile_definitions(ada PUBLIC 
-            DRIVER_BROADCOM
-            ${BROADCOM_DEFINITIONS}
-        )
-            
-        target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
         target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
+        target_include_directories(ada PUBLIC
+            ${EGL_INCLUDE_DIRS}
+            ${GLESv2_INCLUDE_DIRS}
+        )
 
+        target_compile_definitions(ada PUBLIC   
+            ${BCM_EGL} 
+            ${BCM_GLESv2}
+        )
+
+        message(STATUS "EGL_LIBRARY:            ${BCM_EGL}")
+        message(STATUS "GLESv2_LIBRARIES:       ${BCM_GLESv2}")
+            
     else()
 
         message(STATUS "LOADING GBM/DRM")

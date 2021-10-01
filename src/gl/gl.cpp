@@ -48,6 +48,6 @@ namespace ada {
         imageTargetTexture2DProc(target, image);
         #endif
     }
-
-    #endif
 }
+
+#endif
