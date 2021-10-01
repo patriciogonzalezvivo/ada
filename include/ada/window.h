@@ -74,4 +74,5 @@ void onScroll(float _yoffset);
 EGLDisplay getEGLDisplay();
 EGLContext getEGLContext();
 #endif
+
 }

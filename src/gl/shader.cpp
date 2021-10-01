@@ -5,53 +5,36 @@
 
 #include "ada/gl/shader.h"
 #include "ada/tools/text.h"
+#include "ada/shaders/default_error.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
 namespace ada {
 
-static const std::string error_vert = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-uniform mat4    u_modelViewProjectionMatrix;
-attribute vec4  a_position;
-varying vec4    v_position;
-void main(void) {
-    v_position = a_position;
-    gl_Position = u_modelViewProjectionMatrix * v_position;
-}
-)";
-
-static const std::string error_frag = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-void main(void) {
-    gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);
-}
-)";
-
-
 Shader::Shader():
-    m_program(0),
-    m_fragmentShader(0),
-    m_vertexShader(0) {
+    m_fragmentSource(error_frag),
+    m_vertexSource(error_vert),
+    m_program(0), m_fragmentShader(0), m_vertexShader(0) {
 
     // Adding default defines
-    addDefine("GLSLVIEWER", 160);
+    addDefine("GLSLVIEWER", 200);
 
     // Define PLATFORM
     #if defined(__APPLE__)
     addDefine("PLATFORM_OSX");
+
     #elif defined(_WIN32)
     addDefine("PLATFORM_WIN");
+    
     #elif defined(PLATFORM_RPI)
     addDefine("PLATFORM_RPI");
+    
     #elif defined(__EMSCRIPTEN__)
     addDefine("PLATFORM_EMSCRIPTEN");
+    
     #else
     addDefine("PLATFORM_LINUX");
+    
     #endif
 }
 
@@ -120,29 +103,29 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
             std::cerr << (unsigned)toInt(lineNum) << ": " << getLineNumber(_fragmentSrc,(unsigned)toInt(lineNum)) << std::endl;
         }
         glDeleteProgram(m_program);
-        // load(error_frag, error_vert, false);
+        load(error_frag, error_vert, false);
         return false;
     } 
     else {
         glDeleteShader(m_vertexShader);
         glDeleteShader(m_fragmentShader);
 
-//         if (_verbose) {
-//             std::cerr << "shader load time: " << load_time.count() << "s";
-// #ifdef GL_PROGRAM_BINARY_LENGTH
-//             GLint proglen = 0;
-//             glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &proglen);
-//             if (proglen > 0)
-//                 std::cerr << " size: " << proglen;
-// #endif
-// #ifdef GL_PROGRAM_INSTRUCTIONS_ARB
-//             GLint icount = 0;
-//             glGetProgramivARB(m_program, GL_PROGRAM_INSTRUCTIONS_ARB, &icount);
-//             if (icount > 0)
-//                 std::cerr << " #instructions: " << icount;
-// #endif
-//             std::cerr << std::endl;
-//         }
+        if (_verbose) {
+            std::cerr << "shader load time: " << load_time.count() << "s";
+#ifdef GL_PROGRAM_BINARY_LENGTH
+            GLint proglen = 0;
+            glGetProgramiv(m_program, GL_PROGRAM_BINARY_LENGTH, &proglen);
+            if (proglen > 0)
+                std::cerr << " size: " << proglen;
+#endif
+#ifdef GL_PROGRAM_INSTRUCTIONS_ARB
+            GLint icount = 0;
+            glGetProgramivARB(m_program, GL_PROGRAM_INSTRUCTIONS_ARB, &icount);
+            if (icount > 0)
+                std::cerr << " #instructions: " << icount;
+#endif
+            std::cerr << std::endl;
+        }
         return true;
     }
 }
@@ -446,48 +429,44 @@ void Shader::setUniform(const std::string& _name, const glm::vec4 *_array, unsig
     }
 }
 
+void Shader::setUniformTexture(const std::string& _name, GLuint _textureId, unsigned int _texLoc) {
+    if (isInUse()) {
+        glActiveTexture(GL_TEXTURE0 + _texLoc);
+        glBindTexture(GL_TEXTURE_2D, _textureId);
+        glUniform1i(getUniformLocation(_name), _texLoc);
+    }
+}
+
+void Shader::setUniformTexture(const std::string& _name, const Texture* _tex, unsigned int _texLoc) {
+    setUniformTexture(_name, _tex->getTextureId(), _texLoc);
+}
+
+void Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
+    setUniformTexture(_name, _fbo->getTextureId(), _texLoc);
+}
+
+void Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
+    setUniformTexture(_name, _fbo->getDepthTextureId(), _texLoc);
+}
+
+void Shader::setUniformTexture(const std::string& _name, const Texture* _tex) {
+    setUniformTexture(_name, _tex->getTextureId(), textureIndex++);
+}
+
+void  Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo) {
+    setUniformTexture(_name, _fbo->getTextureId(), textureIndex++);
+}
+
+void  Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo) {
+    setUniformTexture(_name, _fbo->getDepthTextureId(), textureIndex++);
+}
+
 void Shader::setUniformTextureCube(const std::string& _name, const TextureCube* _tex, unsigned int _texLoc) {
     if (isInUse()) {
         glActiveTexture(GL_TEXTURE0 + _texLoc);
         glBindTexture(GL_TEXTURE_CUBE_MAP, _tex->getTextureId());
         glUniform1i(getUniformLocation(_name), _texLoc);
     }
-}
-
-void Shader::setUniformTexture(const std::string& _name, const Texture* _tex, unsigned int _texLoc) {
-    if (isInUse()) {
-        glActiveTexture(GL_TEXTURE0 + _texLoc);
-        glBindTexture(GL_TEXTURE_2D, _tex->getTextureId());
-        glUniform1i(getUniformLocation(_name), _texLoc);
-    }
-}
-
-void Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
-    if (isInUse()) {
-        glActiveTexture(GL_TEXTURE0 + _texLoc);
-        glBindTexture(GL_TEXTURE_2D, _fbo->getTextureId());
-        glUniform1i(getUniformLocation(_name), _texLoc);
-    }
-}
-
-void Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
-    if (isInUse()) {
-        glActiveTexture(GL_TEXTURE0 + _texLoc);
-        glBindTexture(GL_TEXTURE_2D, _fbo->getDepthTextureId());
-        glUniform1i(getUniformLocation(_name), _texLoc);
-    }
-}
-
-void Shader::setUniformTexture(const std::string& _name, const Texture* _tex) {
-    setUniformTexture(_name, _tex, textureIndex++);
-}
-
-void  Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo) {
-    setUniformTexture(_name, _fbo, textureIndex++);
-}
-
-void  Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo) {
-    setUniformDepthTexture(_name, _fbo, textureIndex++);
 }
 
 void  Shader::setUniformTextureCube(const std::string& _name, const TextureCube* _tex) {

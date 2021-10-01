@@ -4,9 +4,9 @@
 
 #include <iostream>
 
-#include "../window.h"
-#include "../tools/geom.h"
-#include "../tools/text.h"
+#include "ada/window.h"
+#include "ada/tools/geom.h"
+#include "ada/tools/text.h"
 
 #if defined(DRIVER_FAKE_KMS)
 #include "libdrm/drm_fourcc.h"
