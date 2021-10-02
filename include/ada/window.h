@@ -45,6 +45,7 @@ void setFps(int _fps);
 void setViewport(float _width, float _height);
 void setWindowSize(int _width, int _height);
 void setWindowTitle(const char* _title);
+void setWindowVSync(bool _value);
 void setMousePosition(float _x, float _y);
 void setMousePosition(glm::vec2 _pos);
 

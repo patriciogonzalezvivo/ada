@@ -646,8 +646,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 #endif
 
-        glfwSwapInterval(1);
-
         if (_viewport.x > 0 || _viewport.y > 0) {
             glfwSetWindowPos(window, _viewport.x, _viewport.y);
         }
@@ -841,6 +839,12 @@ void setWindowSize(int _width, int _height) {
 void setWindowTitle( const char* _title) {
     #if defined(DRIVER_GLFW)
     glfwSetWindowTitle(window, _title);
+    #endif
+}
+
+void setWindowVSync(bool _value) {
+    #if defined(DRIVER_GLFW)
+    glfwSwapInterval(_value);
     #endif
 }
 
