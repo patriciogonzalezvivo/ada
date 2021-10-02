@@ -2,6 +2,7 @@
 
 #include "gl/gl.h"
 #include "glm/glm.hpp"
+#include <string>
 
 namespace ada {
 
@@ -13,9 +14,24 @@ enum WindowStyle {
     HOLOPLAY
 };
 
+struct WindowProperties {
+    WindowStyle style   = REGULAR;
+    size_t      major   = 2;
+    size_t      minor   = 0;
+    size_t      msaa    = 0;
+    
+    #if defined(DRIVER_GBM) 
+    std::string display = "/dev/dri/card1";
+    #endif
+
+    #if !defined(DRIVER_GLFW)
+    std::string mouse = "/dev/input/mice";
+    #endif
+};
+
 //	GL Context
 //----------------------------------------------
-int  initGL(glm::ivec4 &_viewport, WindowStyle _style = REGULAR);
+int  initGL(glm::ivec4 &_viewport, WindowProperties _properties = WindowProperties());
 bool isGL();
 void updateGL();
 void renderGL();
@@ -41,6 +57,7 @@ glm::ivec4  getViewport();
 glm::mat4   getOrthoMatrix();
 int         getWindowWidth();
 int         getWindowHeight();
+int         getWindowMSAA();
 
 glm::vec4   getDate();
 double      getTimeSec();

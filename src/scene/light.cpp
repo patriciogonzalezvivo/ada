@@ -85,8 +85,8 @@ void Light::bindShadowMap() {
 
     if (m_shadowMap.getDepthTextureId() == 0) {
         #if defined(PLATFORM_RPI)
-        // m_shadowMap.allocate(512, 512, DEPTH_TEXTURE);
-        m_shadowMap.allocate(512, 512, COLOR_DEPTH_TEXTURES);
+        m_shadowMap.allocate(512, 512, DEPTH_TEXTURE);
+        // m_shadowMap.allocate(512, 512, COLOR_DEPTH_TEXTURES);
         #else
         // m_shadowMap.allocate(1024, 1024, DEPTH_TEXTURE);
         m_shadowMap.allocate(1024, 1024, COLOR_DEPTH_TEXTURES);

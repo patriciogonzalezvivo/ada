@@ -19,8 +19,11 @@
 
 // Common global variables
 //----------------------------------------------------
-struct timespec         time_start;
-static glm::mat4        orthoMatrix;
+static glm::ivec4               viewport;
+static ada::WindowProperties    properties;
+struct timespec                 time_start;
+static glm::mat4                orthoMatrix;
+
 typedef struct {
     bool      entered;
     float     x,y;
@@ -30,7 +33,6 @@ typedef struct {
 } Mouse;
 static Mouse            mouse;
 static glm::vec4        mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
-static glm::ivec4       viewport;
 
 struct timeval          tv;
 static double           elapseTime = 0.0;
@@ -110,15 +112,6 @@ EGLSurface surface;
 
 EGLDisplay getEGLDisplay() { return display; }
 EGLContext getEGLContext() { return context; }
-
-// unsigned long long timeStart;
-static std::string device_mouse = "/dev/input/mice";
-
-#ifdef DRIVER_CARD0
-std::string device_screen = "/dev/dri/card0";
-#else
-std::string device_screen = "/dev/dri/card1";
-#endif
 
 // Get the EGL error back as a string. Useful for debugging.
 static const char *eglGetErrorStr() {
@@ -243,10 +236,10 @@ static const char *eglGetErrorStr() {
             bcm_host_init();
 
         #elif defined(DRIVER_GBM)
-            if (!urlExists(device_screen)) {
-                std::cout << "Can't open display " <<  device_screen << " seams it doesn't exist" << std::endl;
+            if (!urlExists(properties.display)) {
+                std::cout << "Can't open display " <<  properties.display << " seams it doesn't exist" << std::endl;
             }
-            device = open(  device_screen.c_str(), O_RDWR | O_CLOEXEC);
+            device = open(  properties.display.c_str(), O_RDWR | O_CLOEXEC);
 
             drmModeRes *resources = drmModeGetResources(device);
             if (resources == NULL) {
@@ -339,8 +332,9 @@ void on_window_size(GLFWwindow* window, int width, int height) {
 }
 #endif
 
-int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
+int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
     clock_gettime(CLOCK_MONOTONIC, &time_start);
+    properties = _prop;
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
@@ -367,7 +361,7 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             EGL_GREEN_SIZE, 8,
             EGL_BLUE_SIZE, 8,
             EGL_ALPHA_SIZE, 8,
-            // EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES, 4,
+            EGL_SAMPLE_BUFFERS, 1, EGL_SAMPLES, 4,
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
             EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_DEPTH_SIZE, 16,
@@ -423,7 +417,7 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             DISPMANX_ELEMENT_HANDLE_T dispman_element;
             DISPMANX_UPDATE_HANDLE_T dispman_update;
 
-            if (_style == HEADLESS) {
+            if (_prop.style == HEADLESS) {
                 uint32_t dest_image_handle;
                 DISPMANX_RESOURCE_HANDLE_T dispman_resource;
                 dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, _viewport.z, _viewport.w, &dest_image_handle);
@@ -475,13 +469,19 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             exit(-1);
         }
 
-        if (_style == HEADLESS)
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _prop.major);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _prop.minor);
+
+        if (_prop.msaa != 0)
+            glfwWindowHint(GLFW_SAMPLES, _prop.msaa);
+
+        if (_prop.style == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
             
-        else if (_style == ALLWAYS_ON_TOP)
+        else if (_prop.style == ALLWAYS_ON_TOP)
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
-        if (_style == FULLSCREEN) {
+        if (_prop.style == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
             _viewport.z = mode->width;
@@ -492,7 +492,7 @@ int initGL(glm::ivec4 &_viewport, WindowStyle _style) {
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
         }
-        else if (_style == HOLOPLAY) {
+        else if (_prop.style == HOLOPLAY) {
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
             glfwWindowHint(GLFW_DECORATED, false);
 
@@ -728,7 +728,7 @@ void updateGL() {
         const int XSIGN = 1<<4, YSIGN = 1<<5;
         static int fd = -1;
         if (fd < 0) {
-            fd = open(device_mouse.c_str(),O_RDONLY|O_NONBLOCK);
+            fd = open(properties.mouse.c_str(),O_RDONLY|O_NONBLOCK);
         }
 
         if (fd >= 0) {
@@ -901,9 +901,10 @@ float getPixelDensity() {
 }
 
 glm::ivec4  getViewport() { return viewport; }
+glm::mat4   getOrthoMatrix() { return orthoMatrix; }
 int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
-glm::mat4   getOrthoMatrix() { return orthoMatrix; }
+int         getWindowMSAA() { return properties.msaa; }
 
 glm::vec4   getDate() {
     #ifdef _MSC_VER
