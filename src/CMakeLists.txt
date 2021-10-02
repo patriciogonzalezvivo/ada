@@ -19,7 +19,6 @@ set(ADA_SOURCES
     gl/textureBump.cpp
     gl/textureCube.cpp 
     gl/textureProps.cpp 
-    gl/textureAudio.cpp
     gl/textureStreamAV.cpp
     gl/textureStreamOMX.cpp
     gl/textureStreamMMAL.cpp
