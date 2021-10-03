@@ -104,7 +104,6 @@ static void generate_frame() {
 
 int main(int argc, char **argv) {
     // Set the size and type of window
-    ada::WindowStyle window_style = ada::REGULAR;
     glm::ivec4 window_viewport = glm::ivec4(0);
     window_viewport.z = 512;
     window_viewport.w = 512;
@@ -116,6 +115,7 @@ int main(int argc, char **argv) {
     window_viewport.w = screen.y;
     #endif
 
+    ada::WindowProperties window_properties;
     for (int i = 1; i < argc ; i++) {
         std::string argument = std::string(argv[i]);
 
@@ -145,37 +145,56 @@ int main(int argc, char **argv) {
             else
                 std::cout << "Argument '" << argument << "' should be followed by a <pixels>. Skipping argument." << std::endl;
         }
+        #if defined(DRIVER_GBM) 
+        else if (   std::string(argv[i]) == "--display") {
+            if (++i < argc)
+                window_properties.display = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the display address. Skipping argument." << std::endl;
+        }
+        #endif
+        #if !defined(DRIVER_GLFW)
+        else if (   std::string(argv[i]) == "--mouse") {
+            if (++i < argc)
+                window_properties.mouse = std::string(argv[i]);
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the mouse address. Skipping argument." << std::endl;
+        }
+        #endif
         else if (   std::string(argv[i]) == "--headless" ) {
-            window_style = ada::HEADLESS;
+            window_properties.style = ada::HEADLESS;
         }
         else if (   std::string(argv[i]) == "-f" ||
                     std::string(argv[i]) == "--fullscreen" ) {
-            window_style = ada::FULLSCREEN;
+            window_properties.style = ada::FULLSCREEN;
         }
-        else if (   std::string(argv[i]) == "-t" ||
-                    std::string(argv[i]) == "--top" ){
-            #if defined(DRIVER_BROADCOM) || defined(DRIVER_GBM) 
-                window_viewport.x = window_viewport.z - 512;
-                window_viewport.z = window_viewport.w = 512;
-            #else
-                window_style = ada::ALLWAYS_ON_TOP;
-            #endif
-        }
-        else if (   std::string(argv[i]) == "--display" ){
-            if (++i < argc) {
-            #if defined(DRIVER_GBM) 
-                    device_screen = std::string(argv[i]);
-            #endif
-            }
+        else if (   std::string(argv[i]) == "--holoplay") {
+            window_properties.style = ada::HOLOPLAY;
         }
         else if (   std::string(argv[i]) == "-ss" ||
                     std::string(argv[i]) == "--screensaver") {
-            window_style = ada::FULLSCREEN;
+            window_properties.style = ada::FULLSCREEN;
+            screensaver = true;
+        }
+        else if (   std::string(argv[i]) == "--msaa") {
+            window_properties.msaa = 4;
+        }
+        else if (   std::string(argv[i]) == "--major") {
+            if (++i < argc)
+                window_properties.major = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the OPENGL MAJOR version. Skipping argument." << std::endl;
+        }
+        else if (   std::string(argv[i]) == "--minor") {
+            if (++i < argc)
+                window_properties.minor = ada::toInt(std::string(argv[i]));
+            else
+                std::cout << "Argument '" << argument << "' should be followed by a the OPENGL MINOR version. Skipping argument." << std::endl;
         }
     }
 
     // Initialize openGL context
-    ada::initGL(window_viewport, window_style);
+    ada::initGL(window_viewport, window_properties);
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
