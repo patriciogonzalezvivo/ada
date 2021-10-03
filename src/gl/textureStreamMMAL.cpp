@@ -1,6 +1,6 @@
 #include "ada/gl/textureStreamMMAL.h"
 
-#ifdef PLATFORM_RPI
+#if defined(PLATFORM_RPI)
 
 #include <iostream>
 
@@ -8,7 +8,7 @@
 #include "ada/tools/geom.h"
 #include "ada/tools/text.h"
 
-#if defined(DRIVER_FAKE_KMS)
+#if defined(DRIVER_GBM)
 #include "libdrm/drm_fourcc.h"
 #endif
 
@@ -616,7 +616,7 @@ TextureStreamMMAL::TextureStreamMMAL() :
     m_fbo_id(0), m_old_fbo_id(0),
     m_brcm_id(0),
     m_vbo(nullptr) {
-    #ifndef DRIVER_LEGACY
+    #ifndef DRIVER_BROADCOM
     // bcm_host is initialated on the creation of the window in LEGACY
     bcm_host_init();
     #endif

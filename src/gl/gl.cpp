@@ -1,6 +1,6 @@
 #include "ada/gl/gl.h"
 
-#ifdef PLATFORM_RPI 
+#if defined(PLATFORM_RPI)
 
 namespace ada {
 
@@ -30,7 +30,7 @@ namespace ada {
 
         #else
         if (!destroyImageProc)
-            destroyImageProc = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR");
+            destroyImageProc = (PFNEGLDESTROYIMAGEKHRPROC) eglGetProcAddress("eglDestroyImageKHR");
         
         return destroyImageProc(dpy, image);
         #endif
@@ -43,7 +43,7 @@ namespace ada {
 
         #else
         if (!imageTargetTexture2DProc)
-            imageTargetTexture2DProc = (PFNEGLCREATEIMAGEKHRPROC) eglGetProcAddress("glEGLImageTargetTexture2DOES");
+            imageTargetTexture2DProc = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC) eglGetProcAddress("glEGLImageTargetTexture2DOES");
         
         imageTargetTexture2DProc(target, image);
         #endif

@@ -54,24 +54,15 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-find_package(FFMPEG)
-if (FFMPEG_FOUND)
-    message(STATUS "LIBAV Supported")
-    target_compile_definitions(ada PUBLIC LIBAV )
-    target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
-    target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
-endif()
-
 find_package(BROADCOM)
 if (BROADCOM_FOUND)
     target_compile_definitions(ada PUBLIC   PLATFORM_RPI)
-    message(STATUS "LOADING BROADCOM")
     message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
     message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
     message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
     target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
     target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
-    target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+    # target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
 endif()
 
 
@@ -86,19 +77,22 @@ if (NO_X11 OR FORCE_GBM)
             DRIVER_BROADCOM
         )
 
+        find_package(ILCLIENT)
+
         message(STATUS "LOADING BROADCOM versions of EGL GL_ESv2")
         message(STATUS "EGL_LIBRARY:            ${BCM_EGL}")
         message(STATUS "GLESv2_LIBRARIES:       ${BCM_GLESv2}")
         target_link_libraries(ada PUBLIC        
             ${BCM_EGL} 
             ${BCM_GLESv2}
+            ${ILCLIENT_LIBRARY}
         )
 
         target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
+            ${ILCLIENT_INCLUDE_DIR}
         )
-
             
     else()
 
@@ -174,27 +168,9 @@ else()
             libglew_static
         )
 
-    #
-    # elseif (EMSCRIPTEN)
-    #     add_compile_options(-fpermissive -Wno-psabi -lpthread)
-    #     set(LFLAGS "${LFLAGS} -pthread")
-    #     set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
-    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
-    #     set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
-    #
-    #     target_link_libraries(ada PUBLIC 
-    #         ${OPENGL_LIBRARIES}
-    #         ${OPENGL_opengl_LIBRARY}
-    #         -pthread
-    #     )
-    #
-    # UNCOMMENT FOR MULTIPLE THREAD SUPPORT FOR WASM
-    #   note: only works on desktop chrome 
-    #
+    # RASPBERRY PI
+    elseif (BROADCOM_FOUND)
 
-    elseif (RPI)
-
-        message(STATUS "LOADING EGL GL_ESv2")
         find_package(EGL)
         find_package(GLESv2)
         message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
@@ -213,13 +189,41 @@ else()
             ${OPENGL_LIBRARIES}
         )
 
+    #
+    # elseif (EMSCRIPTEN)
+    #     add_compile_options(-fpermissive -Wno-psabi -lpthread)
+    #     set(LFLAGS "${LFLAGS} -pthread")
+    #     set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
+    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
+    #     set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
+    #
+    #     target_link_libraries(ada PUBLIC 
+    #         ${OPENGL_LIBRARIES}
+    #         ${OPENGL_opengl_LIBRARY}
+    #         -pthread
+    #     )
+    #
+    # UNCOMMENT FOR MULTIPLE THREAD SUPPORT FOR WASM
+    #   note: only works on desktop chrome 
+    #
+
     else()
+
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
             ${OPENGL_opengl_LIBRARY}
         )
-    endif (APPLE)
 
+    endif()
+
+endif()
+
+find_package(FFMPEG)
+if (FFMPEG_FOUND)
+    message(STATUS "LIBAV Supported")
+    target_compile_definitions(ada PUBLIC LIBAV )
+    target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()
 
 # We need this directory, and users of our library will need it too

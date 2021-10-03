@@ -14,7 +14,7 @@
     #endif
 
     // RASPBERRY PI - w WINDOW using GLFW (all version)
-    #ifdef DRIVER_GLFW
+    #if defined(DRIVER_GLFW)
         #define GLFW_INCLUDE_GLEXT
         #define GLFW_EXPOSE_NATIVE_EGL
         #define GL_GLEXT_PROTOTYPES
@@ -24,7 +24,7 @@
         #include <GLFW/glfw3native.h>
         #include <EGL/eglext.h>
 
-    // RASPBERRY PI - WINDOWLESS  
+    // RASPBERRY PI - WINDOWLESS (BROADCOM or GBM)  
     #else
         #include <EGL/egl.h>
         #include <EGL/eglext.h>

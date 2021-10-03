@@ -87,12 +87,6 @@ find_library(   MMAL_VC_CLIENT_LIBRARY
                 PATHS /opt/vc/lib)
 mark_as_advanced(MMAL_VC_CLIENT_LIBRARY)
 
-find_library(   IL_CLIENT_LIBRARY
-                NAME libilclient.a
-                DOC "Path IL_CLIENT Library"
-                PATHS /opt/vc/src/hello_pi/libs/ilclient  )
-mark_as_advanced(IL_CLIENT_LIBRARY)
-
 include(${CMAKE_ROOT}/Modules/FindPackageHandleStandardArgs.cmake)
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom 
@@ -108,7 +102,6 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(Broadcom
     MMAL_CORE_LIBRARY
     MMAL_UTIL_LIBRARY
     MMAL_VC_CLIENT_LIBRARY
-    IL_CLIENT_LIBRARY
 )
 
 set(BROADCOM_LIBRARIES 
@@ -122,7 +115,6 @@ set(BROADCOM_LIBRARIES
     ${MMAL_CORE_LIBRARY}
     ${MMAL_UTIL_LIBRARY}
     ${MMAL_VC_CLIENT_LIBRARY}
-    ${IL_CLIENT_LIBRARY}
 )
 
 set(BROADCOM_INCLUDE_DIRS 

@@ -3,7 +3,7 @@
 
 #include "textureStream.h"
 
-#ifdef PLATFORM_RPI
+#if defined(PLATFORM_RPI)
 #include "gl.h"
 #include "shader.h"
 #include "vbo.h"

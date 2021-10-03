@@ -1,6 +1,6 @@
 #include "ada/gl/textureStreamOMX.h"
 
-#ifdef DRIVER_LEGACY
+#if defined(DRIVER_BROADCOM)
 
 #include <stdio.h>
 #include <stdlib.h>

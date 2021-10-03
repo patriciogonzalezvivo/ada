@@ -2,7 +2,7 @@
 
 #include "ada/gl/textureStream.h"
 
-#ifdef DRIVER_LEGACY
+#if defined(DRIVER_BROADCOM)
 
 #include <thread>
 
