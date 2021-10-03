@@ -62,7 +62,7 @@ if (BROADCOM_FOUND)
     message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
     target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
     target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
-    # target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+    target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
 endif()
 
 
