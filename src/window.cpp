@@ -471,6 +471,10 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _prop.major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _prop.minor);
+        if (_prop.major >= 3 and _prop.minor >= 2) {
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+            glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+        }
 
         if (_prop.msaa != 0)
             glfwWindowHint(GLFW_SAMPLES, _prop.msaa);
