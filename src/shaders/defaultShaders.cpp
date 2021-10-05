@@ -28,7 +28,6 @@ static std::string versionLine = "";
 
 void setVersionFromCode(const std::string& _src) {
     versionLine = ada::get_version(_src, versionNumber);
-    std::cout << "VERSION LINE: " << versionLine << std::endl;
 }
 
 int getVersion() {
