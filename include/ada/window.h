@@ -20,12 +20,18 @@ struct WindowProperties {
     size_t      minor   = 0;
     size_t      msaa    = 0;
     
+    std::string version = "";
+
     #if defined(DRIVER_GBM) 
     std::string display = "/dev/dri/card1";
     #endif
 
     #if !defined(DRIVER_GLFW)
     std::string mouse = "/dev/input/mice";
+    #endif
+
+    #if defined(__EMSCRIPTEN__)
+    size_t      webgl = 0;
     #endif
 };
 
@@ -59,6 +65,11 @@ glm::mat4   getOrthoMatrix();
 int         getWindowWidth();
 int         getWindowHeight();
 int         getWindowMSAA();
+
+std::string getGLVersion();
+#if defined(__EMSCRIPTEN__)
+size_t      getWebGLVersionNumber();
+#endif
 
 glm::vec4   getDate();
 double      getTimeSec();

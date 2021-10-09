@@ -26,6 +26,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ada/gl/fbo.h"
 #include <iostream>
 
+#include "glm/gtc/round.hpp"
+#include "ada/tools/text.h"
+#include "ada/window.h"
+
 namespace ada {
 
 Fbo::Fbo():
@@ -88,6 +92,13 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     m_width = _width;
     m_height = _height;
 
+    #if defined(__EMSCRIPTEN__)
+    if ( getWebGLVersionNumber() == 1 ) {
+        m_width = glm::ceilPowerOfTwo( glm::max(m_width, m_height) );
+        m_height = m_width;
+    } 
+    #endif
+
     bind();
     
     if (color_texture) {
@@ -132,10 +143,16 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
             
-#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+#elif defined(__EMSCRIPTEN__)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
 #else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -163,10 +180,15 @@ void Fbo::bind() {
     if (!m_binded) {
         glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&m_old_fbo_id);
         glBindTexture(GL_TEXTURE_2D, 0);
-        
+
         glBindFramebuffer(GL_FRAMEBUFFER, m_fbo_id);
         glViewport(0.0f, 0.0f, m_width, m_height);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        if (m_id != 0)
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_id, 0);
+        if (m_depth_id != 0)
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_id, 0);
 
         #if !defined(PLATFORM_RPI) && !defined(__EMSCRIPTEN__)
         if (m_depth)

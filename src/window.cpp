@@ -910,6 +910,18 @@ int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
 int         getWindowMSAA() { return properties.msaa; }
 
+std::string getGLVersion() {
+    if (properties.version == "") properties.version = (const char*)glGetString(GL_VERSION);
+    return properties.version;
+}
+
+#if defined(__EMSCRIPTEN__)
+size_t      getWebGLVersionNumber() {
+    if (properties.webgl == 0) properties.webgl = (beginsWith( getGLVersion(), "OpenGL ES 2.0"))? 1 : 2 ;
+    return properties.webgl;
+}
+#endif
+
 glm::vec4   getDate() {
     #ifdef _MSC_VER
         time_t tv = time(NULL);
