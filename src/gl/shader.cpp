@@ -5,15 +5,15 @@
 
 #include "ada/gl/shader.h"
 #include "ada/tools/text.h"
-#include "ada/shaders/default_error.h"
+#include "ada/shaders/defaultShaders.h"
 
 #include "glm/gtc/type_ptr.hpp"
 
 namespace ada {
 
 Shader::Shader():
-    m_fragmentSource(error_frag),
-    m_vertexSource(error_vert),
+    m_fragmentSource(""),
+    m_vertexSource(""),
     m_program(0), m_fragmentShader(0), m_vertexShader(0) {
 
     // Adding default defines
@@ -49,11 +49,16 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
     start_time = std::chrono::steady_clock::now();
     m_defineChange = false;
 
+    setVersionFromCode(_fragmentSrc);
+    if (m_fragmentSource == "" || m_vertexSource =="") {
+        m_fragmentSource = getDefaultSrc(FRAG_ERROR);
+        m_vertexSource = getDefaultSrc(VERT_ERROR);
+    }
     m_vertexShader = compileShader(_vertexSrc, GL_VERTEX_SHADER, _verbose);
 
     if (!m_vertexShader) {
         if (_error_screen)
-            load(error_frag, error_vert, false);
+            load(getDefaultSrc(FRAG_ERROR), getDefaultSrc(VERT_ERROR), false);
         else
             load(m_fragmentSource, m_vertexSource, false);
 
@@ -64,7 +69,7 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
 
     if (!m_fragmentShader) {
         if (_error_screen)
-            load(error_frag, error_vert, false);
+            load(getDefaultSrc(FRAG_ERROR), getDefaultSrc(VERT_ERROR), false);
         else
             load(m_fragmentSource, m_vertexSource, false);
     }
@@ -103,7 +108,7 @@ bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc
             std::cerr << (unsigned)toInt(lineNum) << ": " << getLineNumber(_fragmentSrc,(unsigned)toInt(lineNum)) << std::endl;
         }
         glDeleteProgram(m_program);
-        load(error_frag, error_vert, false);
+        load(getDefaultSrc(FRAG_ERROR), getDefaultSrc(VERT_ERROR), false);
         return false;
     } 
     else {
