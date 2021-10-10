@@ -1,1 +1,17 @@
 build/
+
+# glfw
+glfw_config.h
+glfw3.pc
+
+# Visual Studio 2019
+*.sln
+*.vcxproj
+*.vcxproj.filters
+Debug/
+Release/
+
+# CMake
+*.cmake
+CMakeFiles/
+*.stamp

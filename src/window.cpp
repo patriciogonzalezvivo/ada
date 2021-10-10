@@ -332,6 +332,18 @@ void on_window_size(GLFWwindow* window, int width, int height) {
 }
 #endif
 
+#ifdef PLATFORM_WINDOWS
+const int CLOCK_MONOTONIC = 0;
+int clock_gettime(int, struct timespec* spec)      //C-file part
+{
+    __int64 wintime; GetSystemTimeAsFileTime((FILETIME*)&wintime);
+    wintime -= 116444736000000000i64;  //1jan1601 to 1jan1970
+    spec->tv_sec = wintime / 10000000i64;           //seconds
+    spec->tv_nsec = wintime % 10000000i64 * 100;      //nano-seconds
+    return 0;
+}
+#endif
+
 int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
     clock_gettime(CLOCK_MONOTONIC, &time_start);
     properties = _prop;
@@ -471,7 +483,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _prop.major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _prop.minor);
-        if (_prop.major >= 3 and _prop.minor >= 2) {
+        if (_prop.major >= 3 && _prop.minor >= 2) {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
         }

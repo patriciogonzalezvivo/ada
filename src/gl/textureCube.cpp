@@ -12,8 +12,12 @@
 #include "ArHosekSkyModel.h"
 
 #ifdef _WIN32
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
+#ifndef M_PI_2
+#define M_PI_2 1.57079632679489661923
+#endif
 #endif
 
 namespace ada {
