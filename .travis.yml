@@ -6,17 +6,27 @@ branches:
 matrix:
     include:
         -   os: linux
-            dist: xenial
+            dist: bionic
             sudo: required
             name: "GLFW 3 shared library"
             addons:
                 apt:
                     packages:
                         - xorg-dev 
-                        - libglfw3-dev
                         - libglu1-mesa-dev
-            env:
-                - CFLAGS=-Werror
+                        - libglfw3-dev
+                        - libavcodec-dev 
+                        - libavcodec-extra 
+                        - libavfilter-dev 
+                        - libavfilter-extra 
+                        - libavdevice-dev 
+                        - libavformat-dev 
+                        - libavutil-dev 
+                        - libswscale-dev 
+                        - libv4l-dev 
+                        - libjpeg-dev 
+                        - libpng-dev 
+                        - libtiff-dev
 
 script:
   - mkdir build
