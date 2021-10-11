@@ -174,7 +174,6 @@ int main(int argc, char **argv) {
         else if (   std::string(argv[i]) == "-ss" ||
                     std::string(argv[i]) == "--screensaver") {
             window_properties.style = ada::FULLSCREEN;
-            screensaver = true;
         }
         else if (   std::string(argv[i]) == "--msaa") {
             window_properties.msaa = 4;
