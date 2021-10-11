@@ -1,4 +1,4 @@
-# ADA [![Build Status](https://travis-ci.org/patriciogonzalezvivo/ada.svg?branch=master)](https://travis-ci.org/patriciogonzalezvivo/ada)
+# ADA [![Build Status](https://travis-ci.com/patriciogonzalezvivo/ada.svg?branch=main)](https://travis-ci.com/patriciogonzalezvivo/ada)
 
 
 The fundation of any visual computational adventure. 
