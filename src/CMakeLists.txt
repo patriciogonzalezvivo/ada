@@ -65,6 +65,9 @@ if (BROADCOM_FOUND)
     target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
 endif()
 
+if(MSVC)
+	add_definitions( -DPLATFORM_WINDOWS )
+endif()
 
 if (NO_X11 OR FORCE_GBM)
 

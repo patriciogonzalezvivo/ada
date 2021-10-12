@@ -1,10 +1,20 @@
 #include "ada/tools/list.h"
 
+#include <iterator>
 #include <algorithm>
 
 namespace ada {
 
 List merge(const List &_A,const List &_B) {
+
+#ifdef PLATFORM_WINDOWS
+    // std::merge on Windows would expect _A and _B to be already sorted to work
+    List rta(_A);
+
+    rta.insert(rta.begin(), _B.begin(), _B.end());      // rta = _A + _B
+    rta.erase(std::unique(rta.begin(), rta.end()), rta.end());  // remove duplicates
+    std::sort(rta.begin(), rta.end());  // sort the resulting List
+#else
     List rta;
     
     std::merge( _A.begin(), _A.end(),
@@ -14,7 +24,7 @@ List merge(const List &_A,const List &_B) {
     std::sort( rta.begin(), rta.end() );
 
     rta.erase(std::unique(rta.begin(), rta.end()), rta.end());    
-
+#endif
     return rta;
 }
 
