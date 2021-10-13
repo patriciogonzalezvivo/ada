@@ -245,9 +245,9 @@ target_link_libraries(ada PUBLIC stb glob skymodel )
 # source_group(   TREE ${INCLUDE_FOLDER} 
 #                 PREFIX "Header Files" FILES ${ROOT_HEADER})
 
-install(TARGETS ${PROJECT_NAME} DESTINATION lib)
-install(FILES ${ROOT_HEADER} DESTINATION include/ada)
-install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
-install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
-install(FILES ${SHADERS_SOURCES} DESTINATION include/ada/shaders)
+# install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+# install(FILES ${ROOT_HEADER} DESTINATION include/ada)
+# install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
+# install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
+# install(FILES ${SHADERS_SOURCES} DESTINATION include/ada/shaders)
 
