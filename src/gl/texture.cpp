@@ -116,7 +116,7 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(m_wrap));
 
     
-#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI) //|| defined(__EMSCRIPTEN__)
     int max_size = std::max(m_width, m_height);
     if ( max_size > 1024) {
         float factor = max_size/1024.0;
@@ -126,28 +126,28 @@ bool Texture::load(int _width, int _height, int _channels, int _bits, const void
         if (_bits == 32) {
             float * data = new float [w * h * _channels];
             rescalePixels((float*)_data, m_width, m_height, _channels, w, h, data);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, format, type, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, type, data);
             delete[] data;
         }
         else if (_bits == 16) {
             unsigned short * data = new unsigned short [w * h * _channels];
             rescalePixels((unsigned short *)_data, m_width, m_height, _channels, w, h, data);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, format, type, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, type, data);
             delete[] data;
         }
         else if (_bits == 8) {
             unsigned char * data = new unsigned char [w * h * _channels];
             rescalePixels((unsigned char*)_data, m_width, m_height, _channels, w, h, data);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, format, type, data);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0, format, type, data);
             delete[] data;
         }
         m_width = w;
         m_height = h;
     }
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, type, _data);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, type, _data);
 #else
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, format, type, _data);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, type, _data);
 #endif
     return true;
 }

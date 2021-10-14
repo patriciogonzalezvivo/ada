@@ -127,8 +127,11 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     if (m_depth) {
         glBindRenderbuffer(GL_RENDERBUFFER, m_depth_buffer);
 
-#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_width, m_height);
+#elif defined(__EMSCRIPTEN__)
+        glRenderbufferStorage(  GL_RENDERBUFFER, 
+                                (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24, m_width, m_height);
 #else
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
 #endif
@@ -149,9 +152,11 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 #elif defined(__EMSCRIPTEN__)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexImage2D(   GL_TEXTURE_2D, 0, 
+                            (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT : GL_DEPTH_COMPONENT16, m_width, m_height, 0, 
+                            GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 #else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);

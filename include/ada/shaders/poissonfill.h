@@ -10,7 +10,7 @@
 
 const std::string poissonfill_frag = R"(
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform sampler2D   u_convolutionPyramidTex0;
@@ -98,7 +98,7 @@ void main() {
 
 const std::string poissonfill_frag_300 = R"(
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform sampler2D   u_convolutionPyramidTex0;
