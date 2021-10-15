@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
+#include "ada/window.h"
 #include "ada/gl/shader.h"
 #include "ada/tools/text.h"
 #include "ada/shaders/defaultShaders.h"
@@ -30,7 +31,7 @@ Shader::Shader():
     addDefine("PLATFORM_RPI");
     
     #elif defined(__EMSCRIPTEN__)
-    addDefine("PLATFORM_WEBGL", getWebGLVersionNumber());
+    addDefine("PLATFORM_WEBGL", toString(getWebGLVersionNumber()) );
     
     #else
     addDefine("PLATFORM_LINUX");
