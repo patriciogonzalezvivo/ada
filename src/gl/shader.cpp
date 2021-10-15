@@ -31,7 +31,7 @@ Shader::Shader():
     addDefine("PLATFORM_RPI");
     
     #elif defined(__EMSCRIPTEN__)
-    addDefine("PLATFORM_WEBGL", toString(getWebGLVersionNumber()) );
+    addDefine("PLATFORM_WEBGL");//, toString(getWebGLVersionNumber()) );
     
     #else
     addDefine("PLATFORM_LINUX");
