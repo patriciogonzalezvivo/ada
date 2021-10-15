@@ -176,7 +176,7 @@ varying vec4    v_tangent;
 // #define SPECULAR_BLINNPHONG
 // #define LIGHT_SHADOWMAP_BIAS 0.005
 
-#if defined(PLATFORM_RPI) || defined(PLATFORM_EMSCRIPTEN)
+#if defined(PLATFORM_RPI) || defined(PLATFORM_WEBGL)
 #define TARGET_MOBILE
 #endif
 
@@ -1276,7 +1276,7 @@ const std::string default_scene_frag2 = R"(
  * +10EV - white
  */
 
-#if !defined(PLATFORM_RPI) && !defined(PLATFORM_EMSCRIPTEN)
+#if !defined(PLATFORM_RPI) && !defined(PLATFORM_WEBGL)
 vec3 tonemap_displayRange(const vec3 x) {
 
     // 16 debug colors + 1 duplicated at the end for easy indexing
@@ -1921,7 +1921,7 @@ void lightWithShadow(vec3 _diffuseColor, vec3 _specularColor, vec3 _N, vec3 _V, 
 
     float shadows = 1.0;
 
-#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE) && !defined(PLATFORM_RPI) && !defined(PLATFORM_EMSCRIPTEN)
+#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE) && !defined(PLATFORM_RPI) && !defined(PLATFORM_WEBGL)
     shadows = shadow();
 #endif
 
