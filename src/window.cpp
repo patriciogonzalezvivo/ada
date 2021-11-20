@@ -330,6 +330,20 @@ void on_window_size(GLFWwindow* window, int width, int height) {
 
     setWindowSize(width, height);
 }
+
+void enable_extension(const char* name) {
+    auto ctx = emscripten_webgl_get_current_context();
+    if (ctx != 0) 
+        std::cout << "No active WebGL context." << std::endl;
+
+    auto result = emscripten_webgl_enable_extension(ctx, name);
+    if (result)
+        std::cout << "Required extension '" << name << "' is not supported by your browser." << std::endl;
+}
+
+bool haveExtension(std::string _name) {
+    return properties.extensions.find(_name) == std::string::npos;
+}
 #endif
 
 #ifdef PLATFORM_WINDOWS
@@ -651,15 +665,12 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
 
 #ifndef __EMSCRIPTEN__
-        glfwSetWindowPosCallback(window, [](GLFWwindow* _window, int x, int y) {
-            if (fPixelDensity != getPixelDensity()) {
-                updateViewport();
-            }
-        });
+        properties.extensions = std::string((char*)glGetString(GL_EXTENSIONS)); 
 
-        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
-            setViewport(_w,_h);
-        });
+        enable_extension("OES_texture_float");
+        enable_extension("OES_texture_float_linear");
+#else
+
 #endif
 
         if (_viewport.x > 0 || _viewport.y > 0) {
@@ -936,6 +947,8 @@ size_t      getWebGLVersionNumber() {
     if (properties.webgl == 0) properties.webgl = (beginsWith( getGLVersion(), "OpenGL ES 2.0"))? 1 : 2 ;
     return properties.webgl;
 }
+
+
 #endif
 
 glm::vec4   getDate() {

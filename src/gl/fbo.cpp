@@ -110,8 +110,15 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         // Color
         glBindTexture(GL_TEXTURE_2D, m_id);
 
-#if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+#elif defined(__EMSCRIPTEN__)
+        if ( haveExtension("OES_texture_float") ) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+        }
+        else {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        }
 #else
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 #endif

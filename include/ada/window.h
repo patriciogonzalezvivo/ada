@@ -31,6 +31,7 @@ struct WindowProperties {
     #endif
 
     #if defined(__EMSCRIPTEN__)
+    std::string extensions;
     size_t      webgl = 0;
     #endif
 };
@@ -69,6 +70,7 @@ int         getWindowMSAA();
 std::string getGLVersion();
 #if defined(__EMSCRIPTEN__)
 size_t      getWebGLVersionNumber();
+bool        haveExtension(std::string _name);
 #endif
 
 glm::vec4   getDate();
