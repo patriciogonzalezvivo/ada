@@ -291,24 +291,26 @@ static const char *eglGetErrorStr() {
 #endif
 
 #ifdef __EMSCRIPTEN__
+
 static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
     double width, height;
-    emscripten_get_element_css_size(EMSCRIPTEN_EVENT_TARGET_WINDOW, &width, &height);
+    emscripten_get_element_css_size("#canvas", &width, &height);
     setWindowSize(width, height);
     return EM_FALSE;
 }
 
 static void maximize_canvas() {
-    EmscriptenFullscreenStrategy strategy = {
-        .scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH,
-        .canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF,
-        .filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT,
-        .canvasResizedCallback = on_canvassize_changed,
-        .canvasResizedCallbackUserData = NULL
-    };
+    EmscriptenFullscreenStrategy strategy{};
 
-    emscripten_enter_soft_fullscreen(EMSCRIPTEN_EVENT_TARGET_WINDOW, &strategy);
-    on_canvassize_changed(0, NULL, NULL);
+    strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_DEFAULT;
+    strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+    strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+
+    strategy.canvasResizedCallback = on_canvassize_changed;
+    strategy.canvasResizedCallbackUserData = NULL;
+
+    emscripten_enter_soft_fullscreen("#canvas", &strategy);
+    // on_canvassize_changed(0, NULL, NULL);
 }
 
 void on_window_size(GLFWwindow* window, int width, int height) {
@@ -320,7 +322,7 @@ void on_window_size(GLFWwindow* window, int width, int height) {
         wasFullscreen = isInFullscreen;
 
         // Set canvas size to full screen, all the pixels
-        EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
+        // EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
     }
 
     if (wasFullscreen && !isInFullscreen) {
@@ -351,13 +353,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         mouse.y = y;
         mouse.drag.x = mouse.x;
         mouse.drag.y = mouse.y;
-        mouse.button = 1;
         mouse.entered = true;
+        mouse.button = 0;
         onMouseClick(mouse.x, mouse.y, mouse.button);
 
     } else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP) {
-        mouse.button = 0;
         mouse.entered = false;
+        mouse.button = 0;
 
     } else if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE) {
         mouse.velX = x - mouse.drag.x;
@@ -368,8 +370,24 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         mouse.x = x;
         mouse.y = y;
 
+        int action1 = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1);
+        int action2 = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2);
+        int button = 0;
+
+        if (action1 == GLFW_PRESS) button = 1;
+        else if (action2 == GLFW_PRESS) button = 2;
+
+        // Lunch events
+        if (mouse.button == 0 && button != mouse.button) {
+            mouse.button = button;
+            onMouseClick(mouse.x, mouse.y, mouse.button);
+        }
+        else {
+            mouse.button = button;
+        }
+
         if (mouse.velX != 0.0 || mouse.velY != 0.0) {
-            if (e->button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
+            if (button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
             else onMouseMove(mouse.x, mouse.y);
         }
 
@@ -392,7 +410,6 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
         mouse.drag.y = mouse.y;
         mouse.entered = true;
         mouse.button = 1;
-
         onMouseClick(mouse.x, mouse.y, mouse.button);
 
     } else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
@@ -876,8 +893,8 @@ void updateGL() {
             if (m.buttons&YSIGN) mouse.velY-=256;
 
             // Add movement
-            mouse.x+=mouse.velX;
-            mouse.y+=mouse.velY;
+            mouse.x += mouse.velX;
+            mouse.y += mouse.velY;
 
             // Clamp values
             if (mouse.x < 0) mouse.x=0;
