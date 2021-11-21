@@ -293,7 +293,7 @@ static const char *eglGetErrorStr() {
 #ifdef __EMSCRIPTEN__
 static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
     double width, height;
-    emscripten_get_element_css_size("canvas", &width, &height);
+    emscripten_get_element_css_size(EMSCRIPTEN_EVENT_TARGET_WINDOW, &width, &height);
     setWindowSize(width, height);
     return EM_FALSE;
 }
@@ -307,7 +307,7 @@ static void maximize_canvas() {
         .canvasResizedCallbackUserData = NULL
     };
 
-    emscripten_enter_soft_fullscreen("#canvas", &strategy);
+    emscripten_enter_soft_fullscreen(EMSCRIPTEN_EVENT_TARGET_WINDOW, &strategy);
     on_canvassize_changed(0, NULL, NULL);
 }
 
@@ -333,9 +333,6 @@ void on_window_size(GLFWwindow* window, int width, int height) {
 
 void enable_extension(const char* name) {
     auto ctx = emscripten_webgl_get_current_context();
-    if (ctx != 0) 
-        std::cout << "No active WebGL context." << std::endl;
-
     auto result = emscripten_webgl_enable_extension(ctx, name);
     if (result)
         std::cout << "Required extension '" << name << "' is not supported by your browser." << std::endl;
@@ -343,6 +340,89 @@ void enable_extension(const char* name) {
 
 bool haveExtension(std::string _name) {
     return properties.extensions.find(_name) == std::string::npos;
+}
+
+static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void* userData) {
+    float x = (float)e->targetX;
+    float y = viewport.w - (float)e->targetY;
+
+    if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN) {
+        mouse.x = x;
+        mouse.y = y;
+        mouse.drag.x = mouse.x;
+        mouse.drag.y = mouse.y;
+        mouse.button = 1;
+        mouse.entered = true;
+        onMouseClick(mouse.x, mouse.y, mouse.button);
+
+    } else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP) {
+        mouse.button = 0;
+        mouse.entered = false;
+
+    } else if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE) {
+        mouse.velX = x - mouse.drag.x;
+        mouse.velY = y - mouse.drag.y;
+        mouse.drag.x = x;
+        mouse.drag.y = y;
+
+        mouse.x = x;
+        mouse.y = y;
+
+        if (mouse.velX != 0.0 || mouse.velY != 0.0) {
+            if (e->button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
+            else onMouseMove(mouse.x, mouse.y);
+        }
+
+    } else {
+        printf("eventType is invalid. (%d)\n", eventType);
+        return false;
+    }
+
+    return true;
+}
+
+static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void *userData) {
+    float x = e->touches[0].targetX;
+    float y = viewport.w - e->touches[0].targetY;
+
+    if (eventType == EMSCRIPTEN_EVENT_TOUCHSTART) {
+        mouse.x = x;
+        mouse.y = y;
+        mouse.drag.x = mouse.x;
+        mouse.drag.y = mouse.y;
+        mouse.entered = true;
+        mouse.button = 1;
+
+        onMouseClick(mouse.x, mouse.y, mouse.button);
+
+    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
+        mouse.entered = false;
+        mouse.button = 0;
+
+    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
+        mouse.velX = x - mouse.drag.x;
+        mouse.velY = y - mouse.drag.y;
+        mouse.drag.x = x;
+        mouse.drag.y = y;
+
+        mouse.x = x;
+        mouse.y = y;
+
+        if (mouse.velX != 0.0 || mouse.velY != 0.0) {
+            if (mouse.button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
+            else onMouseMove(mouse.x, mouse.y);
+        }
+
+    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
+        mouse.entered = false;
+        mouse.button = 0;
+
+    } else {
+        printf("eventType is invalid. (%d)\n", eventType);
+        return false;
+    }
+
+    return true;
 }
 #endif
 
@@ -599,6 +679,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             onScroll(-yoffset * fPixelDensity);
         });
 
+#ifndef __EMSCRIPTEN__
+
         // callback when the mouse cursor enters/leaves
         glfwSetCursorEnterCallback(window, [](GLFWwindow* _window, int entered) {
             mouse.entered = (bool)entered;
@@ -663,14 +745,22 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             }
         });
 
-
-#ifndef __EMSCRIPTEN__
-        properties.extensions = std::string((char*)glGetString(GL_EXTENSIONS)); 
-
-        enable_extension("OES_texture_float");
-        enable_extension("OES_texture_float_linear");
 #else
+// #ifdef __EMSCRIPTEN__
+        properties.extensions = std::string((char*)glGetString(GL_EXTENSIONS)); 
+        enable_extension("OES_texture_float");
+        // enable_extension("OES_texture_float_linear");
+        enable_extension("OES_texture_half_float");
+        enable_extension("OES_standard_derivatives");
 
+        emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
+        emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
+        emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
+
+        emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
+        emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
+        emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
+        emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);  
 #endif
 
         if (_viewport.x > 0 || _viewport.y > 0) {

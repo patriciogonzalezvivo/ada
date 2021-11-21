@@ -110,18 +110,23 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         // Color
         glBindTexture(GL_TEXTURE_2D, m_id);
 
-#if defined(PLATFORM_RPI)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-#elif defined(__EMSCRIPTEN__)
+        GLenum format = GL_RGBA;
+        GLenum type = GL_UNSIGNED_BYTE;
+
+#if defined(__EMSCRIPTEN__)
         if ( haveExtension("OES_texture_float") ) {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_width, m_height, 0, GL_RGBA, GL_FLOAT, NULL);
+            GLenum format = GL_RGBA32F;
+            GLenum type = GL_FLOAT;
         }
-        else {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        else if ( haveExtension("OES_texture_half_float") ) {
+            GLenum format = GL_RGBA16F;
+            GLenum type = GL_FLOAT;
         }
 #else
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        format = GL_RGBA16;
+        type = GL_UNSIGNED_BYTE;
 #endif
+        glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, GL_RGBA, type, NULL);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(_wrap));
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(_wrap));
