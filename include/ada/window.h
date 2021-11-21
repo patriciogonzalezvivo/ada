@@ -20,7 +20,11 @@ struct WindowProperties {
     size_t      minor   = 0;
     size_t      msaa    = 0;
     
+    std::string vendor = "";
+    std::string renderer = "";
     std::string version = "";
+    std::string glsl = "";
+    std::string extensions = "";
 
     #if defined(DRIVER_GBM) 
     std::string display = "/dev/dri/card1";
@@ -31,7 +35,6 @@ struct WindowProperties {
     #endif
 
     #if defined(__EMSCRIPTEN__)
-    std::string extensions;
     size_t      webgl = 0;
     #endif
 };
@@ -67,10 +70,15 @@ int         getWindowWidth();
 int         getWindowHeight();
 int         getWindowMSAA();
 
+std::string getVendor();
+std::string getRenderer();
 std::string getGLVersion();
+std::string getGLSLVersion();
+std::string getExtensions();
+bool        haveExtension(std::string _name);
+
 #if defined(__EMSCRIPTEN__)
 size_t      getWebGLVersionNumber();
-bool        haveExtension(std::string _name);
 #endif
 
 glm::vec4   getDate();

@@ -297,14 +297,32 @@ int count_buffers(const std::string& _source) {
     return results.size();
 }
 
-// Count how many BUFFERS are in the shader
-bool check_for_background(const std::string& _source) {
+bool get_buffer_size(const std::string& _source, size_t _index, glm::vec2& _size) {
+    std::regex re(R"(uniform\s*sampler2D\s*u_buffer(\d+)\;\s*\/\/*\s(\d+)x(\d+))");
+    std::smatch match;
+
     // Split Source code in lines
     std::vector<std::string> lines = split(_source, '\n');
+    for (unsigned int l = 0; l < lines.size(); l++) {
+        if (std::regex_search(lines[l], match, re)) {
+            if (match[1] == toString(_index)) {
+                _size.x = toFloat(match[2]);
+                _size.y = toFloat(match[3]);
+                return true;
+            }
+        }
+    }
 
+    return false;
+}
+
+// Count how many BUFFERS are in the shader
+bool check_for_background(const std::string& _source) {
     std::regex re(R"((?:^\s*#if|^\s*#elif)(?:\s+)(defined\s*\(\s*BACKGROUND)(?:\s*\))|(?:^\s*#ifdef\s+BACKGROUND)|(?:^\s*#ifndef\s+BACKGROUND))");
     std::smatch match;
 
+    // Split Source code in lines
+    std::vector<std::string> lines = split(_source, '\n');
     for (unsigned int l = 0; l < lines.size(); l++) {
         if (std::regex_search(lines[l], match, re)) {
             return true;

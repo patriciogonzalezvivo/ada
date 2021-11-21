@@ -320,9 +320,6 @@ void on_window_size(GLFWwindow* window, int width, int height) {
     if (isInFullscreen && !wasFullscreen) {
         printf("Successfully transitioned to fullscreen mode!\n");
         wasFullscreen = isInFullscreen;
-
-        // Set canvas size to full screen, all the pixels
-        // EM_ASM("Browser.setCanvasSize(screen.width, screen.height)");
     }
 
     if (wasFullscreen && !isInFullscreen) {
@@ -333,15 +330,9 @@ void on_window_size(GLFWwindow* window, int width, int height) {
     setWindowSize(width, height);
 }
 
-void enable_extension(const char* name) {
+bool enable_extension(const char* name) {
     auto ctx = emscripten_webgl_get_current_context();
-    auto result = emscripten_webgl_enable_extension(ctx, name);
-    if (result)
-        std::cout << "Required extension '" << name << "' is not supported by your browser." << std::endl;
-}
-
-bool haveExtension(std::string _name) {
-    return properties.extensions.find(_name) == std::string::npos;
+    return emscripten_webgl_enable_extension(ctx, name);
 }
 
 static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void* userData) {
@@ -697,6 +688,15 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 
 #ifndef __EMSCRIPTEN__
+        glfwSetWindowPosCallback(window, [](GLFWwindow* _window, int x, int y) {
+            if (fPixelDensity != getPixelDensity()) {
+                updateViewport();
+            }
+        });
+
+        glfwSetWindowSizeCallback(window, [](GLFWwindow* _window, int _w, int _h) {
+            setViewport(_w,_h);
+        });
 
         // callback when the mouse cursor enters/leaves
         glfwSetCursorEnterCallback(window, [](GLFWwindow* _window, int entered) {
@@ -725,8 +725,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             mouse.y = y;
             if (mouse.x < 0) mouse.x = 0;
             if (mouse.y < 0) mouse.y = 0;
-            if (mouse.x > viewport.z * fPixelDensity) mouse.x = viewport.z * fPixelDensity;
-            if (mouse.y > viewport.w * fPixelDensity) mouse.y = viewport.w * fPixelDensity;
+            if (mouse.x > getWindowWidth()) mouse.x = getWindowWidth();
+            if (mouse.y > getWindowHeight()) mouse.y = getWindowHeight();
 
             // update mouse4 when cursor moves
             if (left_mouse_button_down) {
@@ -763,13 +763,13 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 
 #else
-// #ifdef __EMSCRIPTEN__
-        properties.extensions = std::string((char*)glGetString(GL_EXTENSIONS)); 
+
         enable_extension("OES_texture_float");
-        // enable_extension("OES_texture_float_linear");
         enable_extension("OES_texture_half_float");
         enable_extension("OES_standard_derivatives");
-
+        enable_extension("OES_texture_float_linear");
+        enable_extension("OES_texture_half_float_linear");
+        
         emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
         emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
         emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
@@ -780,10 +780,11 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);  
 #endif
 
-        if (_viewport.x > 0 || _viewport.y > 0) {
+        if (_viewport.x > 0 || _viewport.y > 0)
             glfwSetWindowPos(window, _viewport.x, _viewport.y);
-        }
+        
     #endif
+
     setViewport(_viewport.z, _viewport.w);
 
     return 0;
@@ -846,7 +847,7 @@ void updateGL() {
     #if defined(DRIVER_GLFW)
         glfwPollEvents();
 
-        #ifdef __EMSCRIPTEN__
+        #if defined(__EMSCRIPTEN__)
         double width,  height;
         emscripten_get_element_css_size("canvas", &width, &height);
 
@@ -961,7 +962,6 @@ void closeGL(){
 }
 
 
-
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW)    
@@ -990,12 +990,15 @@ void setViewport(float _width, float _height) {
 
 void updateViewport() {
     fPixelDensity = getPixelDensity();
-    glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
-                (float)viewport.z * fPixelDensity, (float)viewport.w * fPixelDensity);
-    orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, (float)viewport.z * fPixelDensity, 
-                                (float)viewport.y * fPixelDensity, (float)viewport.w * fPixelDensity);
+    float width = getWindowWidth();
+    float height = getWindowHeight();
 
-    onViewportResize(getWindowWidth(), getWindowHeight());
+    glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
+                width, height);
+    orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
+                                (float)viewport.y * fPixelDensity, height);
+
+    onViewportResize(width, height);
 }
 
 glm::ivec2 getScreenSize() {
@@ -1028,14 +1031,18 @@ glm::ivec2 getScreenSize() {
 }
 
 float getPixelDensity() {
-    #if defined(DRIVER_GLFW)
+#if defined(DRIVER_GLFW)
+    #if defined(__EMSCRIPTEN__)
+        return 1.0f;
+    #else
         int window_width, window_height, framebuffer_width, framebuffer_height;
         glfwGetWindowSize(window, &window_width, &window_height);
         glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
         return float(framebuffer_width)/float(window_width);
-    #else
-        return 1.;
     #endif
+#else
+        return 1.0f;
+#endif
 }
 
 glm::ivec4  getViewport() { return viewport; }
@@ -1044,21 +1051,44 @@ int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
 int         getWindowMSAA() { return properties.msaa; }
 
+std::string getVendor() {
+    if (properties.vendor == "") properties.vendor = std::string((const char*)glGetString(GL_VENDOR));
+    return properties.vendor;
+}
+
+std::string getRenderer() {
+    if (properties.renderer == "") properties.renderer = std::string((const char*)glGetString(GL_RENDERER));
+    return properties.renderer;
+}
+
 std::string getGLVersion() {
-    if (properties.version == "") properties.version = (const char*)glGetString(GL_VERSION);
+    if (properties.version == "") properties.version = std::string((const char*)glGetString(GL_VERSION));
     return properties.version;
 }
 
+std::string getGLSLVersion() {
+    if (properties.glsl == "") properties.glsl = std::string((const char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    return properties.glsl;
+}
+
+std::string getExtensions() { 
+    if (properties.extensions == "") properties.extensions = std::string((const char*)glGetString(GL_EXTENSIONS));
+    return properties.extensions; 
+}
+
+bool haveExtension(std::string _name) { 
+    if (properties.extensions == "") properties.extensions = std::string((const char*)glGetString(GL_EXTENSIONS));
+    return properties.extensions.find(_name) == std::string::npos; 
+}
+
 #if defined(__EMSCRIPTEN__)
-size_t      getWebGLVersionNumber() {
+size_t getWebGLVersionNumber() {
     if (properties.webgl == 0) properties.webgl = (beginsWith( getGLVersion(), "OpenGL ES 2.0"))? 1 : 2 ;
     return properties.webgl;
 }
-
-
 #endif
 
-glm::vec4   getDate() {
+glm::vec4 getDate() {
     #ifdef _MSC_VER
         time_t tv = time(NULL);
 
@@ -1096,7 +1126,7 @@ float   getRestSec() { return restSec; }
 int     getRestMs() { return restSec * 1000; }
 int     getRestUs() { return restSec * 1000000; }
 
-void        setMousePosition( float _x, float _y ) {
+void    setMousePosition( float _x, float _y ) {
     mouse.x = _x;
     mouse.y = _y;
     mouse.velX = 0.0f;
@@ -1109,16 +1139,16 @@ void        setMousePosition( float _x, float _y ) {
     #endif
 }
 
-void        setMousePosition( glm::vec2 _pos ) { setMousePosition(_pos.x, _pos.y); }
+void    setMousePosition( glm::vec2 _pos ) { setMousePosition(_pos.x, _pos.y); }
 
-float       getMouseX(){ return mouse.x; }
-float       getMouseY(){ return mouse.y; }
-glm::vec2   getMousePosition() { return glm::vec2(mouse.x,mouse.y); }
-float       getMouseVelX(){ return mouse.velX; }
-float       getMouseVelY(){ return mouse.velY;}
-glm::vec2   getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
-int         getMouseButton(){ return mouse.button;}
-glm::vec4   getMouse4() {return mouse4;}
-bool        getMouseEntered() { return mouse.entered; }
+float   getMouseX(){ return mouse.x; }
+float   getMouseY(){ return mouse.y; }
+glm::vec2 getMousePosition() { return glm::vec2(mouse.x,mouse.y); }
+float   getMouseVelX(){ return mouse.velX; }
+float   getMouseVelY(){ return mouse.velY;}
+glm::vec2 getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
+int     getMouseButton(){ return mouse.button;}
+glm::vec4 getMouse4() {return mouse4;}
+bool    getMouseEntered() { return mouse.entered; }
 
 }

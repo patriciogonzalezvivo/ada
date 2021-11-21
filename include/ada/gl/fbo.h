@@ -33,6 +33,8 @@ public:
     virtual int     getWidth() const { return m_width; };
     virtual int     getHeight() const { return m_height; };
 
+    bool            fixed = false;
+
 protected:
     GLuint  m_id;
     GLuint  m_fbo_id;
