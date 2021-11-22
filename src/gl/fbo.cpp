@@ -114,18 +114,19 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         GLenum format = GL_RGBA;
         GLenum type = GL_UNSIGNED_BYTE;
 
-#if defined(__EMSCRIPTEN__)
+#ifndef PLATFORM_RPI
         if ( haveExtension("OES_texture_float") ) {
-            GLenum format = GL_RGBA32F;
-            GLenum type = GL_FLOAT;
+            format = GL_RGBA32F;
+            type = GL_FLOAT;
         }
         else if ( haveExtension("OES_texture_half_float") ) {
-            GLenum format = GL_RGBA16F;
-            GLenum type = GL_FLOAT;
+            format = GL_RGBA16F;
+            type = GL_FLOAT;
         }
-#else
-        format = GL_RGBA16;
-        type = GL_UNSIGNED_BYTE;
+        else {
+            format = GL_RGBA16;
+            type = GL_UNSIGNED_BYTE;
+        }
 #endif
         glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, GL_RGBA, type, NULL);
 
