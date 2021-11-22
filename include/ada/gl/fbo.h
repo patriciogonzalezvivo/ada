@@ -8,6 +8,7 @@ namespace ada {
 enum FboType {
     COLOR_TEXTURE = 0, 
     COLOR_TEXTURE_DEPTH_BUFFER, 
+    COLOR_FLOAT_TEXTURE,
     COLOR_DEPTH_TEXTURES, 
     DEPTH_TEXTURE
 };

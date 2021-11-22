@@ -63,6 +63,11 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
             color_texture = true;
             depth_texture = false;
         break;
+        case COLOR_FLOAT_TEXTURE:
+            m_depth = false;
+            color_texture = true;
+            depth_texture = false;
+        break;
         case COLOR_TEXTURE_DEPTH_BUFFER:
             m_depth = true;
             color_texture = true;
@@ -115,17 +120,19 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         GLenum type = GL_UNSIGNED_BYTE;
 
 #ifndef PLATFORM_RPI
-        if ( haveExtension("OES_texture_float") ) {
-            format = GL_RGBA32F;
-            type = GL_FLOAT;
-        }
-        else if ( haveExtension("OES_texture_half_float") ) {
-            format = GL_RGBA16F;
-            type = GL_FLOAT;
-        }
-        else {
-            format = GL_RGBA16;
-            type = GL_UNSIGNED_BYTE;
+        if (_type == COLOR_FLOAT_TEXTURE) {
+            if ( haveExtension("OES_texture_float") ) {
+                format = GL_RGBA32F;
+                type = GL_FLOAT;
+            }
+            else if ( haveExtension("OES_texture_half_float") ) {
+                format = GL_RGBA16F;
+                type = GL_FLOAT;
+            }
+            else {
+                format = GL_RGBA16;
+                type = GL_UNSIGNED_BYTE;
+            }
         }
 #endif
         glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, GL_RGBA, type, NULL);
