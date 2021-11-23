@@ -293,41 +293,13 @@ static const char *eglGetErrorStr() {
 #ifdef __EMSCRIPTEN__
 
 static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
+
     double width, height;
     emscripten_get_element_css_size("#canvas", &width, &height);
-    setWindowSize(width, height);
+    if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w)
+        setWindowSize(width, height);
+
     return EM_FALSE;
-}
-
-static void maximize_canvas() {
-    EmscriptenFullscreenStrategy strategy{};
-
-    strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_DEFAULT;
-    strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
-    strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
-
-    strategy.canvasResizedCallback = on_canvassize_changed;
-    strategy.canvasResizedCallbackUserData = NULL;
-
-    emscripten_enter_soft_fullscreen("#canvas", &strategy);
-    // on_canvassize_changed(0, NULL, NULL);
-}
-
-void on_window_size(GLFWwindow* window, int width, int height) {
-    static int wasFullscreen = 0;
-
-    int isInFullscreen = EM_ASM_INT_V(return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement));
-    if (isInFullscreen && !wasFullscreen) {
-        printf("Successfully transitioned to fullscreen mode!\n");
-        wasFullscreen = isInFullscreen;
-    }
-
-    if (wasFullscreen && !isInFullscreen) {
-        wasFullscreen = isInFullscreen;
-        maximize_canvas();
-    }
-
-    setWindowSize(width, height);
 }
 
 bool enable_extension(const char* name) {
@@ -763,7 +735,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 
 #else
-
         enable_extension("OES_texture_float");
         enable_extension("OES_texture_half_float");
         enable_extension("OES_standard_derivatives");
@@ -777,7 +748,19 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         emscripten_set_touchstart_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
-        emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);  
+        emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
+
+        EmscriptenFullscreenStrategy strategy{};
+
+        strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;
+        strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+        // strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_HIDEF;
+        strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+
+        strategy.canvasResizedCallback = on_canvassize_changed;
+        strategy.canvasResizedCallbackUserData = NULL;
+
+        emscripten_enter_soft_fullscreen("#canvas", &strategy);
 #endif
 
         if (_viewport.x > 0 || _viewport.y > 0)
@@ -847,16 +830,6 @@ void updateGL() {
     #if defined(DRIVER_GLFW)
         glfwPollEvents();
 
-        #if defined(__EMSCRIPTEN__)
-        double width,  height;
-        emscripten_get_element_css_size("canvas", &width, &height);
-
-        if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w) {
-            // setWindowSize(width, height);
-            on_window_size(window, width, height);
-        }
-        #endif
-            
     #else
         const int XSIGN = 1<<4, YSIGN = 1<<5;
         static int fd = -1;
@@ -964,7 +937,7 @@ void closeGL(){
 
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
-    #if defined(DRIVER_GLFW)    
+    #if defined(DRIVER_GLFW) 
     glfwSetWindowSize(window, _width, _height);
     #endif
     setViewport((float)_width, (float)_height);
@@ -1033,7 +1006,8 @@ glm::ivec2 getScreenSize() {
 float getPixelDensity() {
 #if defined(DRIVER_GLFW)
     #if defined(__EMSCRIPTEN__)
-        return 1.0f;
+        return 1.0;
+        // return emscripten_get_device_pixel_ratio();
     #else
         int window_width, window_height, framebuffer_width, framebuffer_height;
         glfwGetWindowSize(window, &window_width, &window_height);
