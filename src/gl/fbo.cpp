@@ -119,7 +119,14 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         GLenum format = GL_RGBA;
         GLenum type = GL_UNSIGNED_BYTE;
 
-#ifndef PLATFORM_RPI
+
+#if defined(PLATFORM_RPI)
+
+#elif defined(__APPLE__)
+        format = GL_RGBA16;
+        type = GL_UNSIGNED_BYTE;
+
+#else
         if (_type == COLOR_FLOAT_TEXTURE) {
             if ( haveExtension("OES_texture_float") ) {
                 format = GL_RGBA32F;
