@@ -44,6 +44,7 @@
 // MACOS
 #elif defined(__APPLE__)
     #define GL_PROGRAM_BINARY_LENGTH 0x8741
+    #define GL_SILENCE_DEPRECATION
     #include <OpenGL/gl.h>
     #include <OpenGL/glext.h>
 
