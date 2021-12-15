@@ -106,6 +106,15 @@ bool alreadyInclude(const std::string &_path, List *_dependencies) {
     return false;
 }
 
+bool loadFromPath(const std::string &_path, std::string *_into) {
+    const std::vector<std::string> folders;
+    List deps;
+
+    _into->clear();
+
+    return loadFromPath(_path, _into, folders, &deps);
+}
+
 bool loadFromPath(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
     std::ifstream file;
     file.open(_path.c_str());
