@@ -630,7 +630,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         #endif
 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
-            onKeyPress(_key);
+            if (_action == GLFW_PRESS)
+                onKeyPress(_key);
         });
 
         // callback when a mouse button is pressed or released
