@@ -40,7 +40,7 @@ sudo apt install git cmake xorg-dev libglu1-mesa-dev
 ### RaspberryPi OS (without X11)
 
 ```bash
-sudo apt install git cmake libegl1-mesa-dev libgbm-dev libgles2-mesa-dev
+sudo apt install git cmake libgbm-dev libdrm-dev libegl1-mesa-dev libgles2-mesa-dev
 ```
 
 Make sure on your `/boot/config.txt` you have the following lines present and uncommented:
