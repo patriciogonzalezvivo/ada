@@ -3,7 +3,7 @@
 
 #include "textureStream.h"
 
-#ifdef LIBAV
+#ifdef SUPPORT_LIBAV
 
 extern "C" {
 #include <libavformat/avformat.h>

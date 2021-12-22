@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef LIBAV
+#ifdef SUPPORT_LIBAV
 
 extern "C" {
 #include <libavutil/log.h>

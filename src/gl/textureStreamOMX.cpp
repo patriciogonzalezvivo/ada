@@ -1,6 +1,6 @@
 #include "ada/gl/textureStreamOMX.h"
 
-#if defined(DRIVER_BROADCOM)
+#if defined(DRIVER_BROADCOM) && defined(SUPPORT_OMAX)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,7 +65,7 @@ static COMPONENT_T* egl_render = NULL;
 static OMX_VIDEO_CODINGTYPE decoderType = OMX_VIDEO_CodingAVC;
 int thread_run = 0;
 
-#ifdef LIBAV
+#ifdef SUPPORT_LIBAV
 static AVStream *video_stream = NULL;
 AVFormatContext *pFormatCtx = NULL;
 static int video_stream_idx = -1;
@@ -165,7 +165,7 @@ bool TextureStreamOMX::load(const std::string& _filepath, bool _vFlip, TextureFi
     // TODOs:
     //  - get video width and height
 
-    #ifdef LIBAV
+    #ifdef SUPPORT_LIBAV
     get_info(_filepath.c_str(), &m_width, &m_height);
     #endif
 

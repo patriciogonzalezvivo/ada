@@ -27,7 +27,7 @@ struct WindowProperties {
     std::string extensions = "";
 
     #if defined(DRIVER_GBM) 
-    std::string display = "/dev/dri/card1";
+    std::string display = "/dev/dri/card0";
     #endif
 
     #if !defined(DRIVER_GLFW)

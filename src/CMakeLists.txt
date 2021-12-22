@@ -39,12 +39,6 @@ set(ADA_SOURCES
     shaders/defaultShaders.cpp
 )
 
-# file(GLOB ROOT_SOURCES  "${SOURCE_FOLDER}/*.cpp")
-# file(GLOB GL_SOURCES  "${SOURCE_FOLDER}/gl/*.cpp")
-# file(GLOB TOOLS_SOURCES  "${SOURCE_FOLDER}/tools/*.cpp")
-# file(GLOB SHADERS_SOURCES  "${SOURCE_FOLDER}/shaders/*.cpp")
-# set(ADA_SOURCES ${ROOT_SOURCES} ${GL_SOURCES} ${TOOLS_SOURCES} ${SHADERS_SOURCES})
-
 # C++ LIBRAY
 #
 add_library(ada ${ADA_SOURCES})
@@ -57,16 +51,42 @@ set_target_properties(ada PROPERTIES
 find_package(BROADCOM)
 if (BROADCOM_FOUND)
     target_compile_definitions(ada PUBLIC   PLATFORM_RPI)
-    message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
-    message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
-    message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
     target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
     target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
     target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+    message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
+    message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
+    message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
+endif()
+
+find_package(MMAL)
+if (MMAL_FOUND)
+    target_include_directories(ada PUBLIC   ${MMAL_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC        ${MMAL_LIBRARIES})
+    target_compile_definitions(ada PUBLIC   ${MMAL_DEFINITIONS})
+    message(STATUS "MMAL_INCLUDE_DIRS:      ${MMAL_INCLUDE_DIRS}")
+    message(STATUS "MMAL_LIBRARIES:         ${MMAL_LIBRARIES}")
+endif()
+
+find_package(OMAX)
+if (OMAX_FOUND)
+    target_include_directories(ada PUBLIC   ${OMAX_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC        ${OMAX_LIBRARIES})
+    target_compile_definitions(ada PUBLIC   ${OMAX_DEFINITIONS})
+    message(STATUS "OMAX_INCLUDE_DIRS:       ${OMAX_INCLUDE_DIRS}")
+    message(STATUS "OMAX_LIBRARIES:          ${OMAX_LIBRARIES}")
+endif()
+
+find_package(FFMPEG)
+if (FFMPEG_FOUND)
+    message(STATUS "LIBAV Supported")
+    target_compile_definitions(ada PUBLIC SUPPORT_LIBAV )
+    target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()
 
 if(MSVC)
-	add_definitions( -DPLATFORM_WINDOWS )
+    target_compile_definitions(ada PUBLIC   PLATFORM_WINDOWS)
 endif()
 
 if (NO_X11 OR FORCE_GBM)
@@ -75,16 +95,13 @@ if (NO_X11 OR FORCE_GBM)
 
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
 
-        target_compile_definitions(ada PUBLIC   
-            PLATFORM_RPI 
+        target_compile_definitions(ada PUBLIC
             DRIVER_BROADCOM
         )
 
         find_package(ILCLIENT)
 
         message(STATUS "LOADING BROADCOM versions of EGL GL_ESv2")
-        message(STATUS "EGL_LIBRARY:            ${BCM_EGL}")
-        message(STATUS "GLESv2_LIBRARIES:       ${BCM_GLESv2}")
         target_link_libraries(ada PUBLIC        
             ${BCM_EGL} 
             ${BCM_GLESv2}
@@ -103,11 +120,6 @@ if (NO_X11 OR FORCE_GBM)
         
         find_package(GBM)
         find_package(DRM)
-        
-        message(STATUS "DRM_INCLUDE_DIRS:       ${DRM_INCLUDE_DIRS}")
-        message(STATUS "DRM_LIBRARIES:          ${DRM_LIBRARIES}")
-        message(STATUS "GBM_INCLUDE_DIRS:       ${GBM_INCLUDE_DIRS}")
-        message(STATUS "GBM_LIBRARY:            ${GBM_LIBRARY}")
 
         target_compile_definitions(ada PUBLIC 
             DRIVER_GBM
@@ -127,11 +139,7 @@ if (NO_X11 OR FORCE_GBM)
         message(STATUS "LOADING EGL GL_ESv2")
         find_package(EGL)
         find_package(GLESv2)
-        message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
-        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
-        message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
-        message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
-    
+        
         target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
@@ -142,6 +150,12 @@ if (NO_X11 OR FORCE_GBM)
             ${GLESv2_LIBRARIES}
         )
     endif()
+
+    message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
+    message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+    message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
+    message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
+    
 
 else()
     message(STATUS "LOADING GLFW")
@@ -219,14 +233,6 @@ else()
 
     endif()
 
-endif()
-
-find_package(FFMPEG)
-if (FFMPEG_FOUND)
-    message(STATUS "LIBAV Supported")
-    target_compile_definitions(ada PUBLIC LIBAV )
-    target_include_directories(ada PUBLIC ${FFMPEG_INCLUDE_DIRS})
-    target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()
 
 # We need this directory, and users of our library will need it too

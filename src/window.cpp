@@ -236,9 +236,11 @@ static const char *eglGetErrorStr() {
             bcm_host_init();
 
         #elif defined(DRIVER_GBM)
-            if (!urlExists(properties.display)) {
+            if (!urlExists(properties.display))
                 std::cout << "Can't open display " <<  properties.display << " seams it doesn't exist" << std::endl;
-            }
+            
+
+
             device = open(  properties.display.c_str(), O_RDWR | O_CLOEXEC);
 
             drmModeRes *resources = drmModeGetResources(device);

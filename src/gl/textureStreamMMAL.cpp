@@ -1,6 +1,6 @@
 #include "ada/gl/textureStreamMMAL.h"
 
-#if defined(PLATFORM_RPI)
+#if defined(DRIVER_BROADCOM) && defined(SUPPORT_MMAL)
 
 #include <iostream>
 

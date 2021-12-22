@@ -2,7 +2,7 @@
 
 #include "ada/gl/textureStream.h"
 
-#if defined(DRIVER_BROADCOM)
+#if defined(DRIVER_BROADCOM) && defined(SUPPORT_OMAX)
 
 #include <thread>
 
