@@ -20,11 +20,11 @@ if (OPENMAX_LIBRARY)
         OPENMAX_LIBRARY 
     )
 
-    set(OPENMAX_LIBRARIES 
+    set(OMAX_LIBRARIES 
         ${OPENMAX_LIBRARY}
     )
 
-    set(OPENMAX_DEFINITIONS 
+    set(OMAX_DEFINITIONS 
         SUPPORT_OMAX
         HAVE_LIBOPENMAX=2 
         OMX 

@@ -14,7 +14,7 @@ if (ILCLIENT_LIBRARY)
     mark_as_advanced(ILCLIENT_LIBRARY ILCLIENT_INCLUDE_DIR)
 
     include(FindPackageHandleStandardArgs)
-    find_package_handle_standard_args(Broadcom 
+    find_package_handle_standard_args(ILCLIENT 
         ILCLIENT_LIBRARY
     )
 endif()
