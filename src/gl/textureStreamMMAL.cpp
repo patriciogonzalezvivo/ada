@@ -1,6 +1,6 @@
 #include "ada/gl/textureStreamMMAL.h"
 
-#if defined(DRIVER_BROADCOM) && defined(SUPPORT_MMAL)
+#if defined(SUPPORT_MMAL)
 
 #include <iostream>
 
@@ -614,7 +614,7 @@ int raspicamcontrol_set_all_parameters(MMAL_COMPONENT_T *camera, const RASPICAM_
 TextureStreamMMAL::TextureStreamMMAL() : 
     camera_component(NULL),
     m_fbo_id(0), m_old_fbo_id(0),
-    m_brcm_id(0),
+    m_egl_img(0),
     m_vbo(nullptr) {
     #ifndef DRIVER_BROADCOM
     // bcm_host is initialated on the creation of the window in LEGACY
@@ -953,7 +953,7 @@ void TextureStreamMMAL::video_output_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEA
     // printf("Video buffer callback, output queue len=%d\n\n", mmal_queue_length(video_queue));
 }
 
-void updateTexture(EGLDisplay display, EGLenum target, EGLClientBuffer mm_buf, GLuint *texture, EGLImageKHR *egl_image) {
+void updateTexture(EGLDisplay display, EGLClientBuffer mm_buf, GLuint *texture, EGLImageKHR *egl_image) {
     //vcos_log_trace("%s: mm_buf %u", VCOS_FUNCTION, (unsigned) mm_buf);
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, *texture);
     if (*egl_image != EGL_NO_IMAGE_KHR) {
@@ -968,7 +968,13 @@ void updateTexture(EGLDisplay display, EGLenum target, EGLClientBuffer mm_buf, G
             EGL_NONE, EGL_NONE
     };  
     
-    *egl_image = createImage(display, EGL_NO_CONTEXT, target, mm_buf, attribs);
+    #ifdef DRIVER_BROADCOM
+    *egl_image = createImage(display, EGL_NO_CONTEXT, EGL_IMAGE_BRCM_MULTIMEDIA, mm_buf, attribs);
+    #else
+    // *egl_image = createImage(display, EGL_NO_CONTEXT, EGL_GL_TEXTURE_2D_KHR, mm_buf, attribs);
+    *egl_image = createImage(display, getEGLContext(), EGL_GL_TEXTURE_2D_KHR, mm_buf, attribs);
+    #endif
+
     imageTargetTexture2D(GL_TEXTURE_EXTERNAL_OES, *egl_image);
 }
 
@@ -979,7 +985,7 @@ bool TextureStreamMMAL::update() {
     if (MMAL_BUFFER_HEADER_T* buf = mmal_queue_get(video_queue)) {
         mmal_buffer_header_mem_lock(buf);
         
-        updateTexture(getEGLDisplay(), EGL_IMAGE_BRCM_MULTIMEDIA, (EGLClientBuffer)buf->data, &m_brcm_id, &egl_img);
+        updateTexture(getEGLDisplay(), (EGLClientBuffer)buf->data, &m_egl_img, &egl_img);
         
         // bind FBO
         glDisable(GL_DEPTH_TEST);
@@ -990,7 +996,7 @@ bool TextureStreamMMAL::update() {
         glViewport(0.0f, 0.0f, m_width, m_height);
 
         m_shader.use();
-        m_shader.setUniformTexture("u_tex", m_brcm_id, 1);
+        m_shader.setUniformTexture("u_tex", m_egl_img, 1);
         m_vbo->render( &m_shader );
 
         // unbind FBO
@@ -1034,9 +1040,9 @@ void TextureStreamMMAL::clear() {
         glDeleteTextures(1, &m_id);
     m_id = 0;
         
-    if (m_brcm_id!= 0)
-        glDeleteTextures(1, &m_brcm_id);
-    m_brcm_id = 0;
+    if (m_egl_img!= 0)
+        glDeleteTextures(1, &m_egl_img);
+    m_egl_img = 0;
 
     if (m_fbo_id != 0)
         glDeleteFramebuffers(1, &m_fbo_id);

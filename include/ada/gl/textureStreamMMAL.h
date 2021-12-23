@@ -3,7 +3,7 @@
 
 #include "textureStream.h"
 
-#if defined(DRIVER_BROADCOM) && defined(SUPPORT_MMAL)
+#if defined(SUPPORT_MMAL)
 #include "gl.h"
 #include "shader.h"
 #include "vbo.h"
@@ -34,12 +34,10 @@ protected:
     static void video_output_callback(MMAL_PORT_T *port, MMAL_BUFFER_HEADER_T *buffer);
 
     MMAL_COMPONENT_T    *camera_component = NULL;
-    //RASPICAM_CAMERA_PARAMETERS cameraParameters;
 
     GLuint          m_fbo_id;
     GLuint          m_old_fbo_id;
-    GLuint          m_brcm_id;
-    //EGLImageKHR     m_egl_img;
+    GLuint          m_egl_img;
     Shader          m_shader;
     Vbo*            m_vbo;
 };

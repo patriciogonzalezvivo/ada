@@ -25,7 +25,6 @@ if (OPENMAX_LIBRARY)
     )
 
     set(OMAX_DEFINITIONS 
-        SUPPORT_OMAX
         HAVE_LIBOPENMAX=2 
         OMX 
         OMX_SKIP64BIT 

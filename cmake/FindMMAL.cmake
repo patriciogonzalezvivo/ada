@@ -32,8 +32,31 @@ if (MMAL_LIBRARY)
                     PATHS /opt/vc/lib)
     mark_as_advanced(MMAL_VC_CLIENT_LIBRARY)
 
+    find_library(   BCM_HOST_LIBRARY
+        NAMES libbcm_host.so
+        DOC "Path to Broadcom Host Library"
+        PATHS /opt/vc/lib)
+    mark_as_advanced(BCM_HOST_LIBRARY)
+
+    find_library(VCOS_LIBRARY
+        NAMES libvcos.so
+        DOC "Path to VCOS Library"
+        PATHS /opt/vc/lib)
+    mark_as_advanced(VCOS_LIBRARY)
+
+    find_library(VCHIQ_LIBRARY
+        NAMES libvchiq_arm.so
+        DOC "Path to VCHIQ Library"
+        PATHS /opt/vc/lib)
+    mark_as_advanced(VCHIQ_LIBRARY)
+
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(MMAL 
+        BCM_HOST_LIBRARY
+
+        VCOS_LIBRARY
+        VCHIQ_LIBRARY
+
         MMAL_LIBRARY
         MMAL_CORE_LIBRARY
         MMAL_UTIL_LIBRARY
@@ -41,13 +64,14 @@ if (MMAL_LIBRARY)
     )
 
     set(MMAL_LIBRARIES 
+        ${BCM_HOST_LIBRARY}
+
+        ${VCOS_LIBRARY}
+        ${VCHIQ_LIBRARY}
+
         ${MMAL_LIBRARY}
         ${MMAL_CORE_LIBRARY}
         ${MMAL_UTIL_LIBRARY}
         ${MMAL_VC_CLIENT_LIBRARY}
-    )
-
-    set(MMAL_DEFINITIONS 
-        SUPPORT_MMAL
     )
 endif()
