@@ -30,7 +30,7 @@ extern "C" {
 #include "interface/vmcs_host/vchost.h"
 #include "interface/vmcs_host/vcilcs_common.h"
 
-#ifdef LIBAV
+#ifdef SUPPORT_LIBAV
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
