@@ -42,6 +42,42 @@ if (BROADCOM_INCLUDE_DIR)
                     PATHS /opt/vc/lib)
     mark_as_advanced(BCM_GLESv2)
 
+    # find_library(   BCM_GLESv2
+    #                 NAMES libbrcmGLESv2.so
+    #                 DOC "Path to Broadcom EGL Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(BCM_GLESv2)
+
+    # find_library(   MMAL_LIBRARY
+    #                 NAMES libmmal.so
+    #                 DOC "Path to MMAL Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(MMAL_LIBRARY)
+
+    # find_library(   MMAL_CORE_LIBRARY
+    #                 NAMES libmmal_core.so
+    #                 DOC "Path to MMAL CORE Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(MMAL_CORE_LIBRARY)
+
+    # find_library(   MMAL_UTIL_LIBRARY
+    #                 NAMES libmmal_util.so
+    #                 DOC "Path to MMAL UTIL Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(MMAL_UTIL_LIBRARY)
+
+    # find_library(   MMAL_VC_CLIENT_LIBRARY
+    #                 NAMES libmmal_vc_client.so
+    #                 DOC "Path to MMAL VC CLIENT Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(MMAL_VC_CLIENT_LIBRARY)
+
+    # find_library(   OPENMAXIL_LIBRARY
+    #                 NAMES libopenmaxil.so
+    #                 DOC "Path to OpenMAX IL Library"
+    #                 PATHS /opt/vc/lib)
+    # mark_as_advanced(OPENMAXIL_LIBRARY)
+
     include(FindPackageHandleStandardArgs)
     find_package_handle_standard_args(BROADCOM 
         DEFAULT_MSG 
@@ -51,14 +87,26 @@ if (BROADCOM_INCLUDE_DIR)
         BCM_HOST_LIBRARY
         BCM_EGL
         BCM_GLESv2
+
+        # MMAL_LIBRARY
+        # MMAL_CORE_LIBRARY
+        # MMAL_UTIL_LIBRARY
+        # MMAL_VC_CLIENT_LIBRARY
+        # OPENMAXIL_LIBRARY 
     )
 
     set(BROADCOM_LIBRARIES 
         ${BCM_HOST_LIBRARY} 
         ${VCHIQ_LIBRARY} 
         ${VCOS_LIBRARY}
-        ${BCM_EGL}
-        ${BCM_GLESv2} 
+        # ${BCM_EGL}
+        # ${BCM_GLESv2} 
+
+        # ${MMAL_LIBRARY}
+        # ${MMAL_CORE_LIBRARY}
+        # ${MMAL_UTIL_LIBRARY}
+        # ${MMAL_VC_CLIENT_LIBRARY}
+        # ${OPENMAXIL_LIBRARY} 
     )
 
     set(BROADCOM_INCLUDE_DIRS 
@@ -71,5 +119,12 @@ if (BROADCOM_INCLUDE_DIR)
         USE_VCHIQ_ARM
         HAVE_LIBBCM_HOST 
         USE_EXTERNAL_LIBBCM_HOST
+
+        # SUPPORT_MMAL
+        # HAVE_LIBOPENMAX=2 
+        # OMX 
+        # OMX_SKIP64BIT 
+        # USE_EXTERNAL_OMX 
+        # SUPPORT_OMAX
     )
 endif()

@@ -12,7 +12,7 @@ find_library(   OPENMAX_LIBRARY
                 DOC "Path to OpenMAX IL Library"
                 PATHS /opt/vc/lib)
 
-if (OPENMAX_LIBRARY_FOUND)
+if (OPENMAX_LIBRARY)
     mark_as_advanced(OPENMAX_LIBRARY)
 
     include(FindPackageHandleStandardArgs)

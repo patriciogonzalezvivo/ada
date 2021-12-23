@@ -8,7 +8,7 @@ find_library(   ILCLIENT_LIBRARY
                 NAME libilclient.a
                 DOC "Path ILCLIENT Library"
                 PATHS /opt/vc/src/hello_pi/libs/ilclient )
-if (ILCLIENT_LIBRARY_FOUND)
+if (ILCLIENT_LIBRARY)
     set(ILCLIENT_INCLUDE_DIR 
         /opt/vc/src/hello_pi/libs/ilclient)
     mark_as_advanced(ILCLIENT_LIBRARY ILCLIENT_INCLUDE_DIR)
