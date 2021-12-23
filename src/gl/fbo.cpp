@@ -120,7 +120,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         GLenum type = GL_UNSIGNED_BYTE;
 
 
-#if defined(PLATFORM_RPI)
+#if defined(PLATFORM_RPI) 
 
 #elif defined(__APPLE__)
         format = GL_RGBA16;

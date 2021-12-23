@@ -2,8 +2,9 @@
 
 #include <time.h>
 #include <string>
-#include <iostream>
 #include <cstring>
+#include <fstream>
+#include <iostream>
 
 #ifdef _WIN32
     #define NOMINMAX
@@ -43,63 +44,63 @@ static float            fPixelDensity = 1.0;
 
 #if defined(DRIVER_GLFW)
 
-#if defined(__APPLE__)
-    #define GL_PROGRAM_BINARY_LENGTH 0x8741
-    #include <GLFW/glfw3.h>
-    #include <OpenGL/gl.h>
-    #include <OpenGL/glext.h>
-#elif defined(_WIN32)
-    #include <GL/glew.h>
-    #include "GLFW/glfw3.h"
-    #define APIENTRY __stdcall
+    #if defined(__APPLE__)
+        #define GL_PROGRAM_BINARY_LENGTH 0x8741
+        #include <GLFW/glfw3.h>
+        #include <OpenGL/gl.h>
+        #include <OpenGL/glext.h>
 
-#elif defined(__EMSCRIPTEN__)
-#include <emscripten.h>
-#include <emscripten/html5.h>
-#define GL_GLEXT_PROTOTYPES
-#define EGL_EGLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
+    #elif defined(_WIN32)
+        #include <GL/glew.h>
+        #include "GLFW/glfw3.h"
+        #define APIENTRY __stdcall
 
-#else
-    // ANY LINUX using GLFW 
-    #define GL_GLEXT_PROTOTYPES
-    #include "GLFW/glfw3.h"
-#endif
+    #elif defined(__EMSCRIPTEN__)
+        #include <emscripten.h>
+        #include <emscripten/html5.h>
+        #define GL_GLEXT_PROTOTYPES
+        #define EGL_EGLEXT_PROTOTYPES
+        #include <GLFW/glfw3.h>
+
+    #else
+        // ANY LINUX using GLFW 
+        #define GL_GLEXT_PROTOTYPES
+        #include "GLFW/glfw3.h"
+    #endif
 
 namespace ada {
 //----------------------------------------------------
 static bool             left_mouse_button_down = false;
 static GLFWwindow*      window;
 
-#ifdef PLATFORM_RPI
-#include "GLFW/glfw3native.h"
-EGLDisplay getEGLDisplay() { return glfwGetEGLDisplay(); }
-EGLContext getEGLContext() { return glfwGetEGLContext(window); }
-#endif
+    #ifdef PLATFORM_RPI
+    #include "GLFW/glfw3native.h"
+    EGLDisplay getEGLDisplay() { return glfwGetEGLDisplay(); }
+    EGLContext getEGLContext() { return glfwGetEGLContext(window); }
+    #endif
 
 #else
 
-#if defined(DRIVER_BROADCOM)
-    #include "bcm_host.h"
-    #undef countof
-#elif defined(DRIVER_GBM)
-    #include <xf86drm.h>
-    #include <xf86drmMode.h>
-    #include <gbm.h>
-#endif
+    #if defined(DRIVER_BROADCOM)
+        #include "bcm_host.h"
+        #undef countof
+    #elif defined(DRIVER_GBM)
+        #include <xf86drm.h>
+        #include <xf86drmMode.h>
+        #include <gbm.h>
+    #endif
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-// NON GLWF globals (we have to do all brute force)
-// --------------------------------------------------
 #include <assert.h>
 #include <fcntl.h>
-#include <iostream>
 #include <termios.h>
-#include <fstream>
+#include <stdio.h> 
+#include <unistd.h>
+
 
 namespace ada {
 
@@ -239,8 +240,6 @@ static const char *eglGetErrorStr() {
             if (!urlExists(properties.display))
                 std::cout << "Can't open display " <<  properties.display << " seams it doesn't exist" << std::endl;
             
-
-
             device = open(  properties.display.c_str(), O_RDWR | O_CLOEXEC);
 
             drmModeRes *resources = drmModeGetResources(device);

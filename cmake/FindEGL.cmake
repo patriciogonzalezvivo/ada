@@ -14,6 +14,7 @@
 #
 #   EGL::EGL   - The EGL library
 
+
 if(CORE_PLATFORM_NAME_LC STREQUAL rbpi)
     set(_brcmprefix brcm)
 endif()

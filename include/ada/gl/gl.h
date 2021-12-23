@@ -13,7 +13,6 @@
         #include <gbm.h>
     #endif
 
-    // RASPBERRY PI - w WINDOW using GLFW (all version)
     #if defined(DRIVER_GLFW)
         #define GLFW_INCLUDE_GLEXT
         #define GLFW_EXPOSE_NATIVE_EGL
@@ -34,11 +33,29 @@
     #endif
 
     namespace ada {
-
     EGLImageKHR createImage(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
     EGLBoolean destroyImage(EGLDisplay dpy, EGLImageKHR image);
     void imageTargetTexture2D(EGLenum target, EGLImageKHR image);
+    }
 
+#elif defined(DRIVER_GBM)
+
+    // #include "bcm_host.h"
+    // #undef countof
+
+    #include <xf86drm.h>
+    #include <xf86drmMode.h>
+    #include <gbm.h>
+
+    #include <EGL/egl.h>
+    #include <EGL/eglext.h>
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
+
+    namespace ada {
+    EGLImageKHR createImage(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list);
+    EGLBoolean destroyImage(EGLDisplay dpy, EGLImageKHR image);
+    void imageTargetTexture2D(EGLenum target, EGLImageKHR image);
     }
 
 // MACOS

@@ -48,15 +48,35 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
+find_path(BROADCOM_HOST_FOUND NAMES bcm_host.h PATHS /opt/vc/include)
+if (BROADCOM_HOST_FOUND)
+target_compile_definitions(ada PUBLIC       PLATFORM_RPI)
+endif()
+
 find_package(BROADCOM)
 if (BROADCOM_FOUND)
-    target_compile_definitions(ada PUBLIC   PLATFORM_RPI)
-    target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
-    target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
-    target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
     message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
     message(STATUS "BROADCOM_INCLUDE_DIRS:  ${BROADCOM_INCLUDE_DIRS}")
     message(STATUS "BROADCOM_LIBRARIES:     ${BROADCOM_LIBRARIES}")
+    target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
+    target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
+    target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+endif()
+    
+find_package(ILCLIENT)
+if (ILCLIENT_FOUND)
+    target_include_directories(ada PUBLIC   ${ILCLIENT_INCLUDE_DIR} )
+    target_link_libraries(ada PUBLIC        ${ILCLIENT_LIBRARY} )
+    message(STATUS "ILCLIENT_INCLUDE_DIR:   ${ILCLIENT_INCLUDE_DIR}")
+    message(STATUS "ILCLIENT_LIBRARY:       ${ILCLIENT_LIBRARY}")
+endif()      
+
+find_package(OMAX)
+if (OMAX_FOUND)
+    target_link_libraries(ada PUBLIC        ${OMAX_LIBRARIES})
+    target_compile_definitions(ada PUBLIC   ${OMAX_DEFINITIONS})
+    message(STATUS "OMAX_INCLUDE_DIRS:      ${OMAX_INCLUDE_DIRS}")
+    message(STATUS "OMAX_LIBRARIES:         ${OMAX_LIBRARIES}")
 endif()
 
 find_package(MMAL)
@@ -68,15 +88,6 @@ if (MMAL_FOUND)
     message(STATUS "MMAL_LIBRARIES:         ${MMAL_LIBRARIES}")
 endif()
 
-find_package(OMAX)
-if (OMAX_FOUND)
-    target_include_directories(ada PUBLIC   ${OMAX_INCLUDE_DIRS})
-    target_link_libraries(ada PUBLIC        ${OMAX_LIBRARIES})
-    target_compile_definitions(ada PUBLIC   ${OMAX_DEFINITIONS})
-    message(STATUS "OMAX_INCLUDE_DIRS:       ${OMAX_INCLUDE_DIRS}")
-    message(STATUS "OMAX_LIBRARIES:          ${OMAX_LIBRARIES}")
-endif()
-
 find_package(FFMPEG)
 if (FFMPEG_FOUND)
     message(STATUS "LIBAV Supported")
@@ -85,61 +96,36 @@ if (FFMPEG_FOUND)
     target_link_libraries(ada PUBLIC ${FFMPEG_LIBRARIES})
 endif()
 
-if(MSVC)
-    target_compile_definitions(ada PUBLIC   PLATFORM_WINDOWS)
-endif()
-
 if (NO_X11 OR FORCE_GBM)
-
-    # add_compile_options(ada PUBLIC "-Wall -O3 -std=c++11 -DGLM_FORCE_CXX14 -fpermissive -Wno-psabi")
-
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-
-        target_compile_definitions(ada PUBLIC
-            DRIVER_BROADCOM
-        )
-
-        find_package(ILCLIENT)
-
-        message(STATUS "LOADING BROADCOM versions of EGL GL_ESv2")
+        message(STATUS "USING BROADCOM versions of EGL GL_ESv2")
+        target_compile_definitions(ada PUBLIC   DRIVER_BROADCOM )
         target_link_libraries(ada PUBLIC        
             ${BCM_EGL} 
             ${BCM_GLESv2}
-            ${ILCLIENT_LIBRARY}
         )
 
-        target_include_directories(ada PUBLIC
-            ${EGL_INCLUDE_DIRS}
-            ${GLESv2_INCLUDE_DIRS}
-            ${ILCLIENT_INCLUDE_DIR}
-        )
-            
     else()
-
-        message(STATUS "LOADING GBM/DRM")
-        
-        find_package(GBM)
+        message(STATUS "USING DRM and GBM")
+        target_compile_definitions(ada PUBLIC   DRIVER_GBM)
         find_package(DRM)
-
-        target_compile_definitions(ada PUBLIC 
-            DRIVER_GBM
-            PLATFORM_RPI
-        )
-
+        find_package(GBM)
         target_include_directories(ada PUBLIC
             ${DRM_INCLUDE_DIRS}
             ${GBM_INCLUDE_DIRS}
         )
-
         target_link_libraries(ada PUBLIC
             ${DRM_LIBRARIES}
             ${GBM_LIBRARY}
         )
 
-        message(STATUS "LOADING EGL GL_ESv2")
         find_package(EGL)
         find_package(GLESv2)
-        
+        message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
+        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+        message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
+        message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
+    
         target_include_directories(ada PUBLIC
             ${EGL_INCLUDE_DIRS}
             ${GLESv2_INCLUDE_DIRS}
@@ -149,13 +135,8 @@ if (NO_X11 OR FORCE_GBM)
             ${EGL_LIBRARY}
             ${GLESv2_LIBRARIES}
         )
-    endif()
 
-    message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
-    message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
-    message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
-    message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
-    
+    endif()
 
 else()
     message(STATUS "LOADING GLFW")
@@ -172,11 +153,13 @@ else()
 
     # OPENGL
     if (APPLE)
+        target_compile_definitions(ada PUBLIC   PLATFORM_OSX)
         target_link_libraries(ada PUBLIC 
             "-framework OpenGL"
         )
 
-    elseif (WIN32)
+    elseif (MSVC)
+        target_compile_definitions(ada PUBLIC   PLATFORM_WINDOWS)
         target_include_directories(ada PUBLIC 
             "${PROJECT_SOURCE_DIR}/deps/glew/include"
         )
@@ -206,26 +189,23 @@ else()
             ${OPENGL_LIBRARIES}
         )
 
-    #
-    # elseif (EMSCRIPTEN)
-    #     add_compile_options(-fpermissive -Wno-psabi -lpthread)
-    #     set(LFLAGS "${LFLAGS} -pthread")
-    #     set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
-    #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
-    #     set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
-    #
-    #     target_link_libraries(ada PUBLIC 
-    #         ${OPENGL_LIBRARIES}
-    #         ${OPENGL_opengl_LIBRARY}
-    #         -pthread
-    #     )
-    #
-    # UNCOMMENT FOR MULTIPLE THREAD SUPPORT FOR WASM
+    elseif (EMSCRIPTEN)
+        target_compile_definitions(ada PUBLIC   PLATFORM_EMSCRIPTEN)
+        target_link_libraries(ada PUBLIC 
+            ${OPENGL_LIBRARIES}
+            ${OPENGL_opengl_LIBRARY}
+        )
+
+    #   UNCOMMENT FOR MULTIPLE THREAD SUPPORT FOR WASM
     #   note: only works on desktop chrome 
-    #
+        # set(LFLAGS "${LFLAGS} -pthread")
+        # set(LFLAGS "${LFLAGS} -s USE_PTHREADS=1")
+        # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LFLAGS}")
+        # set_target_properties(ada PROPERTIES LINK_FLAGS "${LFLAGS}")
+        # target_link_libraries(ada PUBLIC -pthread )
 
     else()
-
+        target_compile_definitions(ada PUBLIC   PLATFORM_LINUX)
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
             ${OPENGL_opengl_LIBRARY}
