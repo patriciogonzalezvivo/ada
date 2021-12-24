@@ -48,11 +48,6 @@ set_target_properties(ada PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-find_path(BROADCOM_HOST_FOUND NAMES bcm_host.h PATHS /opt/vc/include)
-if (BROADCOM_HOST_FOUND)
-target_compile_definitions(ada PUBLIC       PLATFORM_RPI)
-endif()
-
 find_package(BROADCOM)
 if (BROADCOM_FOUND)
     message(STATUS "BROADCOM_DEFINITIONS:   ${BROADCOM_DEFINITIONS}")
@@ -61,6 +56,11 @@ if (BROADCOM_FOUND)
     target_include_directories(ada PUBLIC   ${BROADCOM_INCLUDE_DIRS})
     target_link_libraries(ada PUBLIC        ${BROADCOM_LIBRARIES})
     target_compile_definitions(ada PUBLIC   ${BROADCOM_DEFINITIONS})
+endif()
+
+if (BROADCOM_INCLUDE_DIR)
+message(STATUS "PLATFORM RASPBERRYPI")
+target_compile_definitions(ada PUBLIC       PLATFORM_RPI)
 endif()
     
 find_package(ILCLIENT)
@@ -147,12 +147,14 @@ else()
 
     # OPENGL
     if (APPLE)
+        message(STATUS "PLATFORM OSX")
         target_compile_definitions(ada PUBLIC   PLATFORM_OSX)
         target_link_libraries(ada PUBLIC 
             "-framework OpenGL"
         )
 
     elseif (MSVC)
+        message(STATUS "PLATFORM WINDOWS")
         target_compile_definitions(ada PUBLIC   PLATFORM_WINDOWS)
         target_include_directories(ada PUBLIC 
             "${PROJECT_SOURCE_DIR}/deps/glew/include"
@@ -163,8 +165,7 @@ else()
         )
 
     # RASPBERRY PI
-    elseif (BROADCOM_FOUND)
-
+    elseif (BROADCOM_INCLUDE_DIR)
         find_package(EGL)
         find_package(GLESv2)
         message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
@@ -184,6 +185,7 @@ else()
         )
 
     elseif (EMSCRIPTEN)
+        message(STATUS "PLATFORM EMSCRIPTEN")
         target_compile_definitions(ada PUBLIC   PLATFORM_EMSCRIPTEN)
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
@@ -199,6 +201,7 @@ else()
         # target_link_libraries(ada PUBLIC -pthread )
 
     else()
+        message(STATUS "PLATFORM LINUX")
         target_compile_definitions(ada PUBLIC   PLATFORM_LINUX)
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
