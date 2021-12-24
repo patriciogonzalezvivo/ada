@@ -95,8 +95,8 @@ if (BROADCOM_INCLUDE_DIR)
         ${BCM_HOST_LIBRARY} 
         ${VCHIQ_LIBRARY} 
         ${VCOS_LIBRARY}
-        ${BCM_EGL}
-        ${BCM_GLESv2} 
+        # ${BCM_EGL}
+        # ${BCM_GLESv2} 
 
         # ${MMAL_LIBRARY}
         # ${MMAL_CORE_LIBRARY}
