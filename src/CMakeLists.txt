@@ -92,7 +92,7 @@ endif()
 
 if (NO_X11 OR FORCE_GBM)
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-        message(STATUS "USING BROADCOM versions of EGL GL_ESv2")        
+        message(STATUS "USING BROADCOM DRIVERS")        
         target_compile_definitions(ada PUBLIC   DRIVER_BROADCOM )
 
         target_link_libraries(ada PUBLIC        
@@ -101,7 +101,7 @@ if (NO_X11 OR FORCE_GBM)
         )
 
     else()
-        message(STATUS "USING DRM and GBM")
+        message(STATUS "USING DRM and GBM DRIVERS")
         target_compile_definitions(ada PUBLIC   DRIVER_GBM)
         find_package(DRM)
         find_package(GBM)
@@ -133,7 +133,7 @@ if (NO_X11 OR FORCE_GBM)
     endif()
 
 else()
-    message(STATUS "LOADING GLFW")
+    message(STATUS "USING GLFW DRIVERS")
 
     target_compile_definitions(ada PUBLIC 
         DRIVER_GLFW 
