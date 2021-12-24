@@ -1,10 +1,12 @@
-
-# find_library(   BCM_GLESv2
-#                 NAMES libbrcmGLESv2.so
-#                 DOC "Path to Broadcom EGL Library"
-#                 PATHS /opt/vc/lib)
-# mark_as_advanced(BCM_GLESv2)
-
+# Finds the GLESv2 library
+#
+# This will define the following variables::
+#
+# GLESv2_FOUND - system has GLESv2
+# GLESv2_INCLUDE_DIRS - the GLESv2 include directory
+# GLESv2_LIBRARIES - the GLESv2 libraries
+# GLESv2_DEFINITIONS - the GLESv2 definitions
+#
 
 find_library(GLESv2_LIBRARIES NAMES GLESv2)
 find_path(GLESv2_INCLUDE_DIRS NAMES GLES2/gl2.h OGLES2/GLES2/gl2.h)

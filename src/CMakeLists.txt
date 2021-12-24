@@ -92,8 +92,9 @@ endif()
 
 if (NO_X11 OR FORCE_GBM)
     if (BROADCOM_FOUND AND NOT FORCE_GBM)
-        message(STATUS "USING BROADCOM versions of EGL GL_ESv2")
+        message(STATUS "USING BROADCOM versions of EGL GL_ESv2")        
         target_compile_definitions(ada PUBLIC   DRIVER_BROADCOM )
+
         target_link_libraries(ada PUBLIC        
             ${BCM_EGL} 
             ${BCM_GLESv2}
@@ -116,7 +117,7 @@ if (NO_X11 OR FORCE_GBM)
         find_package(EGL)
         find_package(GLESv2)
         message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
-        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+        message(STATUS "EGL_LIBRARIES:          ${EGL_LIBRARIES}")
         message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
         message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
     
@@ -126,10 +127,9 @@ if (NO_X11 OR FORCE_GBM)
         )
     
         target_link_libraries(ada PUBLIC
-            ${EGL_LIBRARY}
+            ${EGL_LIBRARIES}
             ${GLESv2_LIBRARIES}
         )
-
     endif()
 
 else()
@@ -168,7 +168,7 @@ else()
         find_package(EGL)
         find_package(GLESv2)
         message(STATUS "EGL_INCLUDE_DIRS:       ${EGL_INCLUDE_DIRS}")
-        message(STATUS "EGL_LIBRARY:            ${EGL_LIBRARY}")
+        message(STATUS "EGL_LIBRARIES:          ${EGL_LIBRARIES}")
         message(STATUS "GLESv2_INCLUDE_DIRS:    ${GLESv2_INCLUDE_DIRS}")
         message(STATUS "GLESv2_LIBRARIES:       ${GLESv2_LIBRARIES}")
     
@@ -178,7 +178,7 @@ else()
         )
     
         target_link_libraries(ada PUBLIC
-            ${EGL_LIBRARY}
+            ${EGL_LIBRARIES}
             ${GLESv2_LIBRARIES}
             ${OPENGL_LIBRARIES}
         )

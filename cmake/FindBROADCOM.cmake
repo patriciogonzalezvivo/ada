@@ -12,6 +12,8 @@ find_path(BROADCOM_INCLUDE_DIR
         PATHS /opt/vc/include)
 
 if (BROADCOM_INCLUDE_DIR)
+    mark_as_advanced(BROADCOM_INCLUDE_DIR)
+
     find_library(VCOS_LIBRARY
             NAMES libvcos.so
             DOC "Path to VCOS Library"
@@ -41,12 +43,6 @@ if (BROADCOM_INCLUDE_DIR)
                     DOC "Path to Broadcom EGL Library"
                     PATHS /opt/vc/lib)
     mark_as_advanced(BCM_GLESv2)
-
-    # find_library(   BCM_GLESv2
-    #                 NAMES libbrcmGLESv2.so
-    #                 DOC "Path to Broadcom EGL Library"
-    #                 PATHS /opt/vc/lib)
-    # mark_as_advanced(BCM_GLESv2)
 
     # find_library(   MMAL_LIBRARY
     #                 NAMES libmmal.so
@@ -99,8 +95,8 @@ if (BROADCOM_INCLUDE_DIR)
         ${BCM_HOST_LIBRARY} 
         ${VCHIQ_LIBRARY} 
         ${VCOS_LIBRARY}
-        # ${BCM_EGL}
-        # ${BCM_GLESv2} 
+        ${BCM_EGL}
+        ${BCM_GLESv2} 
 
         # ${MMAL_LIBRARY}
         # ${MMAL_CORE_LIBRARY}
