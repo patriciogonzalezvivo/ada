@@ -120,7 +120,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
         GLenum type = GL_UNSIGNED_BYTE;
 
 
-#if defined(PLATFORM_RPI) 
+#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
 
 #elif defined(__APPLE__)
         format = GL_RGBA16;
@@ -155,7 +155,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     if (m_depth) {
         glBindRenderbuffer(GL_RENDERBUFFER, m_depth_buffer);
 
-#if defined(PLATFORM_RPI)
+#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_width, m_height);
 #elif defined(__EMSCRIPTEN__)
         glRenderbufferStorage(  GL_RENDERBUFFER, 
@@ -174,7 +174,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
             
-#if defined(PLATFORM_RPI)
+#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
