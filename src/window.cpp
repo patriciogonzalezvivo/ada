@@ -20,10 +20,10 @@
 
 // Common global variables
 //----------------------------------------------------
-struct timespec          time_start;
-glm::ivec4               viewport;
-glm::mat4                orthoMatrix;
-ada::WindowProperties    properties;
+static glm::ivec4               viewport;
+static ada::WindowProperties    properties;
+struct timespec                 time_start;
+static glm::mat4                orthoMatrix;
 
 typedef struct {
     bool      entered;
@@ -113,8 +113,6 @@ EGLSurface surface;
 
 EGLDisplay getEGLDisplay() { return display; }
 EGLContext getEGLContext() { return context; }
-
-static bool bHostInited = false;
 
 // Get the EGL error back as a string. Useful for debugging.
 static const char *eglGetErrorStr() {
@@ -230,7 +228,8 @@ static const char *eglGetErrorStr() {
 #endif
 
 #if !defined(DRIVER_GLFW)
-    void initHost() {
+    static bool bHostInited = false;
+    static void initHost() {
         if (bHostInited)
             return;
 
@@ -238,10 +237,8 @@ static const char *eglGetErrorStr() {
             bcm_host_init();
 
         #elif defined(DRIVER_GBM)
-            if (!urlExists(properties.display)) {
+            if (!urlExists(properties.display))
                 std::cout << "Can't open display " <<  properties.display << " seams it doesn't exist" << std::endl;
-                return;
-            }
             
             device = open(  properties.display.c_str(), O_RDWR | O_CLOEXEC);
 
@@ -288,8 +285,8 @@ static const char *eglGetErrorStr() {
             return eglGetDisplay(EGL_DEFAULT_DISPLAY);
 
         #elif defined(DRIVER_GBM)
-            return eglGetDisplay(gbmDevice);
 
+            return eglGetDisplay(gbmDevice);
         #endif
     }
 #endif
@@ -437,9 +434,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         check();
 
         result = eglInitialize(display, NULL, NULL);
-        if (EGL_FALSE != result) {
-            return 0;
-        }
+        assert(EGL_FALSE != result);
+        check();
 
         // Make sure that we can use OpenGL in this EGL app.
         // result = eglBindAPI(EGL_OPENGL_API);
