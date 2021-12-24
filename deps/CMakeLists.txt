@@ -1,10 +1,6 @@
 ## GLFW
 
 if (NOT NO_X11 AND NOT FORCE_GBM AND NOT EMSCRIPTEN)
-
-    ## GLFW
-    message(STATUS "LOADING GLFW")
-
     # Configure GLFW to build only the library.
     set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
     set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
@@ -15,10 +11,7 @@ if (NOT NO_X11 AND NOT FORCE_GBM AND NOT EMSCRIPTEN)
     if(APPLE)
     target_compile_options(glfw PRIVATE "-Wno-deprecated-declarations")
     endif()
-
-    ## OpenGL
-    message(STATUS "LOADING OPENGL")
-
+    
     if(NOT DEFINED OpenGL_GL_PREFERENCE)
         # set(OpenGL_GL_PREFERENCE "LEGACY")
         set(OPENGL_GL_PREFERENCE "GLVND")
