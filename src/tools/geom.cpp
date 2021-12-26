@@ -3,8 +3,14 @@
 #include <algorithm>
 #include <iostream>
 
-namespace ada {
+#ifndef PI
+#define PI 3.1415926535897932384626433832795
+#endif
+#ifndef TAU
+#define TAU 6.2831853071795864769252867665590
+#endif
 
+namespace ada {
 
 void getBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::vec3 &_max) {
     _min = glm::vec3(10000.0, 10000.0, 10000.0);
@@ -311,6 +317,74 @@ Mesh floor(float _area, int _subD, float _y) {
             mesh.addIndex((x+1) + (y+1) * (N+1));   // D
             mesh.addIndex(  x   + (y+1) * (N+1));   // C
             mesh.addIndex(  x   +   y   * (N+1));  // A
+        }
+    }
+
+    return mesh;
+}
+
+Mesh sphere(int _resolution, float _radius ) {
+    Mesh mesh;
+
+    float doubleRes = _resolution*2.f;
+    float polarInc = PI/(_resolution); // ringAngle
+    float azimInc = TAU/(doubleRes); // segAngle //
+    
+    glm::vec3 vert;
+    glm::vec2 tcoord;
+
+    for (float i = 0; i < _resolution + 1; i++) {
+
+        float tr = sin( PI-i * polarInc );
+        float ny = cos( PI-i * polarInc );
+
+        tcoord.y = 1.f - (i / _resolution);
+
+        for (float j = 0; j <= doubleRes; j++) {
+
+            float nx = tr * sin(j * azimInc);
+            float nz = tr * cos(j * azimInc);
+
+            tcoord.x = j / (doubleRes);
+
+            vert = {nx, ny, nz};
+            mesh.addNormal(vert);
+
+            vert *= _radius;
+            mesh.addVertex(vert);
+            mesh.addTexCoord(tcoord);
+        }
+    }
+
+    int nr = doubleRes+1;
+    
+
+    int index1, index2, index3;
+    for (float iy = 0; iy < _resolution; iy++) {
+        for (float ix = 0; ix < doubleRes; ix++) {
+
+            // first tri //
+            if (iy > 0) {
+                index1 = (iy+0) * (nr) + (ix+0);
+                index2 = (iy+0) * (nr) + (ix+1);
+                index3 = (iy+1) * (nr) + (ix+0);
+
+                mesh.addIndex(index1);
+                mesh.addIndex(index2);
+                mesh.addIndex(index3);
+            }
+
+            if (iy < _resolution - 1 ) {
+                // second tri //
+                index1 = (iy+0) * (nr) + (ix+1);
+                index2 = (iy+1) * (nr) + (ix+1);
+                index3 = (iy+1) * (nr) + (ix+0);
+
+                mesh.addIndex(index1);
+                mesh.addIndex(index2);
+                mesh.addIndex(index3);
+
+            }
         }
     }
 

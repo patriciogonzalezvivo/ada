@@ -30,8 +30,10 @@ Mesh grid(float _width, float _height, int _columns, int _rows, float _y = 0.0);
 
 Mesh floor(float _area, int _subD, float _y = 0.0);
 
-Mesh cube(float _size);
+Mesh cube(float _size = 1.0f);
 Mesh cubeCorners(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size);
 Mesh cubeCorners(const std::vector<glm::vec3> &_pts, float _size = 1.0);
+
+Mesh sphere(int _resolution = 24, float _radius = 1.0f);
 
 }

@@ -49,7 +49,6 @@ public:
     const glm::mat4&    getProjectionMatrix() const { return m_projectionMatrix; }
     const glm::mat4&    getProjectionViewMatrix() const { return m_projectionViewMatrix; }
 
-
 protected:
 
     virtual void        onPositionChanged();
