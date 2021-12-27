@@ -19,6 +19,7 @@ public:
     virtual void        setPosition(const glm::vec3& _pos);
     virtual void        setOrientation(const glm::vec3& _ori);
     virtual void        setOrientation(const glm::quat& _ori);
+    virtual void        setOrientation(const glm::mat4& _ori);
     virtual void        setScale(const glm::vec3& _scale);
 
     virtual glm::vec3   getXAxis() const;
@@ -35,6 +36,8 @@ public:
 
     virtual glm::quat   getOrientationQuat() const;
     virtual glm::vec3   getOrientationEuler() const;
+    virtual glm::mat4   getOrientationMatrix() const;
+    
     virtual glm::vec3   getScale() const;
 
     virtual const glm::mat4& getTransformMatrix() const;
@@ -71,6 +74,7 @@ protected:
 
 // private:
     glm::mat4           m_transformMatrix;
+    glm::mat4           m_orientationMatrix;
     glm::vec3           m_axis[3];
 
     glm::vec3           m_position;
