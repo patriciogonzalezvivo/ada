@@ -173,7 +173,7 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
 
 #elif defined(__EMSCRIPTEN__)
         depth_format = (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24;
-        depth_type = 
+        // depth_type = 
 
 #else 
         // depth_format = GL_DEPTH_COMPONENT32F;

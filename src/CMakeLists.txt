@@ -70,7 +70,7 @@ if (ILCLIENT_FOUND)
 endif()      
 
 find_package(OMAX)
-if (OMAX_FOUND)
+if (OMAX_FOUND AND ILCLIENT_FOUND)
     target_compile_definitions(ada PUBLIC   ${OMAX_DEFINITIONS})
     target_link_libraries(ada PUBLIC        ${OMAX_LIBRARIES})
     target_compile_definitions(ada PUBLIC   SUPPORT_OMAX)
