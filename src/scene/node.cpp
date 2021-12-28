@@ -4,29 +4,20 @@
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_access.hpp"
 
-// #include "tools/geom.h"
-// #include "tools/text.h"
-
 namespace ada {
 
 Node::Node(): 
     bChange(true),
     m_transformMatrix(1.0), 
-    m_orientationMatrix(1.0),
     m_position(0.0),
     m_orientation(1.0, 0.0, 0.0, 0.0),
     m_scale(1.0) {
-}
-
-Node::~Node() {
-
 }
 
 void Node::setProperties(const Node& _other) {
     m_scale = _other.getScale();
     m_position = _other.getPosition();
     m_orientation = _other.getOrientationQuat();
-    m_orientationMatrix = _other.getOrientationMatrix();
 
     createMatrix();
 
@@ -41,7 +32,6 @@ void Node::setTransformMatrix(const glm::mat4& _m) {
     glm::vec3 skew;
     glm::vec4 perspective;
     glm::decompose(m_transformMatrix, m_scale, m_orientation, m_position, skew, perspective );
-    m_orientationMatrix = glm::toMat4(m_orientation);
     updateAxis();
 
     onPositionChanged();
@@ -51,7 +41,6 @@ void Node::setTransformMatrix(const glm::mat4& _m) {
 
 void Node::setPosition(const glm::vec3& _pos) {
     m_position = _pos;
-    // m_transformMatrix = glm::translate(m_transformMatrix,_pos);
     m_transformMatrix[3][0] = _pos.x;
     m_transformMatrix[3][1] = _pos.y;
     m_transformMatrix[3][2] = _pos.z;
@@ -69,13 +58,11 @@ void Node::setOrientation(const glm::vec3& _ori){
 
 void Node::setOrientation(const glm::quat& _ori) {
     m_orientation = _ori;
-    m_orientationMatrix = glm::toMat4(m_orientation);
     createMatrix();
     onOrientationChanged();
 }
 
 void Node::setOrientation(const glm::mat4& _ori) {
-    m_orientationMatrix = _ori;
     m_orientation = glm::toQuat(_ori);
     createMatrix();
     onOrientationChanged();
@@ -85,62 +72,6 @@ void Node::setScale(const glm::vec3& _scale) {
     m_scale = _scale;
     createMatrix();
     onScaleChanged();
-}
-
-glm::vec3 Node::getXAxis() const {
-    return m_axis[0];
-}
-
-glm::vec3 Node::getYAxis() const {
-    return m_axis[1];
-}
-
-glm::vec3 Node::getZAxis() const{
-    return m_axis[2];
-}
-
-glm::vec3 Node::getPosition() const {
-    return m_position;
-}
-
-glm::vec3 Node::getLookAtDir() const{
-    return -getZAxis();
-}
-
-glm::vec3 Node::getUpDir() const {
-    return getYAxis();
-}
-
-float Node::getPitch() const {
-    return getOrientationEuler().x;
-}
-
-float Node::getHeading() const {
-    return getOrientationEuler().y;
-}
-
-float Node::getRoll() const {
-    return getOrientationEuler().z;
-}
-
-glm::quat Node::getOrientationQuat() const {
-    return m_orientation;
-}
-
-glm::vec3 Node::getOrientationEuler() const {
-    return glm::eulerAngles(m_orientation);
-}
-
-glm::vec3 Node::getScale() const {
-    return m_scale;
-}
-
-glm::mat4 Node::getOrientationMatrix() const {
-    return m_orientationMatrix;
-}
-
-const glm::mat4& Node::getTransformMatrix() const {
-    return m_transformMatrix;
 }
 
 void Node::scale(const glm::vec3& _scale) {
@@ -155,33 +86,8 @@ void Node::translate(const glm::vec3& _offset) {
     onPositionChanged();
 }
 
-void Node::truck(float _amount) {
-    translate(getXAxis() * _amount);
-}
-
-void Node::boom(float _amount) {
-    translate(getYAxis() * _amount);
-}
-
-void Node::dolly(float _amount) {
-    translate(getZAxis() * _amount);
-}
-
-void Node::tilt(float _degrees) {
-    rotate(glm::angleAxis(glm::radians(_degrees), getXAxis()));
-}
-
-void Node::pan(float _degrees) {
-    rotate(glm::angleAxis(glm::radians(_degrees), getYAxis()));
-}
-
-void Node::roll(float _degrees) {
-    rotate(angleAxis(glm::radians(_degrees), getZAxis()));
-}
-
 void Node::rotate(const glm::quat& _q) {
     m_orientation *= _q;
-    m_orientationMatrix = glm::toMat4(_q);
     createMatrix();
     onOrientationChanged();
 }
@@ -212,7 +118,8 @@ void Node::orbit(float _lat, float _lon, float _radius, const glm::vec3& _center
 }
 
 void Node::apply(const glm::mat4& _m) {
-    setTransformMatrix(m_transformMatrix * _m);
+    m_transformMatrix = m_transformMatrix * _m;
+    setTransformMatrix(m_transformMatrix);
 }
 
 void Node::reset(){
@@ -221,7 +128,8 @@ void Node::reset(){
 }
 
 void Node::createMatrix() {
-    m_transformMatrix = m_orientationMatrix * glm::scale(m_scale);
+    m_transformMatrix = glm::scale(m_scale);
+    m_transformMatrix = glm::toMat4(m_orientation) * m_transformMatrix;
     m_transformMatrix = glm::translate(m_transformMatrix, m_position);
 
     updateAxis();

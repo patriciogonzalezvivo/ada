@@ -29,25 +29,26 @@ public:
     virtual glm::vec3   worldToScreen(glm::vec3 _WorldXYZ) const;
 
     //Getting Functions
-    const float         getFOV() const { return m_fov; }
-    const float         getAspect() const { return m_aspect; }
-    const float         getFarClip() const { return m_farClip; }
-    const float         getNearClip() const { return m_nearClip; }
-    const float         getDistance() const;
+    virtual const CameraType&   getType() const { return m_type;};
 
-    const float         getEv100() const { return m_ev100; }
-    const float         getExposure() const { return m_exposure; }
-    const float         getAperture() const { return m_aperture; }          //! returns this camera's aperture in f-stops
-    const float         getShutterSpeed() const { return m_shutterSpeed; }  //! returns this camera's shutter speed in seconds
-    const float         getSensitivity() const { return m_sensitivity; }    //! returns this camera's sensitivity in ISO
-    const glm::vec3     getTarget() const { return m_target; }
+    virtual const float         getFOV() const { return m_fov; }
+    virtual const float         getAspect() const { return m_aspect; }
+    virtual const float         getFarClip() const { return m_farClip; }
+    virtual const float         getNearClip() const { return m_nearClip; }
+    virtual const float         getDistance() const;
+
+    virtual const float         getEv100() const { return m_ev100; }
+    virtual const float         getExposure() const { return m_exposure; }
+    virtual const float         getAperture() const { return m_aperture; }          //! returns this camera's aperture in f-stops
+    virtual const float         getShutterSpeed() const { return m_shutterSpeed; }  //! returns this camera's shutter speed in seconds
+    virtual const float         getSensitivity() const { return m_sensitivity; }    //! returns this camera's sensitivity in ISO
+    virtual const glm::vec3&    getTarget() const { return m_target; }
     
-    const CameraType&   getType() const { return m_type;};
-    virtual glm::vec3   getPosition() const;
-    const glm::mat4&    getViewMatrix() const;
-    const glm::mat3&    getNormalMatrix() const { return m_normalMatrix; }
-    const glm::mat4&    getProjectionMatrix() const { return m_projectionMatrix; }
-    const glm::mat4&    getProjectionViewMatrix() const { return m_projectionViewMatrix; }
+    virtual const glm::vec3     getPosition() const;
+    virtual const glm::mat4&    getViewMatrix() const;
+    virtual const glm::mat3&    getNormalMatrix() const { return m_normalMatrix; }
+    virtual const glm::mat4&    getProjectionMatrix() const { return m_projectionMatrix; }
+    virtual const glm::mat4&    getProjectionViewMatrix() const { return m_projectionViewMatrix; }
 
 protected:
 

@@ -11,53 +11,61 @@ class Node {
 public:
 
     Node();
-    virtual ~Node();
+    virtual ~Node() { };
 
     virtual void        setProperties(const Node& _other);
 
-    virtual void        setTransformMatrix(const glm::mat4& _m);
+    // SET
+    virtual void        setScale(const glm::vec3& _scale);
+
     virtual void        setPosition(const glm::vec3& _pos);
+    
     virtual void        setOrientation(const glm::vec3& _ori);
     virtual void        setOrientation(const glm::quat& _ori);
     virtual void        setOrientation(const glm::mat4& _ori);
-    virtual void        setScale(const glm::vec3& _scale);
-
-    virtual glm::vec3   getXAxis() const;
-    virtual glm::vec3   getYAxis() const;
-    virtual glm::vec3   getZAxis() const;
-
-    virtual glm::vec3   getPosition() const;
-    virtual glm::vec3   getLookAtDir() const;
-    virtual glm::vec3   getUpDir() const;
-
-    virtual float       getPitch() const;
-    virtual float       getHeading() const;
-    virtual float       getRoll() const;
-
-    virtual glm::quat   getOrientationQuat() const;
-    virtual glm::vec3   getOrientationEuler() const;
-    virtual glm::mat4   getOrientationMatrix() const;
     
-    virtual glm::vec3   getScale() const;
+    virtual void        setTransformMatrix(const glm::mat4& _m);
 
-    virtual const glm::mat4& getTransformMatrix() const;
+    // GET 
+    virtual const glm::vec3&    getScale() const { return m_scale; };
 
+    virtual const glm::vec3     getPosition() const { return m_position; };
+
+    virtual const glm::vec3&    getXAxis() const { return m_axis[0]; }
+    virtual const glm::vec3&    getYAxis() const { return m_axis[1]; };
+    virtual const glm::vec3&    getZAxis() const { return m_axis[2]; };
+
+    virtual const glm::vec3&    getRightDir() const { return getXAxis(); }
+    virtual const glm::vec3&    getUpDir() const { return getYAxis(); }
+    virtual glm::vec3           getForwardDir() const { return -getZAxis(); }
+
+    virtual const glm::quat&    getOrientationQuat() const { return m_orientation; }
+    virtual glm::vec3           getOrientationEuler() const { return glm::eulerAngles(m_orientation); }
+    virtual glm::mat4           getOrientationMatrix() const { return glm::toMat4(m_orientation); };
+    
+    virtual float               getPitch() const { return getOrientationEuler().x; }
+    virtual float               getHeading() const { return getOrientationEuler().y; }
+    virtual float               getRoll() const { return getOrientationEuler().z; };
+
+    virtual const glm::mat4&    getTransformMatrix() const { return m_transformMatrix; };
+
+    // ACTIONS
     virtual void        scale(const glm::vec3& _scale);
+
     virtual void        translate(const glm::vec3& _offset);
+    virtual void        truck(float _amount) { translate(getXAxis() * _amount); };
+    virtual void        boom(float _amount) { translate(getYAxis() * _amount); };
+    virtual void        dolly(float _amount) { translate(getZAxis() * _amount); };
+    virtual void        orbit(float _longitude, float _latitude, float _radius, const glm::vec3& _centerPoint = glm::vec3(0.0));
 
-    virtual void        truck(float _amount);
-    virtual void        boom(float _amount);
-    virtual void        dolly(float _amount);
-
-    virtual void        tilt(float _degrees);
-    virtual void        pan(float _degrees);
-    virtual void        roll(float _degrees);
+    virtual void        tilt(float _degrees) { rotate(glm::angleAxis(glm::radians(_degrees), getXAxis())); };
+    virtual void        pan(float _degrees) { rotate(glm::angleAxis(glm::radians(_degrees), getYAxis())); };
+    virtual void        roll(float _degrees) { rotate(angleAxis(glm::radians(_degrees), getZAxis())); };
 
     virtual void        rotate(const glm::quat& _q);
     virtual void        rotateAround(const glm::quat& _q, const glm::vec3& _point);
     virtual void        lookAt(const glm::vec3& _lookAtPosition, glm::vec3 _upVector = glm::vec3(0.0, 1.0, 0.0));
-    virtual void        orbit(float _longitude, float _latitude, float _radius, const glm::vec3& _centerPoint = glm::vec3(0.0));
-
+    
     virtual void        apply(const glm::mat4& _m);
 
     virtual void        reset();
@@ -72,9 +80,7 @@ protected:
     virtual void        onOrientationChanged() {};
     virtual void        onScaleChanged() {};
 
-// private:
     glm::mat4           m_transformMatrix;
-    glm::mat4           m_orientationMatrix;
     glm::vec3           m_axis[3];
 
     glm::vec3           m_position;

@@ -99,7 +99,7 @@ const glm::mat4& Camera::getViewMatrix() const {
         return getTransformMatrix(); 
 }
 
-glm::vec3 Camera::getPosition() const {
+const glm::vec3 Camera::getPosition() const {
     if (m_type == CameraType::PERSPECTIVE_VIRTUAL_OFFSET )
         return -glm::vec3(glm::inverse(m_viewMatrix)[3]);
     else 
