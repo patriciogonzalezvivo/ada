@@ -155,17 +155,34 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     if (m_depth) {
         glBindRenderbuffer(GL_RENDERBUFFER, m_depth_buffer);
 
+        GLenum depth_format = GL_DEPTH_COMPONENT;
+        GLenum depth_type = GL_UNSIGNED_SHORT;
+
 #if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, m_width, m_height);
+        depth_format = GL_DEPTH_COMPONENT16;
+
+    #if GL_OES_depth32
+        if ( haveExtension("GL_OES_depth32") )
+            depth_format = GL_DEPTH_COMPONENT32_OES;
+
+    #elif GL_OES_depth24
+        if ( haveExtension("GL_OES_depth24") )
+            depth_format = GL_DEPTH_COMPONENT24_OES;
+
+    #endif
+
 #elif defined(__EMSCRIPTEN__)
-        glRenderbufferStorage(  GL_RENDERBUFFER, 
-                                (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24, m_width, m_height);
-#else
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, m_width, m_height);
+        depth_format = (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24;
+        depth_type = 
+
+#else 
+        // depth_format = GL_DEPTH_COMPONENT32F;
+        depth_type = GL_UNSIGNED_INT;
+
 #endif
+        glRenderbufferStorage(GL_RENDERBUFFER, depth_format, m_width, m_height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_depth_buffer);
     
-
         if (depth_texture) {
 
             // Generate a texture to hold the depth buffer
@@ -175,22 +192,17 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
             
 #if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, depth_format,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
 
 #elif defined(__EMSCRIPTEN__)
             glTexImage2D(   GL_TEXTURE_2D, 0, 
                             (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT : GL_DEPTH_COMPONENT16, m_width, m_height, 0, 
                             GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
 #else
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
+#endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -223,7 +235,7 @@ void Fbo::bind() {
         if (m_depth_id != 0)
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_id, 0);
 
-        #if !defined(PLATFORM_RPI) && !defined(__EMSCRIPTEN__)
+        #if !defined(__EMSCRIPTEN__)
         if (m_depth)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         else

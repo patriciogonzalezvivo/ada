@@ -10,13 +10,8 @@ Model::Model():
     m_bbmin(100000.0), m_bbmax(-1000000.),
     m_name(""), m_area(0.0f) {
 
-#ifdef PLATFORM_RPI
-    addDefine("LIGHT_SHADOWMAP", "u_lightShadowMap");
-    addDefine("LIGHT_SHADOWMAP_SIZE", "512.0");
-#else
     addDefine("LIGHT_SHADOWMAP", "u_lightShadowMap");
     addDefine("LIGHT_SHADOWMAP_SIZE", "1024.0");
-#endif
 }
 
 Model::Model(const std::string& _name, Mesh &_mesh, const Material &_mat):
