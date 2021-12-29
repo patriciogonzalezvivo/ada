@@ -51,13 +51,13 @@ Fbo::~Fbo() {
     }
 }
 
-void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type, TextureFilter _filter, TextureWrap _wrap, bool autoclear) {
+void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type, TextureFilter _filter, TextureWrap _wrap, bool _autoclear) {
     m_type = _type;
 
     bool color_texture = true;
     bool depth_texture = false;
     
-    m_autoclear = autoclear;
+    m_autoclear = _autoclear;
     
     switch(_type) {
         case COLOR_TEXTURE:
