@@ -51,12 +51,14 @@ Fbo::~Fbo() {
     }
 }
 
-void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type, TextureFilter _filter, TextureWrap _wrap) {
+void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type, TextureFilter _filter, TextureWrap _wrap, bool autoclear) {
     m_type = _type;
 
     bool color_texture = true;
     bool depth_texture = false;
-
+    
+    m_autoclear = autoclear;
+    
     switch(_type) {
         case COLOR_TEXTURE:
             m_depth = false;
@@ -236,10 +238,13 @@ void Fbo::bind() {
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_id, 0);
 
         #if !defined(__EMSCRIPTEN__)
-        if (m_depth)
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        else
-            glClear(GL_COLOR_BUFFER_BIT);
+        if (m_autoclear)
+        {
+            if (m_depth)
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            else
+                glClear(GL_COLOR_BUFFER_BIT);
+        }
         #endif
 
         m_binded = true;
