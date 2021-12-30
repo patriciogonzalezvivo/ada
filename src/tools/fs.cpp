@@ -106,16 +106,27 @@ bool alreadyInclude(const std::string &_path, List *_dependencies) {
     return false;
 }
 
-bool loadFromPath(const std::string &_path, std::string *_into) {
+std::string loadSrcFrom(const std::string& _path) {
+    const std::vector<std::string> folders;
+    List deps;
+    return loadSrcFrom(_path, folders, &deps);
+}
+
+std::string loadSrcFrom(const std::string &_path, const List& _include_folders, List *_dependencies) {
+    std::string str = "";
+    loadSrcFrom(_path, &str, _include_folders, _dependencies);
+    return str;
+}
+
+bool loadSrcFrom(const std::string &_path, std::string *_into) {
     const std::vector<std::string> folders;
     List deps;
 
     _into->clear();
-
-    return loadFromPath(_path, _into, folders, &deps);
+    return loadSrcFrom(_path, _into, folders, &deps);
 }
 
-bool loadFromPath(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
+bool loadSrcFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
     std::ifstream file;
     file.open(_path.c_str());
 
@@ -136,7 +147,7 @@ bool loadFromPath(const std::string &_path, std::string *_into, const std::vecto
         if (extractDependency(line, &dependency)) {
             dependency = urlResolve(dependency, original_path, _include_folders);
             newBuffer = "";
-            if (loadFromPath(dependency, &newBuffer, _include_folders, _dependencies)) {
+            if (loadSrcFrom(dependency, &newBuffer, _include_folders, _dependencies)) {
                 if (!alreadyInclude(dependency, _dependencies)) {
                     // Insert the content of the dependency
                     (*_into) += "\n" + newBuffer + "\n";
