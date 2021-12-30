@@ -18,7 +18,7 @@ public:
     Fbo();
     virtual ~Fbo();
 
-    virtual void    allocate(const unsigned int _width, const unsigned int _height, FboType _type, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT);
+    virtual void    allocate(const unsigned int _width, const unsigned int _height, FboType _type, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT, bool _autoclear = true);
     virtual void    bind();
     virtual void    unbind();
     
@@ -52,6 +52,8 @@ protected:
     bool    m_allocated;
     bool    m_binded;
     bool    m_depth;
+    
+    bool    m_autoclear;
 };
 
 }
