@@ -1,10 +1,8 @@
 # ADA [![Build Status](https://app.travis-ci.com/patriciogonzalezvivo/ada.svg?branch=main)](https://app.travis-ci.com/github/patriciogonzalezvivo/ada)
 
+ADA is an easy cross platform OpenGL ES 2.0 library for creating apps for Windows, MacOS, Linux (with or without an X11 Window Manager) and WASM (Emscripten WebAssembly).
 
-The fundation of any visual computational adventure. 
-Ada is an easy cross platform OpenGL ES 2.0 library for creating apps in Windows, MacOS and Linux (with or without X11 support like in RaspberrPi)
-
-## Install Dependencies
+## 1. Install Dependencies
 
 ### Windows 
 
@@ -83,7 +81,7 @@ cd ..
 ```
 
 
-## Compiling Ada projects
+## 2. Compiling
 
 ### For windows managers like MacOS, Windows or Linux (with X11 Window Manager) (all through GLFW) 
 
