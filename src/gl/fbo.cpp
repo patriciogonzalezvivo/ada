@@ -172,11 +172,10 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     #endif
 
 #elif defined(__EMSCRIPTEN__)
-        depth_format = (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT16 : GL_DEPTH_COMPONENT24;
-        // depth_type = 
+        depth_format = (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT : GL_DEPTH_COMPONENT16;
 
 #else 
-        // depth_format = GL_DEPTH_COMPONENT32F;
+        depth_format = GL_DEPTH_COMPONENT32F;
         depth_type = GL_UNSIGNED_INT;
 
 #endif
@@ -190,17 +189,8 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
                 glGenTextures(1, &m_depth_id);
 
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
-            
-#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
-            glTexImage2D(GL_TEXTURE_2D, 0, depth_format,  m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
+            glTexImage2D(GL_TEXTURE_2D, 0, depth_format, m_width, m_height, 0, GL_DEPTH_COMPONENT, depth_type, 0);
 
-#elif defined(__EMSCRIPTEN__)
-            glTexImage2D(   GL_TEXTURE_2D, 0, 
-                            (getWebGLVersionNumber() == 1)? GL_DEPTH_COMPONENT : GL_DEPTH_COMPONENT16, m_width, m_height, 0, 
-                            GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, 0);
-#else
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
-#endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
