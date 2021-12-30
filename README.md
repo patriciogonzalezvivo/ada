@@ -86,31 +86,31 @@ cd ..
 ### For windows managers like MacOS, Windows or Linux (with X11 Window Manager) (all through GLFW) 
 
 ```bash
-git clone https://github.com/patriciogonzalezvivo/ada_test.git
+git clone https://github.com/patriciogonzalezvivo/ada_example.git
 cd ada_test
 mkdir build
 cd build
 cmake ..
 make
-./test
+./hello_world
 ```
 
 ### For Linux with no X11 Window Manager
 
 ```bash
-git clone https://github.com/patriciogonzalezvivo/ada_test.git
+git clone https://github.com/patriciogonzalezvivo/ada_example.git
 cd ada_test
 mkdir build
 cd build
 cmake -DNO_X11=TRUE ..
 make
-./test
+./hello_world
 ```
 
 ### As a Emscripten WebAssembly project
 
 ```bash
-git clone https://github.com/patriciogonzalezvivo/ada_test.git
+git clone https://github.com/patriciogonzalezvivo/ada_example.git
 cd ada_test
 mkdir build
 cd build
