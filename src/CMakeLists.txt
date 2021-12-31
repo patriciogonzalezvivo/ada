@@ -189,7 +189,6 @@ else()
         target_compile_definitions(ada PUBLIC   PLATFORM_EMSCRIPTEN)
         target_link_libraries(ada PUBLIC 
             ${OPENGL_LIBRARIES}
-            ${OPENGL_opengl_LIBRARY}
         )
 
     #   UNCOMMENT FOR MULTIPLE THREAD SUPPORT FOR WASM
@@ -203,9 +202,11 @@ else()
     else()
         message(STATUS "PLATFORM LINUX")
         target_compile_definitions(ada PUBLIC   PLATFORM_LINUX)
+
+        set(OpenGL_GL_PREFERENCE GLVND)
+        find_package(OpenGL REQUIRED)
         target_link_libraries(ada PUBLIC 
-            ${OPENGL_LIBRARIES}
-            ${OPENGL_opengl_LIBRARY}
+            OpenGL::GL
         )
 
     endif()
