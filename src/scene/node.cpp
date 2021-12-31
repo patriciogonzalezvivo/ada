@@ -114,7 +114,7 @@ void Node::orbit(float _lat, float _lon, float _radius, const glm::vec3& _center
     p += _centerPoint;
     setPosition(p);
 
-    lookAt(_centerPoint);
+    // lookAt(_centerPoint);
 }
 
 void Node::apply(const glm::mat4& _m) {
