@@ -60,7 +60,7 @@ std::string toString(bool _bool);
 template <class T>
 std::string toString(const T& _value) {
     std::ostringstream out;
-    out << _value;
+    out << std::fixed << _value;
     return out.str();
 }
 
