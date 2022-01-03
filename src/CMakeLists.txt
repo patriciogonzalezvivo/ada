@@ -31,6 +31,7 @@ set(ADA_SOURCES
     tools/geom.cpp
     tools/text.cpp
     tools/time.cpp
+    tools/font.cpp
     scene/node.cpp
     scene/model.cpp
     scene/light.cpp
@@ -220,6 +221,7 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/stb"
     "${PROJECT_SOURCE_DIR}/deps/glob"
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
+    "${PROJECT_SOURCE_DIR}/deps/fontstash"
 )
 
 ## DEPS
