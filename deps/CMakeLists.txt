@@ -35,4 +35,3 @@ add_subdirectory(glob)
 
 ## SkyModel
 add_subdirectory(skymodel)
-

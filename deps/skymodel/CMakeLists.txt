@@ -1,5 +1,4 @@
 project(skymodel)
-# add_definitions(-DDUK_OPT_CPP_EXCEPTIONS)
 
 set(SKYMODEL_HEADERS
     ArHosekSkyModel.h
