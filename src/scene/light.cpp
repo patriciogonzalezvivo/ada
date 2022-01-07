@@ -83,7 +83,7 @@ void Light::bindShadowMap() {
     glGetIntegerv(GL_VIEWPORT, m_viewport);
 
     if (m_shadowMap.getDepthTextureId() == 0)
-        m_shadowMap.allocate(1024, 1024, DEPTH_TEXTURE);
+        m_shadowMap.allocate(1024, 1024, COLOR_DEPTH_TEXTURES);
 
     m_shadowMap.bind();
     glEnable(GL_DEPTH_TEST);
