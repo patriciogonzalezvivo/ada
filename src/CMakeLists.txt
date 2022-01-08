@@ -32,6 +32,7 @@ set(ADA_SOURCES
     tools/text.cpp
     tools/time.cpp
     tools/font.cpp
+    tools/holoplay.cpp 
     scene/node.cpp
     scene/model.cpp
     scene/light.cpp
