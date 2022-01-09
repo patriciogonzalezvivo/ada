@@ -5,7 +5,6 @@
 
 #include "glm/glm.hpp"
 #include "ada/gl/shader.h"
-#include "ada/scene/camera.h"
 
 namespace ada {
 

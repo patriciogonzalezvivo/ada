@@ -26,6 +26,7 @@ set(ADA_SOURCES
     gl/convolutionPyramid.cpp
     gl/vertexLayout.cpp 
     tools/fs.cpp 
+    tools/env.cpp
     tools/list.cpp
     tools/pixels.cpp 
     tools/geom.cpp
