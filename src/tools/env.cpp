@@ -660,5 +660,22 @@ CubemapFace<float>** skyCubemap(SkyData* _sky, int _width) {
     return faces;
 }
 
+template class CubemapFace<float>;
+template class CubemapFace<unsigned char>;
+
+template void splitFacesFromVerticalCross(float *_data, int _width, int _height, CubemapFace<float> **_faces );
+template void splitFacesFromVerticalCross(unsigned char *_data, int _width, int _height, CubemapFace<unsigned char> **_faces );
+
+template void splitFacesFromHorizontalCross(float *_data, int _width, int _height, CubemapFace<float> **_faces );
+template void splitFacesFromHorizontalCross(unsigned char *_data, int _width, int _height, CubemapFace<unsigned char> **_faces );
+
+template void splitFacesFromHorizontalRow(float *_data, int _width, int _height, CubemapFace<float> **_faces );
+template void splitFacesFromHorizontalRow(unsigned char *_data, int _width, int _height, CubemapFace<unsigned char> **_faces );
+
+template void splitFacesFromVerticalRow(float *_data, int _width, int _height, CubemapFace<float> **_faces );
+template void splitFacesFromVerticalRow(unsigned char *_data, int _width, int _height, CubemapFace<unsigned char> **_faces );
+
+template void splitFacesFromEquirectangular(float *_data, unsigned int _width, unsigned int _height, CubemapFace<float> **_faces );
+template void splitFacesFromEquirectangular(unsigned char *_data, unsigned int _width, unsigned int _height, CubemapFace<unsigned char> **_faces );
 
 }
