@@ -11,7 +11,6 @@
 
 #include "ada/shaders/histogram.h"
 #include "ada/shaders/fxaa.h"
-#include "ada/shaders/holoplay.h"
 #include "ada/shaders/poissonfill.h"
 
 // 3D SCENE
@@ -27,7 +26,7 @@ static size_t versionNumber = 100;
 static std::string versionLine = "";
 
 void setVersionFromCode(const std::string& _src) {
-    versionLine = ada::get_version(_src, versionNumber);
+    versionLine = getVersion(_src, versionNumber);
 }
 
 int getVersion() {
@@ -149,12 +148,6 @@ std::string getDefaultSrc( DefaultShaders _type ) {
             rta += fxaa_frag;
         else if (versionNumber >= 130) 
             rta += fxaa_frag_300;
-    }
-    else if (_type == FRAG_HOLOPLAY) {
-        if (versionNumber < 130)
-            rta += holoplay_frag;
-        else if (versionNumber >= 130) 
-            rta += holoplay_frag_300;
     }
     else if (_type == FRAG_POISSON) {
         if (versionNumber < 130)

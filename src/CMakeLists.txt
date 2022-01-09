@@ -3,6 +3,7 @@ set(SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/src")
 
 file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
 file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
+file(GLOB SCENE_HEADER "${INCLUDE_FOLDER}/ada/scene/*.h")
 file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
 file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
@@ -26,12 +27,14 @@ set(ADA_SOURCES
     gl/convolutionPyramid.cpp
     gl/vertexLayout.cpp 
     tools/fs.cpp 
+    tools/env.cpp
     tools/list.cpp
     tools/pixels.cpp 
     tools/geom.cpp
     tools/text.cpp
     tools/time.cpp
     tools/font.cpp
+    tools/holoplay.cpp 
     scene/node.cpp
     scene/model.cpp
     scene/light.cpp
@@ -234,6 +237,7 @@ target_link_libraries(ada PUBLIC stb glob skymodel )
 # install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 # install(FILES ${ROOT_HEADER} DESTINATION include/ada)
 # install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
+# install(FILES ${SCENE_HEADER} DESTINATION include/ada/gl)
 # install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
-# install(FILES ${SHADERS_SOURCES} DESTINATION include/ada/shaders)
+# install(FILES ${SHADERS_HEADER} DESTINATION include/ada/shaders)
 

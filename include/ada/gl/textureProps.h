@@ -27,6 +27,7 @@ GLenum  getWrap( TextureWrap _wrap );
 
 #ifndef __EMSCRIPTEN__
 bool    screenshot(const std::string& _filename );
+bool    screenshot( const std::string& _filename, int _width, int _height); 
 #endif
 
 }

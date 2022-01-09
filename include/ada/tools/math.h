@@ -57,8 +57,6 @@ namespace ada {
 // #endif
 
 
-
-
 static float angleBetween(float thetav, float phiv, float theta, float phi) {
     float cosGamma = sinf(thetav) * sinf(theta) * cosf(phi - phiv) + cosf(thetav) * cosf(theta);
     return acosf(cosGamma);
