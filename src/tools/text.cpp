@@ -231,7 +231,7 @@ bool find_id(const std::string& program, const char* id) {
     return std::strstr(program.c_str(), id) != 0;
 }
 
-std::string get_version(const std::string& _src, size_t& _versionNumber) {
+std::string getVersion(const std::string& _src, size_t& _versionNumber) {
     bool srcVersionFound = _src.substr(0, 8) == "#version"; 
     std::string srcVersion = "";
 

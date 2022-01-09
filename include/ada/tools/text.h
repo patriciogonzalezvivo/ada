@@ -24,7 +24,7 @@ bool check_for_convolution_pyramid_algorithm(const std::string& _source);
 bool check_for_postprocessing(const std::string& _source);
 bool check_for_pattern(const std::string& _str);
 
-std::string get_version(const std::string& program, size_t& _version);
+std::string getVersion(const std::string& program, size_t& _version);
 
 // Get the line number
 std::string getLineNumber(const std::string& _source, unsigned _lineNumber);

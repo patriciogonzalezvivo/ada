@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <string>
 
 #include "glm/glm.hpp"
 #include "ada/gl/shader.h"
@@ -30,12 +31,13 @@ struct HoloplayProperties {
     int   bi        = 2;
 };
 
-void    setHoloplayProperties(const HoloplayProperties& _holoplay);
-void    setHoloplayResolution(int _holoplay);
-int     getHoloplayWidth();
-int     getHoloplayHeight();
+void        setHoloplayProperties(const HoloplayProperties& _holoplay);
+void        setHoloplayResolution(int _holoplay);
+int         getHoloplayWidth();
+int         getHoloplayHeight();
+std::string getHoloplayFragShader(size_t _versionNumber = 100);
 
-void    holoplayQuilt(std::function<void(const HoloplayProperties&, glm::vec4&, int&)> _renderFnc );
-void    holoplayFeedUniforms(Shader& _shader);
+void        holoplayQuilt(std::function<void(const HoloplayProperties&, glm::vec4&, int&)> _renderFnc );
+void        holoplayFeedUniforms(Shader& _shader);
 
 }
