@@ -3,6 +3,7 @@ set(SOURCE_FOLDER "${PROJECT_SOURCE_DIR}/src")
 
 file(GLOB ROOT_HEADER "${INCLUDE_FOLDER}/ada/*.h")
 file(GLOB GL_HEADER "${INCLUDE_FOLDER}/ada/gl/*.h")
+file(GLOB SCENE_HEADER "${INCLUDE_FOLDER}/ada/scene/*.h")
 file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
 file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
@@ -236,6 +237,7 @@ target_link_libraries(ada PUBLIC stb glob skymodel )
 # install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 # install(FILES ${ROOT_HEADER} DESTINATION include/ada)
 # install(FILES ${GL_HEADER} DESTINATION include/ada/gl)
+# install(FILES ${SCENE_HEADER} DESTINATION include/ada/gl)
 # install(FILES ${TOOLS_HEADER} DESTINATION include/ada/tools)
-# install(FILES ${SHADERS_SOURCES} DESTINATION include/ada/shaders)
+# install(FILES ${SHADERS_HEADER} DESTINATION include/ada/shaders)
 

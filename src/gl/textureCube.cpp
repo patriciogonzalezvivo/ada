@@ -2,7 +2,6 @@
 #include <cstring>
 
 #include "ada/gl/textureCube.h"
-#include "ada/tools/env.h"
 
 #include "ada/tools/fs.h"
 #include "ada/tools/pixels.h"
@@ -11,9 +10,9 @@
 namespace ada {
 
 TextureCube::TextureCube() 
-: SH {  glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0),
-        glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0),
-        glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0) } {
+    : SH {  glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0),
+            glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0),
+            glm::vec3(0.0), glm::vec3(0.0), glm::vec3(0.0) } {
 }
 
 TextureCube::~TextureCube() {
@@ -164,7 +163,7 @@ bool TextureCube::load(const std::string &_path, bool _vFlip) {
     return true;
 }
 
-bool TextureCube::load(SkyData* _sky, int _width ) {
+bool TextureCube::load(SkyData* _sky, int _width) {
 
     if (m_id != 0) {
         // Init
