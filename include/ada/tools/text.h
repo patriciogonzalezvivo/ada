@@ -11,19 +11,6 @@
 
 namespace ada {
 
-// Search for one apearance
-bool find_id(const std::string& program, const char* id);
-bool check_for_floor(const std::string& _source);
-bool check_for_background(const std::string& _source);
-
-int  count_buffers(const std::string& _source);
-bool get_buffer_size(const std::string& _source, size_t _index, glm::vec2& _size);
-
-int  count_convolution_pyramid(const std::string& _source);
-bool check_for_convolution_pyramid_algorithm(const std::string& _source);
-bool check_for_postprocessing(const std::string& _source);
-bool check_for_pattern(const std::string& _str);
-
 std::string getVersion(const std::string& program, size_t& _version);
 
 // Get the line number
@@ -97,8 +84,5 @@ std::string toString(const glm::mat4& _mat, char _sep = ' ');
 //-------------------------------------------------- << and >>
 inline std::ostream& operator<<(std::ostream& os, const glm::vec3& vec);
 inline std::istream& operator>>(std::istream& is, glm::vec3& vec);
-
-
-std::string getUniformName(const std::string& _str);
 
 }
