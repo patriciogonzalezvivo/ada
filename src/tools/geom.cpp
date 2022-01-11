@@ -104,10 +104,10 @@ Mesh cross (const glm::vec3 &_pos, float _width) {
 // Billboard
 //============================================================================
 Mesh rect (float _x, float _y, float _w, float _h) {
-    float x = _x-1.0f;
-    float y = _y-1.0f;
-    float w = _w*2.0f;
-    float h = _h*2.0f;
+    float x = _x * 2.0f - 1.0f;
+    float y = _y * 2.0f - 1.0f;
+    float w = _w * 2.0f;
+    float h = _h * 2.0f;
 
     Mesh mesh;
     mesh.addVertex(glm::vec3(x, y, 0.0));
@@ -140,12 +140,12 @@ Mesh cube(float _size) {
     float vertices[] = {
         -_size,  _size,  _size,
         -_size, -_size,  _size,
-        _size, -_size,  _size,
-        _size,  _size,  _size,
+         _size, -_size,  _size,
+         _size,  _size,  _size,
         -_size,  _size, -_size,
         -_size, -_size, -_size,
-        _size, -_size, -_size,
-        _size,  _size, -_size,
+         _size, -_size, -_size,
+         _size,  _size, -_size,
     };
 
     INDEX_TYPE indices[] = {
