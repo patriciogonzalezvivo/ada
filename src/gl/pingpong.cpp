@@ -12,10 +12,9 @@ PingPong::PingPong():
 PingPong::~PingPong() {
 }
 
-void PingPong::allocate(int _width, int _height, FboType _type) {
-    for(int i = 0; i < 2; i++){
-        m_fbos[i].allocate(_width, _height, _type);
-    }
+void PingPong::allocate(int _width, int _height, FboType _type, TextureFilter _filter, TextureWrap _wrap, bool _autoclear) {
+    for(int i = 0; i < 2; i++)
+        m_fbos[i].allocate(_width, _height, _type, _filter, _wrap, _autoclear);
 
     clear();
 

@@ -1095,7 +1095,12 @@ glm::vec4 getDate() {
 double  getTime() { return elapseTime;}
 double  getDelta() { return delta; }
 
-void    setFps(int _fps) { restSec = 1.0f/(float)_fps; }
+void    setFps(int _fps) { 
+    if (_fps == 0)
+        restSec = 0.0;
+    else
+        restSec = 1.0f/(float)_fps; 
+}
 double  getFps() { return FPS; }
 
 float   getRestSec() { return restSec; }

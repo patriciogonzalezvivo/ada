@@ -9,7 +9,7 @@ public:
     PingPong();
     virtual ~PingPong();
 
-    void allocate(int _width, int _height, FboType _type);
+    void allocate(int _width, int _height, FboType _type, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT, bool _autoclear = true);
     void swap();
     void clear(float _alpha = 0.0);
 
