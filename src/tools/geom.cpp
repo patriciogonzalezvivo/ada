@@ -391,4 +391,71 @@ Mesh sphere(int _resolution, float _radius ) {
     return mesh;
 }
 
+
+Mesh sphereHalf(int _resolution, float _radius ) {
+    Mesh mesh;
+
+    float halfRes = _resolution*.5f;
+    float doubleRes = _resolution*2.f;
+    float polarInc = PI/(_resolution); // ringAngle
+    float azimInc = TAU/(doubleRes); // segAngle //
+    
+    glm::vec3 vert;
+    glm::vec2 tcoord;
+
+    for (float i = halfRes; i < _resolution + 1; i++) {
+        float tr = sin( PI-i * polarInc);
+        float ny = cos( PI-i * polarInc);
+        tcoord.y = 1.f - (i / _resolution);
+
+        for (float j = 0; j <= doubleRes; j++) {
+
+            float nx = tr * sin(j * azimInc);
+            float nz = tr * cos(j * azimInc);
+
+            tcoord.x = j / (doubleRes);
+
+            vert = {nx, ny, nz};
+            mesh.addNormal(vert);
+
+            vert *= _radius;
+            mesh.addVertex(vert);
+            mesh.addTexCoord(tcoord);
+        }
+    }
+
+    int nr = doubleRes+1;
+    
+    int index1, index2, index3;
+    for (float iy = halfRes; iy < _resolution; iy++) {
+        for (float ix = 0; ix < doubleRes; ix++) {
+
+            // first tri //
+            if (iy > 0) {
+                index1 = (iy+0-halfRes) * (nr) + (ix+0);
+                index2 = (iy+0-halfRes) * (nr) + (ix+1);
+                index3 = (iy+1-halfRes) * (nr) + (ix+0);
+
+                mesh.addIndex(index1);
+                mesh.addIndex(index2);
+                mesh.addIndex(index3);
+            }
+
+            if (iy < _resolution - 1 ) {
+                // second tri //
+                index1 = (iy+0-halfRes) * (nr) + (ix+1);
+                index2 = (iy+1-halfRes) * (nr) + (ix+1);
+                index3 = (iy+1-halfRes) * (nr) + (ix+0);
+
+                mesh.addIndex(index1);
+                mesh.addIndex(index2);
+                mesh.addIndex(index3);
+
+            }
+        }
+    }
+
+    return mesh;
+}
+
 }

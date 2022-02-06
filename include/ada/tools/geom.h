@@ -36,4 +36,6 @@ Mesh cubeCorners(const std::vector<glm::vec3> &_pts, float _size = 1.0);
 
 Mesh sphere(int _resolution = 24, float _radius = 1.0f);
 
+Mesh sphereHalf(int _resolution = 24, float _radius = 1.0f);
+
 }
