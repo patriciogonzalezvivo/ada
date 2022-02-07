@@ -5,10 +5,11 @@
 
 #ifdef SUPPORT_LIBAV
 
+#include <ctime>
+
 extern "C" {
 #include <libavutil/log.h>
 #include <libavutil/avutil.h>
-#include <sys/time.h>
 #include <libswresample/swresample.h>
 }
 
