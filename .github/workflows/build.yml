@@ -1,0 +1,55 @@
+name: Build
+on:
+  pull_request:
+  push:
+env:
+  CMAKE_BUILD_TYPE: Release
+jobs:
+  build:
+    name: Build
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            build_command: |
+              mkdir build
+              cd build
+              cmake ..
+              cmake --build .
+          - os: windows-latest
+            build_command: |
+              mkdir build
+              cd build
+              cmake -G "NMake Makefiles" ..
+              cmake --build .
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Install dependencies (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake xorg-dev libglu1-mesa-dev libavcodec-dev libavfilter-dev \
+            libavdevice-dev libavformat-dev libavutil-dev libswscale-dev \
+            libv4l-dev libjpeg-dev libpng-dev libtiff-dev
+
+      - name: Set up MSVC environment (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          $FfmpegPath = "$Env:GITHUB_WORKSPACE\ffmpeg"
+          $FfmpegUri = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-latest-win64-gpl-shared-4.4.zip'
+          Invoke-WebRequest -Uri "$FfmpegUri" -OutFile "$FfmpegPath.zip"
+          Expand-Archive -Path "$FfmpegPath.zip" -DestinationPath "$FfmpegPath"
+          Move-Item -Path "$FfmpegPath\ffmpeg-*\*" -Destination "$FfmpegPath"
+          echo "CMAKE_PREFIX_PATH=$FfmpegPath" >>$Env:GITHUB_ENV
+
+      - name: Build
+        run: ${{ matrix.build_command }}
