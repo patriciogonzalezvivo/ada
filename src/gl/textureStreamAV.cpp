@@ -19,6 +19,11 @@ extern "C" {
 
 #define EPS 0.000025
 
+#ifdef _WIN32
+// https://stackoverflow.com/questions/33696092/whats-the-correct-replacement-for-posix-memalign-in-windows#comment55165270_33696092
+#define posix_memalign(p, a, s) (((*(p)) = _aligned_malloc((s), (a))), *(p) ? 0 : errno)
+#endif
+
 namespace ada {
 
 // av_err2str returns a temporary array. This doesn't work in gcc.
