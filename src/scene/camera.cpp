@@ -59,6 +59,12 @@ void Camera::setDistance(float _distance) {
     lookAt(m_target);
 }
 
+void Camera::setIntrinsics(const glm::mat4& _M ) {
+    m_type = CameraType::CUSTOM;
+    m_projectionMatrix = _M;
+    bChange = true;
+}
+
 void Camera::setVirtualOffset(float scale, int currentViewIndex, int totalViews, float aspect) {
     // The standard model Looking Glass screen is roughly 4.75" vertically. If we
     // assume the average viewing distance for a user sitting at their desk is
@@ -172,7 +178,7 @@ void Camera::updateCameraSettings() {
     
     if (m_type == CameraType::ORTHO)
         m_projectionMatrix = glm::ortho(-1.5f * float(m_aspect), 1.5f * float(m_aspect), -1.5f, 1.5f, -10.0f, 10.f);
-    else
+    else if (m_type != CameraType::CUSTOM)
         m_projectionMatrix = glm::perspective(m_fov, m_aspect, m_nearClip, m_farClip);
     
     updateProjectionViewMatrix();

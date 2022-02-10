@@ -22,6 +22,7 @@ public:
     
     virtual void        setOrientation(const glm::vec3& _ori);
     virtual void        setOrientation(const glm::quat& _ori);
+    virtual void        setOrientation(const glm::mat3& _ori);
     virtual void        setOrientation(const glm::mat4& _ori);
     
     virtual void        setTransformMatrix(const glm::mat4& _m);

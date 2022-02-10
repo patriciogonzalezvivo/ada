@@ -62,6 +62,12 @@ void Node::setOrientation(const glm::quat& _ori) {
     onOrientationChanged();
 }
 
+void Node::setOrientation(const glm::mat3& _ori) {
+    m_orientation = glm::toQuat(_ori);
+    createMatrix();
+    onOrientationChanged();
+}
+
 void Node::setOrientation(const glm::mat4& _ori) {
     m_orientation = glm::toQuat(_ori);
     createMatrix();

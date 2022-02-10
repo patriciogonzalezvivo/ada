@@ -7,7 +7,8 @@ namespace ada {
 enum CameraType {
     ORTHO, 
     PERSPECTIVE,
-    PERSPECTIVE_VIRTUAL_OFFSET
+    PERSPECTIVE_VIRTUAL_OFFSET,
+    CUSTOM
 };
 
 class Camera: public Node {
@@ -16,6 +17,8 @@ public:
     virtual ~Camera();
 
     virtual void        setType(CameraType cam_mode);
+    virtual void        setIntrinsics(const glm::mat4& _M );
+
     virtual void        setFOV(double _fov);
     virtual void        setViewport(int _width, int _height);
     virtual void        setClipping(double _near_clip_distance, double _far_clip_distance);
