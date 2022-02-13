@@ -16,12 +16,14 @@ jobs:
               cd build
               cmake ..
               cmake --build .
+              ls -l
           - os: windows-latest
             build_command: |
               mkdir build
               cd build
               cmake -G "NMake Makefiles" ..
               cmake --build .
+              dir
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -44,11 +46,20 @@ jobs:
       - name: Install dependencies (Windows)
         if: matrix.os == 'windows-latest'
         run: |
+          $FfmpegUri = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-latest-win64-lgpl-shared-4.4.zip'
+          $FfmpegZipPath = "$Env:GITHUB_WORKSPACE\ffmpeg.zip"
+          $ZlibUri = 'https://sourceforge.net/projects/gnuwin32/files/zlib/1.2.3/zlib-1.2.3-lib.zip/download'
+          $ZlibZipPath = "$Env:GITHUB_WORKSPACE\zlib.zip"
+
           $FfmpegPath = "$Env:GITHUB_WORKSPACE\ffmpeg"
-          $FfmpegUri = 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n4.4-latest-win64-gpl-shared-4.4.zip'
-          Invoke-WebRequest -Uri "$FfmpegUri" -OutFile "$FfmpegPath.zip"
-          Expand-Archive -Path "$FfmpegPath.zip" -DestinationPath "$FfmpegPath"
+
+          Start-BitsTransfer -Source "$FfmpegUri","$ZlibUri" -Destination "$FfmpegZipPath","$ZlibZipPath"
+
+          Expand-Archive -Path "$FfmpegZipPath" -DestinationPath "$FfmpegPath"
           Move-Item -Path "$FfmpegPath\ffmpeg-*\*" -Destination "$FfmpegPath"
+
+          Expand-Archive -Path "$ZlibZipPath" -DestinationPath "$FfmpegPath"
+
           echo "CMAKE_PREFIX_PATH=$FfmpegPath" >>$Env:GITHUB_ENV
 
       - name: Build
