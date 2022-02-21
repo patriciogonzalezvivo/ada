@@ -65,7 +65,10 @@ TextureStreamAV::TextureStreamAV() :
     {
 
     // initialize libav
-    av_register_all();
+    
+    //DEPRECATED. No longer needed
+    //av_register_all();
+
     avformat_network_init();
     
     //https://gist.github.com/shakkhar/619fd90ccbd17734089b
@@ -106,7 +109,7 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
         // av_dict_set(&options, "framerate", toString(getFps()).c_str(), 0);
         // std::cout << "Opening " << driver << " at " << _path << std::endl;
 
-        AVInputFormat *ifmt = av_find_input_format(driver.c_str());
+        const AVInputFormat *ifmt = av_find_input_format(driver.c_str());
         input_lodaded = avformat_open_input(&av_format_ctx, _path.c_str(), ifmt, &options);
     }
     else 
@@ -131,7 +134,7 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
         
     m_streamId = -1;
     AVCodecParameters* av_codec_params;
-    AVCodec* av_codec;
+    const AVCodec* av_codec;
 
     // find the video stream
     for (unsigned int i = 0; i < av_format_ctx->nb_streams; ++i) {
@@ -237,7 +240,25 @@ bool TextureStreamAV::update() {
         }
 
         if (device) {
-            response = avcodec_decode_video2(av_codec_ctx, av_frame, &got_picture, av_packet);
+
+            //DEPRECATED
+            //response = avcodec_decode_video2(av_codec_ctx, av_frame, &got_picture, av_packet);
+            
+         if (av_codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
+             av_codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+             response = avcodec_send_packet(av_codec_ctx, av_packet);
+             if (response < 0 && response != AVERROR(EAGAIN) && response != AVERROR_EOF) { 
+            } else {
+             if (response >= 0)
+                 av_packet->size = 0;
+             response = avcodec_receive_frame(av_codec_ctx, av_frame);
+             if (response >= 0)
+                 got_picture = 1;
+            //if (response == AVERROR(EAGAIN) || response == AVERROR_EOF)
+            //response = 0;
+             }
+         }
+
             if (response < 0) {
                 printf("Failed to decode packet: %s\n", av_make_error(response));
                 return false;
@@ -295,7 +316,7 @@ double TextureStreamAV::getFPS() {
     double fps = r2d(av_format_ctx->streams[m_streamId]->r_frame_rate);
 
     if (fps < EPS)
-        fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->codec->time_base);
+        fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->time_base);
     
     return fps;
 }
