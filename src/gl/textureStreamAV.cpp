@@ -109,7 +109,7 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
         // av_dict_set(&options, "framerate", toString(getFps()).c_str(), 0);
         // std::cout << "Opening " << driver << " at " << _path << std::endl;
 
-        const AVInputFormat *ifmt = av_find_input_format(driver.c_str());
+        AVInputFormat *ifmt = av_find_input_format(driver.c_str());
         input_lodaded = avformat_open_input(&av_format_ctx, _path.c_str(), ifmt, &options);
     }
     else 
