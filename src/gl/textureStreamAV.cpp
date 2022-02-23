@@ -8,6 +8,7 @@
 #include <ctime>
 
 extern "C" {
+#include <libavformat/version.h>
 #include <libavutil/log.h>
 #include <libavutil/avutil.h>
 #include <libswresample/swresample.h>
@@ -109,7 +110,11 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
         // av_dict_set(&options, "framerate", toString(getFps()).c_str(), 0);
         // std::cout << "Opening " << driver << " at " << _path << std::endl;
 
+        #if (LIBAVFORMAT_VERSION_MAJOR > 58) || ((LIBAVFORMAT_VERSION_MAJOR == 58) && (LIBAVFORMAT_VERSION_MINOR >= 30))
+        const AVInputFormat *ifmt = av_find_input_format(driver.c_str());
+        #else
         AVInputFormat *ifmt = av_find_input_format(driver.c_str());
+        #endif
         input_lodaded = avformat_open_input(&av_format_ctx, _path.c_str(), ifmt, &options);
     }
     else 
