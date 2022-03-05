@@ -11,7 +11,7 @@ enum WindowStyle {
     REGULAR,
     ALLWAYS_ON_TOP,
     FULLSCREEN,
-    HOLOPLAY
+    LENTICULAR
 };
 
 struct WindowProperties {

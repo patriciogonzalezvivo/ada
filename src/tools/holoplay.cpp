@@ -3,89 +3,58 @@
 
 namespace ada {
 
-static HoloplayProperties holoplay;
+//  QUILT 
 
-void setHoloplayProperties(const HoloplayProperties& _holoplay) {
-    holoplay = _holoplay;
+QuiltProperties::QuiltProperties() {};
+QuiltProperties::QuiltProperties(int _width, int _height, int _cols, int _rows) {
+    width = _width;
+    height = _height;
+    columns = _cols;
+    rows = _rows;
+    totalViews = _cols * _rows;
+};
+
+static QuiltProperties quilt;
+
+void setQuiltProperties(const QuiltProperties& _quilt) { quilt = _quilt; }
+
+static int quilt_resolutions[8][4] = {
+    {2048, 2048, 4, 8},
+    {4096, 4096, 5, 9},
+    {8192, 8192, 5, 9},
+    {3360, 3360, 8, 6},
+    {4026, 4096, 11, 8},
+    {4225, 4095, 13, 7},
+    {4224, 4096, 12, 8},
+    {4224, 4230, 12, 9}
+};
+
+void setQuiltProperties(size_t _index) {
+    quilt = QuiltProperties(quilt_resolutions[_index][0], quilt_resolutions[_index][1], 
+                            quilt_resolutions[_index][2], quilt_resolutions[_index][3] );
 }
 
-void setHoloplayResolution(int _holoplay) {
-    if (_holoplay == 0) {
-        holoplay.width = 2048;
-        holoplay.height = 2048;
-        holoplay.columns = 4;
-        holoplay.rows = 8;
-        holoplay.totalViews = 32;
-    }
-    else if (_holoplay == 1) {
-        holoplay.width = 4096;
-        holoplay.height = 4096;
-        holoplay.columns = 5;
-        holoplay.rows = 9;
-        holoplay.totalViews = 45;
-    }
-    else if (_holoplay == 2) {
-        holoplay.width = 4096 * 2;
-        holoplay.height = 4096 * 2;
-        holoplay.columns = 5;
-        holoplay.rows = 9;
-        holoplay.totalViews = 45;
-    }
-    else if (_holoplay == 3) {
-        holoplay.width = 3360;
-        holoplay.height = 3360;
-        holoplay.columns = 8;
-        holoplay.rows = 6;
-        holoplay.totalViews = 48;
-    }
-    else if (_holoplay == 4) {
-        holoplay.width = 4026;
-        holoplay.height = 4096;
-        holoplay.columns = 11;
-        holoplay.rows = 8;
-        holoplay.totalViews = 88;
-    }
-    else if (_holoplay == 5) {
-        holoplay.width = 4225;
-        holoplay.height = 4095;
-        holoplay.columns = 13;
-        holoplay.rows = 7;
-        holoplay.totalViews = 91;
-    }
-    else if (_holoplay == 6) {
-        holoplay.width = 4224;
-        holoplay.height = 4096;
-        holoplay.columns = 12;
-        holoplay.rows = 8;
-        holoplay.totalViews = 96;
-    }
-    else if (_holoplay == 7) {
-        holoplay.width = 4224;
-        holoplay.height = 4230;
-        holoplay.columns = 12;
-        holoplay.rows = 9;
-        holoplay.totalViews = 108;
-    }
-}
+int getQuiltWidth() { return quilt.width; }
+int getQuiltHeight() { return quilt.height; }
+int getQuiltColumns() { return quilt.columns; }
+int getQuiltRows() { return quilt.rows; }
+int getQuiltTotalViews() { return quilt.totalViews; }
 
-int getHoloplayWidth() { return holoplay.width; }
-int getHoloplayHeight() { return holoplay.height; }
-
-void holoplayQuilt(std::function<void(const HoloplayProperties&, glm::vec4&, int&)> _renderFnc) {
+void renderQuilt(std::function<void(const QuiltProperties&, glm::vec4&, int&)> _renderFnc) {
 
     // save the viewport for the total quilt
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
     // get quilt view dimensions
-    int qs_viewWidth = int(float(holoplay.width) / float(holoplay.columns));
-    int qs_viewHeight = int(float(holoplay.height) / float(holoplay.rows));
+    int qs_viewWidth = int(float(quilt.width) / float(quilt.columns));
+    int qs_viewHeight = int(float(quilt.height) / float(quilt.rows));
 
     // render views and copy each view to the quilt
-    for (int viewIndex = 0; viewIndex < holoplay.totalViews; viewIndex++) {
+    for (int viewIndex = 0; viewIndex < quilt.totalViews; viewIndex++) {
         // get the x and y origin for this view
-        int x = (viewIndex % holoplay.columns) * qs_viewWidth;
-        int y = int(float(viewIndex) / float(holoplay.columns)) * qs_viewHeight;
+        int x = (viewIndex % quilt.columns) * qs_viewWidth;
+        int y = int(float(viewIndex) / float(quilt.columns)) * qs_viewHeight;
 
         // get the x and y origin for this view
         // set the viewport to the view to control the projection extent
@@ -96,7 +65,7 @@ void holoplayQuilt(std::function<void(const HoloplayProperties&, glm::vec4&, int
         glScissor(x, y, qs_viewWidth, qs_viewHeight);
         glm::vec4 vp = glm::vec4(x, y, qs_viewWidth, qs_viewHeight);
 
-        _renderFnc(holoplay, vp, viewIndex);
+        _renderFnc(quilt, vp, viewIndex);
 
         // reset viewport
         glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
@@ -107,7 +76,24 @@ void holoplayQuilt(std::function<void(const HoloplayProperties&, glm::vec4&, int
     }
 }
 
-const std::string holoplay_frag = R"(
+// LENTICULAR
+
+static LenticularProperties lenticular;
+
+void setLenticularProperties(const LenticularProperties& _lenticular) { lenticular = _lenticular; }
+void setLenticularProperties(const std::string& _path) {
+    // TODO:
+    //  - parse _path JSON file and extract values for 
+
+    // dpi       = 324.0
+    // pitch     = 52.58737671470091
+    // slope     = -7.196136200157333
+    // center    = 0.4321881363063158
+    // ri        = 0
+    // bi        = 2
+}
+
+const std::string lenticular_frag = R"(
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -115,9 +101,9 @@ precision mediump float;
 uniform sampler2D   u_scene;
 uniform vec2        u_resolution;
 
-uniform vec3        u_holoPlayTile;
-uniform vec4        u_holoPlayCalibration;  // dpi, pitch, slope, center
-uniform vec2        u_holoPlayRB;           // ri, bi
+uniform vec3        u_quilt;
+uniform vec4        u_lenticularCalibration;  // dpi, pitch, slope, center
+uniform vec2        u_lenticularRB;           // ri, bi
 
 // GET CORRECT VIEW
 vec2 quilt_map(vec3 tile, vec2 pos, float a) {
@@ -135,15 +121,15 @@ void main (void) {
     vec3 color = vec3(0.0);
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
 
-    float pitch = -u_resolution.x / u_holoPlayCalibration.x  * u_holoPlayCalibration.y * sin(atan(abs(u_holoPlayCalibration.z)));
-    float tilt = u_resolution.y / (u_resolution.x * u_holoPlayCalibration.z);
+    float pitch = -u_resolution.x / u_lenticularCalibration.x  * u_lenticularCalibration.y * sin(atan(abs(u_lenticularCalibration.z)));
+    float tilt = u_resolution.y / (u_resolution.x * u_lenticularCalibration.z);
     float subp = 1.0 / (3.0 * u_resolution.x);
     float subp2 = subp * pitch;
 
-    float a = (-st.x - st.y * tilt) * pitch - u_holoPlayCalibration.w;
-    color.r = texture2D(u_scene, quilt_map(u_holoPlayTile, st, a-u_holoPlayRB.x*subp2)).r;
-    color.g = texture2D(u_scene, quilt_map(u_holoPlayTile, st, a-subp2)).g;
-    color.b = texture2D(u_scene, quilt_map(u_holoPlayTile, st, a-u_holoPlayRB.y*subp2)).b;
+    float a = (-st.x - st.y * tilt) * pitch - u_lenticularCalibration.w;
+    color.r = texture2D(u_scene, quilt_map(u_quilt, st, a-u_lenticularRB.x*subp2)).r;
+    color.g = texture2D(u_scene, quilt_map(u_quilt, st, a-subp2)).g;
+    color.b = texture2D(u_scene, quilt_map(u_quilt, st, a-u_lenticularRB.y*subp2)).b;
 
     #if defined(HOLOPLAY_DEBUG_CENTER)
     // Mark center line only in central view
@@ -160,7 +146,7 @@ void main (void) {
 }
 )";
 
-const std::string holoplay_frag_300 = R"(
+const std::string lenticular_frag_300 = R"(
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -168,9 +154,9 @@ precision mediump float;
 uniform sampler2D   u_scene;
 uniform vec2        u_resolution;
 
-uniform vec3        u_holoPlayTile;
-uniform vec4        u_holoPlayCalibration;  // dpi, pitch, slope, center
-uniform vec2        u_holoPlayRB;           // ri, bi
+uniform vec3        u_quilt;
+uniform vec4        u_lenticularCalibration;  // dpi, pitch, slope, center
+uniform vec2        u_lenticularRB;           // ri, bi
 
 out     vec4        fragColor;
 
@@ -190,15 +176,15 @@ void main (void) {
     vec3 color = vec3(0.0);
     vec2 st = gl_FragCoord.xy/u_resolution.xy;
 
-    float pitch = -u_resolution.x / u_holoPlayCalibration.x  * u_holoPlayCalibration.y * sin(atan(abs(u_holoPlayCalibration.z)));
-    float tilt = u_resolution.y / (u_resolution.x * u_holoPlayCalibration.z);
+    float pitch = -u_resolution.x / u_lenticularCalibration.x  * u_lenticularCalibration.y * sin(atan(abs(u_lenticularCalibration.z)));
+    float tilt = u_resolution.y / (u_resolution.x * u_lenticularCalibration.z);
     float subp = 1.0 / (3.0 * u_resolution.x);
     float subp2 = subp * pitch;
 
-    float a = (-st.x - st.y * tilt) * pitch - u_holoPlayCalibration.w;
-    color.r = texture(u_scene, quilt_map(u_holoPlayTile, st, a-u_holoPlayRB.x*subp2)).r;
-    color.g = texture(u_scene, quilt_map(u_holoPlayTile, st, a-subp2)).g;
-    color.b = texture(u_scene, quilt_map(u_holoPlayTile, st, a-u_holoPlayRB.y*subp2)).b;
+    float a = (-st.x - st.y * tilt) * pitch - u_lenticularCalibration.w;
+    color.r = texture(u_scene, quilt_map(u_quilt, st, a-u_lenticularRB.x*subp2)).r;
+    color.g = texture(u_scene, quilt_map(u_quilt, st, a-subp2)).g;
+    color.b = texture(u_scene, quilt_map(u_quilt, st, a-u_lenticularRB.y*subp2)).b;
 
     #if defined(HOLOPLAY_DEBUG_CENTER)
     // Mark center line only in central view
@@ -215,21 +201,21 @@ void main (void) {
 }
 )";
 
-std::string getHoloplayFragShader(size_t _versionNumber) {
+std::string getLenticularFragShader(size_t _versionNumber) {
     std::string rta = "";
 
     if (_versionNumber < 130)
-        rta += holoplay_frag;
+        rta += lenticular_frag;
     else if (_versionNumber >= 130) 
-        rta += holoplay_frag_300;
+        rta += lenticular_frag_300;
 
     return rta;
 }
 
-void holoplayFeedUniforms(Shader& _shader) {
-    _shader.setUniform("u_holoPlayTile", float(holoplay.columns), float(holoplay.rows), float(holoplay.totalViews));
-    _shader.setUniform("u_holoPlayCalibration", holoplay.dpi, holoplay.pitch, holoplay.slope, holoplay.center);
-    _shader.setUniform("u_holoPlayRB", float(holoplay.ri), float(holoplay.bi));
+void feedLenticularUniforms(Shader& _shader) {
+    _shader.setUniform("u_quilt", float(quilt.columns), float(quilt.rows), float(quilt.totalViews));
+    _shader.setUniform("u_lenticularCalibration", lenticular.dpi, lenticular.pitch, lenticular.slope, lenticular.center);
+    _shader.setUniform("u_lenticularRB", float(lenticular.ri), float(lenticular.bi));
 }
 
 }

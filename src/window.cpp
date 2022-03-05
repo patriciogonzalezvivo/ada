@@ -583,7 +583,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
         }
-        else if (_prop.style == HOLOPLAY) {
+        else if (_prop.style == LENTICULAR) {
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
             glfwWindowHint(GLFW_DECORATED, false);
 
