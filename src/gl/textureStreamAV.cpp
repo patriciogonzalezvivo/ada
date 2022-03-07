@@ -63,16 +63,12 @@ TextureStreamAV::TextureStreamAV() :
     frame_data(NULL),
     m_currentFrame(-1),
     m_streamId(-1)
-    {
+{
 
     // initialize libav
-    
-    //DEPRECATED. No longer needed
-    //av_register_all();
-
     avformat_network_init();
     
-    //https://gist.github.com/shakkhar/619fd90ccbd17734089b
+    // https://gist.github.com/shakkhar/619fd90ccbd17734089b
     avdevice_register_all();
 }
 
@@ -240,24 +236,20 @@ bool TextureStreamAV::update() {
         }
 
         if (device) {
-
-            //DEPRECATED
-            //response = avcodec_decode_video2(av_codec_ctx, av_frame, &got_picture, av_packet);
-            
-         if (av_codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
-             av_codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
-             response = avcodec_send_packet(av_codec_ctx, av_packet);
-             if (response < 0 && response != AVERROR(EAGAIN) && response != AVERROR_EOF) { 
-            } else {
-             if (response >= 0)
-                 av_packet->size = 0;
-             response = avcodec_receive_frame(av_codec_ctx, av_frame);
-             if (response >= 0)
-                 got_picture = 1;
-            //if (response == AVERROR(EAGAIN) || response == AVERROR_EOF)
-            //response = 0;
-             }
-         }
+            if (av_codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
+                av_codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
+                response = avcodec_send_packet(av_codec_ctx, av_packet);
+                if (response < 0 && response != AVERROR(EAGAIN) && response != AVERROR_EOF) {
+                } else {
+                    if (response >= 0)
+                        av_packet->size = 0;
+                    response = avcodec_receive_frame(av_codec_ctx, av_frame);
+                    if (response >= 0)
+                        got_picture = 1;
+                    //if (response == AVERROR(EAGAIN) || response == AVERROR_EOF)
+                    //response = 0;
+                }
+            }
 
             if (response < 0) {
                 printf("Failed to decode packet: %s\n", av_make_error(response));

@@ -940,9 +940,9 @@ void closeGL(){
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW) 
-    glfwSetWindowSize(window, _width, _height);
+    glfwSetWindowSize(window, _width / getPixelDensity(), _height / getPixelDensity());
     #endif
-    setViewport((float)_width, (float)_height);
+    setViewport((float)_width / getPixelDensity(), (float)_height / getPixelDensity());
 }
 
 void setWindowTitle( const char* _title) {
