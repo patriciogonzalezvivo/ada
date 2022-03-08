@@ -36,11 +36,11 @@ TextureStreamAV::TextureStreamAV() :
     conv_ctx(NULL),
     frame_data(NULL),
     m_fps(0.0),
-    m_startSecond(0.0),
-    m_totalSeconds(-1.0),
-    m_currentSecond(-1.0),
-    m_waitFromSecond(0.0),
-    m_waitUntilSecond(0.0),
+    m_startTime(0.0),
+    m_duration(-1.0),
+    m_time(-1.0),
+    m_waitFrom(0.0),
+    m_waitUntil(0.0),
     m_speed(1.0),
     m_totalFrames(-1),
     m_currentFrame(-1),
@@ -64,11 +64,11 @@ TextureStreamAV::TextureStreamAV( bool _isDevice ) :
     conv_ctx(NULL),
     frame_data(NULL),
     m_fps(0.0),
-    m_startSecond(0.0),
-    m_totalSeconds(-1.0),
-    m_currentSecond(-1.0),
-    m_waitFromSecond(0.0),
-    m_waitUntilSecond(0.0),
+    m_startTime(0.0),
+    m_duration(-1.0),
+    m_time(-1.0),
+    m_waitFrom(0.0),
+    m_waitUntil(0.0),
     m_speed(1.0),
     m_totalFrames(-1),
     m_currentFrame(-1),
@@ -223,10 +223,10 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
     m_totalFrames = getTotalFrames();
     m_currentFrame = 0;
 
-    m_totalSeconds = getTotalSeconds();
-    m_currentSecond = 0;
+    m_duration = getDuration();
+    m_time = 0;
 
-    m_startSecond = ada::getTimeSec();
+    m_startTime = ada::getTimeSec();
 
     return true;
 }
@@ -258,8 +258,8 @@ double r2d(AVRational r) {
 
 void TextureStreamAV::setSpeed( float _speed ) {
     m_speed = _speed;
-    m_waitFromSecond = 0.0;
-    m_waitUntilSecond = 0.0;
+    m_waitFrom = 0.0;
+    m_waitUntil = 0.0;
 }
 
 double TextureStreamAV::getFPS() {
@@ -275,20 +275,20 @@ double TextureStreamAV::getFPS() {
     return m_fps;
 }
 
-float TextureStreamAV::getTotalSeconds() {
-    if (m_totalSeconds < 0.0) {       
+float TextureStreamAV::getDuration() {
+    if (m_duration < 0.0) {       
         double sec = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
         
         if (sec < EPS)
             sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
         
-        if (sec < EPS)
-            sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
+        // if (sec < EPS)
+        //     sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
 
-        m_totalSeconds = sec;
+        m_duration = sec;
     }
 
-    return m_totalSeconds;
+    return m_duration;
 }
 
 float TextureStreamAV::getTotalFrames() {
@@ -303,7 +303,7 @@ float TextureStreamAV::getTotalFrames() {
         int64_t nbf = av_format_ctx->streams[m_streamId]->nb_frames;
         
         if (nbf == 0)
-            nbf = (int64_t)floor(getTotalSeconds() * getFPS() + 0.5);
+            nbf = (int64_t)floor(getDuration() * getFPS() + 0.5);
 
         m_totalFrames = nbf;
     }
@@ -312,8 +312,8 @@ float TextureStreamAV::getTotalFrames() {
 }
 
 float TextureStreamAV::getCurrentFrame() const { 
-    double delta = m_waitUntilSecond - m_waitFromSecond;
-    double pct = (m_waitUntilSecond - m_currentSecond)/delta;
+    double delta = m_waitUntil - m_waitFrom;
+    double pct = (m_waitUntil - m_time)/delta;
     pct = glm::fract(1.0-glm::clamp(pct, 0.0, 1.0));
     
     return (m_device)? 1 : m_currentFrame + pct; 
@@ -329,7 +329,7 @@ int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
 }
 
 bool TextureStreamAV::update() {
-    m_currentSecond = (ada::getTimeSec() - m_startSecond) * m_speed;
+    m_time = (ada::getTimeSec() - m_startTime) * m_speed;
 
     if ( newFrame() )
         return decodeFrame();
@@ -341,10 +341,10 @@ void TextureStreamAV::restart() {
     avio_seek(av_format_ctx->pb, 0, SEEK_SET);
     avformat_seek_file(av_format_ctx, m_streamId, 0, 0, av_format_ctx->streams[m_streamId]->duration, 0);
     m_currentFrame = 0;
-    m_currentSecond = 0.0;
-    m_startSecond = ada::getTimeSec();
-    m_waitFromSecond = 0.0;
-    m_waitUntilSecond = 0.0;
+    m_time = 0.0;
+    m_startTime = ada::getTimeSec();
+    m_waitFrom = 0.0;
+    m_waitUntil = 0.0;
 }
 
 double TextureStreamAV::currentFramePts() {
@@ -353,11 +353,10 @@ double TextureStreamAV::currentFramePts() {
 
 bool TextureStreamAV::newFrame() {
 
-    if (m_currentFrame > 0 && m_waitUntilSecond > 0.0) {
+    if (m_currentFrame > 0 && m_waitUntil > 0.0) {
         double pts = currentFramePts();
-        if ( m_currentSecond >= pts ) {
-            m_waitFromSecond = pts;
-            m_waitUntilSecond = 0.0;
+        if ( m_time >= pts ) {
+            m_waitUntil = 0.0;
             return true;
         }
         else 
@@ -442,12 +441,11 @@ bool TextureStreamAV::newFrame() {
     }
     
     double pts = currentFramePts();
-    if ( m_currentSecond >= pts ) {
-        m_waitFromSecond = pts;
+    if ( m_time >= pts )
         return true;
-    }
+
     
-    m_waitUntilSecond = pts;
+    m_waitUntil = pts;
     return  false; 
 }
 
@@ -473,6 +471,7 @@ bool TextureStreamAV::decodeFrame() {
         flipPixelsVertically(frame_data, av_codec_ctx->width, av_codec_ctx->height, 4);
     
     m_currentFrame++;
+    m_waitFrom = currentFramePts();
     return Texture::load(av_codec_ctx->width, av_codec_ctx->height, 4, 8, frame_data, m_filter, m_wrap);
 }
 

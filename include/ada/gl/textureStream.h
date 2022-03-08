@@ -9,11 +9,11 @@ public:
 
     virtual void    setSpeed( float _speed ) {};
     
-    virtual float   getTotalSeconds() { return 0.0; }
-    virtual float   getCurrentSecond() const { return 1.0; }
+    virtual float   getDuration() { return 0.0; }
+    virtual float   getTime() const { return 0.0; }
 
     virtual float   getTotalFrames() { return 0; };
-    virtual float   getCurrentFrame() const { return 1; };
+    virtual float   getCurrentFrame() const { return 0; };
 
     virtual void    restart() {};
 

@@ -806,7 +806,6 @@ bool isGL() {
 void updateGL() {
     // Update time
     // --------------------------------------------------------------------
-
     double now = getTimeSec();
     float diff = now - elapseTime;
     if (diff < restSec) {

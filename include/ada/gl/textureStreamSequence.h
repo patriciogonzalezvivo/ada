@@ -10,8 +10,8 @@ public:
     TextureStreamSequence();
     virtual ~TextureStreamSequence();
 
-    virtual float   getTotalSeconds();
-    virtual float   getCurrentSecond() const;
+    virtual float   getDuration();
+    virtual float   getTime() const;
 
     virtual float   getTotalFrames() { return m_frames.size(); };
     virtual float   getCurrentFrame() const { return m_currentFrame; };

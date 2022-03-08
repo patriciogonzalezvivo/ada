@@ -26,8 +26,8 @@ public:
     virtual void    setSpeed( float _speed );
 
     virtual double  getFPS();
-    virtual float   getTotalSeconds();
-    virtual float   getCurrentSecond() const { return (m_device)? 1 : m_currentSecond; }
+    virtual float   getTime() const { return (m_device)? 0.0 : m_time; }
+    virtual float   getDuration();
 
     virtual float   getTotalFrames();
     virtual float   getCurrentFrame() const;
@@ -55,17 +55,17 @@ private:
     uint8_t         *frame_data;
 
     double          m_fps;
-    double          m_startSecond;
-    double          m_totalSeconds;
-    double          m_currentSecond;
-    double          m_waitFromSecond;
-    double          m_waitUntilSecond;
+    double          m_startTime;
+    double          m_duration;
+    double          m_time;
+    double          m_waitFrom;
+    double          m_waitUntil;
     double          m_speed;
 
     long            m_totalFrames;
     long            m_currentFrame;
+
     int             m_streamId;
-    
     bool            m_device;
 };
 

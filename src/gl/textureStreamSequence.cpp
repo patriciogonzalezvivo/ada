@@ -110,11 +110,11 @@ void TextureStreamSequence::clear() {
     m_id = 0;
 }
 
-float TextureStreamSequence::getTotalSeconds() {
+float TextureStreamSequence::getDuration() {
     return m_frames.size() / ada::getFps();
 }
 
-float TextureStreamSequence::getCurrentSecond() const {
+float TextureStreamSequence::getTime() const {
     return m_currentFrame / ada::getFps();
 }
 
