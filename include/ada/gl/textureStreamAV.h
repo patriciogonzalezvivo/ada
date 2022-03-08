@@ -32,6 +32,8 @@ public:
     virtual float   getTotalFrames();
     virtual float   getCurrentFrame() const;
 
+    virtual const GLuint    getPrevTextureId() const { return m_idPrev; };
+
     virtual bool    isDevice() { return m_device; }
 
     virtual bool    update();
@@ -66,6 +68,7 @@ private:
     long            m_currentFrame;
 
     int             m_streamId;
+    GLuint          m_idPrev;
     bool            m_device;
 };
 

@@ -45,6 +45,7 @@ TextureStreamAV::TextureStreamAV() :
     m_totalFrames(-1),
     m_currentFrame(-1),
     m_streamId(-1),
+    m_idPrev(0),
     m_device(false)
 {
 
@@ -73,6 +74,7 @@ TextureStreamAV::TextureStreamAV( bool _isDevice ) :
     m_totalFrames(-1),
     m_currentFrame(-1),
     m_streamId(-1),
+    m_idPrev(0),
     m_device(_isDevice)
 {
 
@@ -215,7 +217,16 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getMagnificationFilter(m_filter));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(m_wrap));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(m_wrap));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
+    if (m_idPrev == 0)
+        glGenTextures(1, &m_idPrev);
+    glBindTexture(GL_TEXTURE_2D, m_idPrev);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getMinificationFilter(m_filter));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getMagnificationFilter(m_filter));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(m_wrap));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(m_wrap));
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
     m_path = _path;
@@ -444,7 +455,6 @@ bool TextureStreamAV::newFrame() {
     if ( m_time >= pts )
         return true;
 
-    
     m_waitUntil = pts;
     return  false; 
 }
@@ -463,15 +473,24 @@ bool TextureStreamAV::decodeFrame() {
         return false;
     }
 
+    // Scale down the image 
     uint8_t* dest[4] = { frame_data, NULL, NULL, NULL };
     int dest_linesize[4] = { av_frame->width * 4, 0, 0, 0 };
     sws_scale(conv_ctx, av_frame->data, av_frame->linesize, 0, av_frame->height, dest, dest_linesize);
 
+    // If needs flipping
     if (m_vFlip)
         flipPixelsVertically(frame_data, av_codec_ctx->width, av_codec_ctx->height, 4);
     
+    // Up the frame count
     m_currentFrame++;
+    // Track start of current frame
     m_waitFrom = currentFramePts();
+    // Swap texture id
+    GLuint tmp_id = m_idPrev;
+    m_idPrev = m_id;
+    m_id = tmp_id;
+    // Efectivally load the next frame
     return Texture::load(av_codec_ctx->width, av_codec_ctx->height, 4, 8, frame_data, m_filter, m_wrap);
 }
 
@@ -497,8 +516,11 @@ void  TextureStreamAV::clear() {
 
     if (m_id != 0)
         glDeleteTextures(1, &m_id);
-
     m_id = 0;
+
+    if (m_idPrev != 0)
+        glDeleteTextures(1, &m_idPrev);
+    m_idPrev = 0;
 }
 
 }

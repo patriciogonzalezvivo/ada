@@ -6,7 +6,7 @@
 
 namespace ada {
 
-TextureStreamSequence::TextureStreamSequence() : m_currentFrame(0), m_bits(8) {
+TextureStreamSequence::TextureStreamSequence() : m_currentFrame(0), m_bits(8), m_idPrev(0) {
 
 }
 
@@ -86,6 +86,10 @@ bool TextureStreamSequence::update() {
     if (m_frames.size() == 0)
         return false;
 
+    GLuint tmp_id = m_idPrev;
+    m_idPrev = m_id;
+    m_id = tmp_id;    
+
     if ( Texture::load(m_width, m_height, 4, m_bits, m_frames[ m_currentFrame ]) ) {
         m_currentFrame = (m_currentFrame + 1) % m_frames.size();
         return true;
@@ -106,8 +110,11 @@ void TextureStreamSequence::clear() {
 
     if (m_id != 0)
         glDeleteTextures(1, &m_id);
-
     m_id = 0;
+
+    if (m_idPrev != 0)
+        glDeleteTextures(1, &m_idPrev);
+    m_idPrev = 0;
 }
 
 float TextureStreamSequence::getDuration() {

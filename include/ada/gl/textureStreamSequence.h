@@ -10,6 +10,9 @@ public:
     TextureStreamSequence();
     virtual ~TextureStreamSequence();
 
+    // virtual void            setSpeed( float _speed ) {};
+    virtual const GLuint    getPrevTextureId() const { return m_idPrev; };
+
     virtual float   getDuration();
     virtual float   getTime() const;
 
@@ -24,8 +27,9 @@ public:
 private:
 
     std::vector<void*>  m_frames;
-    size_t  m_currentFrame;
-    size_t  m_bits;
+    size_t              m_currentFrame;
+    size_t              m_bits;
+    GLuint              m_idPrev;
 
 };
 
