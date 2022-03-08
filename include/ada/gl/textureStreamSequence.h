@@ -10,11 +10,15 @@ public:
     TextureStreamSequence();
     virtual ~TextureStreamSequence();
 
+    virtual float   getTotalSeconds();
+    virtual float   getCurrentSecond() const;
+
     virtual int     getTotalFrames() { return m_frames.size(); };
-    virtual int     getCurrentFrame() { return m_currentFrame; };
+    virtual int     getCurrentFrame() const { return m_currentFrame; };
 
     virtual bool    load(const std::string& _filepath, bool _vFlip);
     virtual bool    update();
+    virtual void    restart();
     virtual void    clear();
 
 private:

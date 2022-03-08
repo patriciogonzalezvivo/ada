@@ -27,33 +27,7 @@ extern "C" {
 
 namespace ada {
 
-// av_err2str returns a temporary array. This doesn't work in gcc.
-// This function can be used as a replacement for av_err2str.
-static const char* av_make_error(int errnum) {
-    static char str[AV_ERROR_MAX_STRING_SIZE];
-    memset(str, 0, sizeof(str));
-    return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
-}
-
-static AVPixelFormat correct_for_deprecated_pixel_format(AVPixelFormat pix_fmt) {
-    // Fix swscaler deprecated pixel format warning
-    // (YUVJ has been deprecated, change pixel format to regular YUV)
-    switch (pix_fmt) {
-        case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
-        case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
-        case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
-        case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
-        default:                  return pix_fmt;
-    }
-}
-
-// helper function as taken from OpenCV ffmpeg reader
-double r2d(AVRational r) {
-    return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
-}
-
 TextureStreamAV::TextureStreamAV() : 
-    device(false), 
     av_format_ctx(NULL),
     av_codec_ctx(NULL),
     av_decoder(NULL),
@@ -61,8 +35,45 @@ TextureStreamAV::TextureStreamAV() :
     av_packet(NULL),
     conv_ctx(NULL),
     frame_data(NULL),
+    m_fps(0.0),
+    m_startSecond(0.0),
+    m_totalSeconds(-1.0),
+    m_currentSecond(-1.0),
+    m_waitFromSecond(0.0),
+    m_waitUntilSecond(0.0),
+    m_speed(1.0),
+    m_totalFrames(-1),
     m_currentFrame(-1),
-    m_streamId(-1)
+    m_streamId(-1),
+    m_device(false)
+{
+
+    // initialize libav
+    avformat_network_init();
+    
+    // https://gist.github.com/shakkhar/619fd90ccbd17734089b
+    avdevice_register_all();
+}
+
+TextureStreamAV::TextureStreamAV( bool _isDevice ) : 
+    av_format_ctx(NULL),
+    av_codec_ctx(NULL),
+    av_decoder(NULL),
+    av_frame(NULL),
+    av_packet(NULL),
+    conv_ctx(NULL),
+    frame_data(NULL),
+    m_fps(0.0),
+    m_startSecond(0.0),
+    m_totalSeconds(-1.0),
+    m_currentSecond(-1.0),
+    m_waitFromSecond(0.0),
+    m_waitUntilSecond(0.0),
+    m_speed(1.0),
+    m_totalFrames(-1),
+    m_currentFrame(-1),
+    m_streamId(-1),
+    m_device(_isDevice)
 {
 
     // initialize libav
@@ -93,7 +104,7 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
     av_log_set_level(AV_LOG_QUIET);
 
     int input_lodaded = -1;
-    if (device) {
+    if (m_device) {
         std::string driver = "video4linux2";
 
         #ifdef PLATFORM_OSX 
@@ -147,6 +158,8 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
             break;
         }
     }
+
+    // std::cout << "time base: " << time_base << std::endl;
 
     if (m_streamId == -1) {
         std::cout << "failed to find video stream" << std::endl;
@@ -207,47 +220,183 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
 
     m_path = _path;
 
+    m_totalFrames = getTotalFrames();
+    m_currentFrame = 0;
+
+    m_totalSeconds = getTotalSeconds();
+    m_currentSecond = 0;
+
+    m_startSecond = ada::getTimeSec();
+
     return true;
 }
 
-bool TextureStreamAV::update() {
+// av_err2str returns a temporary array. This doesn't work in gcc.
+// This function can be used as a replacement for av_err2str.
+static const char* av_make_error(int errnum) {
+    static char str[AV_ERROR_MAX_STRING_SIZE];
+    memset(str, 0, sizeof(str));
+    return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
+}
 
-     // Decode one frame
-    int response;
-    int got_picture;
+static AVPixelFormat correct_for_deprecated_pixel_format(AVPixelFormat pix_fmt) {
+    // Fix swscaler deprecated pixel format warning
+    // (YUVJ has been deprecated, change pixel format to regular YUV)
+    switch (pix_fmt) {
+        case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
+        case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
+        case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
+        case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
+        default:                  return pix_fmt;
+    }
+}
+
+// helper function as taken from OpenCV ffmpeg reader
+double r2d(AVRational r) {
+    return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
+}
+
+void TextureStreamAV::setSpeed( float _speed ) {
+    m_speed = _speed;
+    m_waitFromSecond = 0.0;
+    m_waitUntilSecond = 0.0;
+}
+
+double TextureStreamAV::getFPS() {
+    if (m_fps <= 0.0) {
+        double fps = r2d(av_format_ctx->streams[m_streamId]->r_frame_rate);
+
+        if (fps < EPS)
+            fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->time_base);
+
+        m_fps = fps;
+    }
+
+    return m_fps;
+}
+
+float TextureStreamAV::getTotalSeconds() {
+    if (m_totalSeconds < 0.0) {       
+        double sec = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
+        
+        if (sec < EPS)
+            sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
+        
+        if (sec < EPS)
+            sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
+
+        m_totalSeconds = sec;
+    }
+
+    return m_totalSeconds;
+}
+
+int TextureStreamAV::getTotalFrames() {
+    if (m_totalFrames < 0) {
+
+        if (av_format_ctx == NULL)
+            return -1;
+
+        if (m_device)
+            return 1;
+        
+        int64_t nbf = av_format_ctx->streams[m_streamId]->nb_frames;
+        
+        if (nbf == 0)
+            nbf = (int64_t)floor(getTotalSeconds() * getFPS() + 0.5);
+
+        m_totalFrames = nbf;
+    }
+
+    return m_totalFrames;
+}
+
+double TextureStreamAV::dts_to_sec(int64_t dts) {
+    return (double)(dts - av_format_ctx->streams[m_streamId]->start_time) * r2d(av_format_ctx->streams[m_streamId]->time_base);
+}
+
+int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
+    double sec = dts_to_sec(dts);
+    return (int64_t)( getFPS() * sec + 0.5 );
+}
+
+bool TextureStreamAV::update() {
+    m_currentSecond = (ada::getTimeSec() - m_startSecond) * m_speed;
+
+    if ( newFrame() )
+        return decodeFrame();
+
+    return false;
+}
+
+void TextureStreamAV::restart() {
+    avio_seek(av_format_ctx->pb, 0, SEEK_SET);
+    avformat_seek_file(av_format_ctx, m_streamId, 0, 0, av_format_ctx->streams[m_streamId]->duration, 0);
+    m_currentFrame = 0;
+    m_currentSecond = 0.0;
+    m_startSecond = ada::getTimeSec();
+    m_waitFromSecond = 0.0;
+    m_waitUntilSecond = 0.0;
+}
+
+double TextureStreamAV::currentFramePts() {
+    return dts_to_sec( av_frame->pts );
+}
+
+bool TextureStreamAV::newFrame() {
+
+    if (m_currentFrame > 0 && m_waitUntilSecond > 0.0) {
+        double pts = currentFramePts();
+        if ( m_currentSecond >= pts ) {
+            m_waitFromSecond = pts;
+            m_waitUntilSecond = 0.0;
+            return true;
+        }
+        else 
+            return false;
+    }
+
+    // Decode next frame
+    int response = 0;
     bool running = true; 
     while (running) {
+        // reads in a packet and stores it in the AVPacket struct. 
+        // Note that we've only allocated the packet structure - ffmpeg allocates the 
+        // internal data for us, which is pointed to by packet.data 
         response = av_read_frame(av_format_ctx, av_packet);
 
+        // if the response is negative nothing is loaded
         if (response < 0)
             running = false;
 
-        // If finish LOOP it by loading it back again
+        // LOOP IT: if it's the end of the file, start it back again
         if (response == AVERROR_EOF) {
-            avio_seek(av_format_ctx->pb, 0, SEEK_SET);
-            avformat_seek_file(av_format_ctx, m_streamId, 0, 0, av_format_ctx->streams[m_streamId]->duration, 0);
-            m_currentFrame = 0;
-            continue;
+            restart();
+            return false;
         }
 
+        // Ignore other streams 
         if (av_packet->stream_index != m_streamId) {
             av_packet_unref(av_packet);
             continue;
         }
 
-        if (device) {
+        // If the stream is from a DEVICE
+        if (m_device) {
+            
+            bool got_picture = false;
             if (av_codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
                 av_codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
                 response = avcodec_send_packet(av_codec_ctx, av_packet);
                 if (response < 0 && response != AVERROR(EAGAIN) && response != AVERROR_EOF) {
+                    // TODO
                 } else {
                     if (response >= 0)
                         av_packet->size = 0;
                     response = avcodec_receive_frame(av_codec_ctx, av_frame);
+
                     if (response >= 0)
-                        got_picture = 1;
-                    //if (response == AVERROR(EAGAIN) || response == AVERROR_EOF)
-                    //response = 0;
+                        got_picture = true;
                 }
             }
 
@@ -255,16 +404,20 @@ bool TextureStreamAV::update() {
                 printf("Failed to decode packet: %s\n", av_make_error(response));
                 return false;
             }
-            if (!got_picture) {
+
+            if (!got_picture)
                 return false;
-            }
         }
+
+        // If the stream is from a FILE
         else {
             response = avcodec_send_packet(av_codec_ctx, av_packet);
+            
             if (response < 0) {
                 printf("Failed to decode packet: %s\n", av_make_error(response));
                 return false;
             }
+
             response = avcodec_receive_frame(av_codec_ctx, av_frame);
             if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
                 av_packet_unref(av_packet);
@@ -280,6 +433,17 @@ bool TextureStreamAV::update() {
         break;
     }
     
+    double pts = currentFramePts();
+    if ( m_currentSecond >= pts ) {
+        m_waitFromSecond = pts;
+        return true;
+    }
+    
+    m_waitUntilSecond = pts;
+    return  false; 
+}
+
+bool TextureStreamAV::decodeFrame() {
     // Set up sws scaler
     if (!conv_ctx) {
         AVPixelFormat source_pix_fmt = correct_for_deprecated_pixel_format(av_codec_ctx->pix_fmt);
@@ -302,56 +466,6 @@ bool TextureStreamAV::update() {
     
     m_currentFrame++;
     return Texture::load(av_codec_ctx->width, av_codec_ctx->height, 4, 8, frame_data, m_filter, m_wrap);
-}
-
-double TextureStreamAV::getFPS() {
-    double fps = r2d(av_format_ctx->streams[m_streamId]->r_frame_rate);
-
-    if (fps < EPS)
-        fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->time_base);
-    
-    return fps;
-}
-
-float TextureStreamAV::getTotalSeconds() {
-    double sec = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
-    
-    if (sec < EPS)
-        sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
-    
-    if (sec < EPS)
-        sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
-    
-    return sec;
-
-}
-
-int TextureStreamAV::getTotalFrames() {
-    if (av_format_ctx == NULL)
-        return -1;
-
-    if (device)
-        return 1;
-    
-    int64_t nbf = av_format_ctx->streams[m_streamId]->nb_frames;
-    
-    if (nbf == 0)
-        nbf = (int64_t)floor(getTotalSeconds() * getFPS() + 0.5);
-
-    return nbf;
-}
-
-double TextureStreamAV::dts_to_sec(int64_t dts) {
-    return (double)(dts - av_format_ctx->streams[m_streamId]->start_time) * r2d(av_format_ctx->streams[m_streamId]->time_base);
-}
-
-int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
-    double sec = dts_to_sec(dts);
-    return (int64_t)(getFPS() * sec + 0.5);
-}
-
-int TextureStreamAV::getCurrentFrame() {
-    return (device)? 1 : m_currentFrame;
 }
 
 void  TextureStreamAV::clear() {

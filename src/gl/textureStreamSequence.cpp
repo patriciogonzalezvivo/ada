@@ -1,5 +1,6 @@
 #include "ada/gl/textureStreamSequence.h"
 
+#include "ada/window.h"
 #include "ada/tools/fs.h"
 #include "ada/tools/pixels.h"
 
@@ -93,6 +94,10 @@ bool TextureStreamSequence::update() {
     return false;
 }
 
+void TextureStreamSequence::restart() {
+    m_currentFrame = 0;
+}
+
 void TextureStreamSequence::clear() {
     // for (size_t i = 0; i < m_frames.size(); i++)
     //     delete [] (m_frames[i]);
@@ -103,6 +108,14 @@ void TextureStreamSequence::clear() {
         glDeleteTextures(1, &m_id);
 
     m_id = 0;
+}
+
+float TextureStreamSequence::getTotalSeconds() {
+    return m_frames.size() / ada::getFps();
+}
+
+float TextureStreamSequence::getCurrentSecond() const {
+    return m_currentFrame / ada::getFps();
 }
 
 }
