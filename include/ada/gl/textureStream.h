@@ -12,8 +12,8 @@ public:
     virtual float   getTotalSeconds() { return 0.0; }
     virtual float   getCurrentSecond() const { return 1.0; }
 
-    virtual int     getTotalFrames() { return 0; };
-    virtual int     getCurrentFrame() const { return 1; };
+    virtual float   getTotalFrames() { return 0; };
+    virtual float   getCurrentFrame() const { return 1; };
 
     virtual void    restart() {};
 

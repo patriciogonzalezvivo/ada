@@ -28,9 +28,9 @@ public:
     virtual double  getFPS();
     virtual float   getTotalSeconds();
     virtual float   getCurrentSecond() const { return (m_device)? 1 : m_currentSecond; }
-    
-    virtual int     getTotalFrames();
-    virtual int     getCurrentFrame() const { return (m_device)? 1 : m_currentFrame; }
+
+    virtual float   getTotalFrames();
+    virtual float   getCurrentFrame() const;
 
     virtual bool    isDevice() { return m_device; }
 

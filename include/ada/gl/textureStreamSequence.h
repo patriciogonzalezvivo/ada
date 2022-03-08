@@ -13,8 +13,8 @@ public:
     virtual float   getTotalSeconds();
     virtual float   getCurrentSecond() const;
 
-    virtual int     getTotalFrames() { return m_frames.size(); };
-    virtual int     getCurrentFrame() const { return m_currentFrame; };
+    virtual float   getTotalFrames() { return m_frames.size(); };
+    virtual float   getCurrentFrame() const { return m_currentFrame; };
 
     virtual bool    load(const std::string& _filepath, bool _vFlip);
     virtual bool    update();

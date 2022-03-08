@@ -291,7 +291,7 @@ float TextureStreamAV::getTotalSeconds() {
     return m_totalSeconds;
 }
 
-int TextureStreamAV::getTotalFrames() {
+float TextureStreamAV::getTotalFrames() {
     if (m_totalFrames < 0) {
 
         if (av_format_ctx == NULL)
@@ -309,6 +309,14 @@ int TextureStreamAV::getTotalFrames() {
     }
 
     return m_totalFrames;
+}
+
+float TextureStreamAV::getCurrentFrame() const { 
+    double delta = m_waitUntilSecond - m_waitFromSecond;
+    double pct = (m_waitUntilSecond - m_currentSecond)/delta;
+    pct = glm::fract(1.0-glm::clamp(pct, 0.0, 1.0));
+    
+    return (m_device)? 1 : m_currentFrame + pct; 
 }
 
 double TextureStreamAV::dts_to_sec(int64_t dts) {
