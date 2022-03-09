@@ -468,6 +468,8 @@ void TextureStreamOMX::clear() {
     if (m_id != 0)
         glDeleteTextures(1, &m_id);
     m_id = 0;
+
+    clearPrevs();
 }
 
 }

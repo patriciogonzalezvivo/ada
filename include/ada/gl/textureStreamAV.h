@@ -32,8 +32,6 @@ public:
     virtual float   getTotalFrames();
     virtual float   getCurrentFrame() const;
 
-    virtual const GLuint    getPrevTextureId() const { return m_idPrev; };
-
     virtual bool    isDevice() { return m_device; }
 
     virtual bool    update();
@@ -57,7 +55,6 @@ private:
     uint8_t         *frame_data;
 
     double          m_fps;
-    double          m_startTime;
     double          m_duration;
     double          m_time;
     double          m_waitFrom;
@@ -68,7 +65,7 @@ private:
     long            m_currentFrame;
 
     int             m_streamId;
-    GLuint          m_idPrev;
+    
     bool            m_device;
 };
 

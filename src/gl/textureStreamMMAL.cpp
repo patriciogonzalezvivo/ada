@@ -1039,6 +1039,8 @@ void TextureStreamMMAL::clear() {
     if (m_id != 0)
         glDeleteTextures(1, &m_id);
     m_id = 0;
+
+    clearPrevs();
         
     if (m_egl_img!= 0)
         glDeleteTextures(1, &m_egl_img);
