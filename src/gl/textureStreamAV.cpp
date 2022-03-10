@@ -85,6 +85,11 @@ TextureStreamAV::~TextureStreamAV() {
     clear();
 }
 
+// helper function as taken from OpenCV ffmpeg reader
+double r2d(AVRational r) {
+    return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
+}
+
 bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter _filter, TextureWrap _wrap) {
     m_vFlip = _vFlip;
     m_filter = _filter;
@@ -217,10 +222,29 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
 
     m_path = _path;
 
-    m_totalFrames = getTotalFrames();
-    m_currentFrame = 0;
+    // Fps
+    m_fps = r2d(av_format_ctx->streams[m_streamId]->r_frame_rate);
+    if (m_fps < EPS)
+        m_fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->time_base);
 
-    m_duration = getDuration();
+    if (m_device) {
+        m_totalFrames = 1;
+        m_duration = 0;
+    }
+    else {
+        // Total frames
+        int64_t nbf = av_format_ctx->streams[m_streamId]->nb_frames;
+        if (nbf == 0)
+            nbf = (int64_t)floor(getDuration() * getFPS() + 0.5);
+        m_totalFrames = nbf;
+
+        // Duration
+        m_duration = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
+        if (m_duration < EPS)
+            m_duration = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
+    }
+
+    m_currentFrame = 0;
     m_time = 0;
 
     return true;
@@ -246,70 +270,15 @@ static AVPixelFormat correct_for_deprecated_pixel_format(AVPixelFormat pix_fmt) 
     }
 }
 
-// helper function as taken from OpenCV ffmpeg reader
-double r2d(AVRational r) {
-    return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
-}
-
 void TextureStreamAV::setSpeed( float _speed ) {
     m_speed = _speed;
     m_waitUntil = 0.0;
-}
-
-double TextureStreamAV::getFPS() {
-    if (m_fps <= 0.0) {
-        double fps = r2d(av_format_ctx->streams[m_streamId]->r_frame_rate);
-
-        if (fps < EPS)
-            fps = 1.0 / r2d(av_format_ctx->streams[m_streamId]->time_base);
-
-        m_fps = fps;
-    }
-
-    return m_fps;
-}
-
-float TextureStreamAV::getDuration() {
-    if (m_duration < 0.0) {       
-        double sec = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
-        
-        if (sec < EPS)
-            sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
-        
-        // if (sec < EPS)
-        //     sec = (double)av_format_ctx->streams[m_streamId]->duration * r2d(av_format_ctx->streams[m_streamId]->time_base);
-
-        m_duration = sec;
-    }
-
-    return m_duration;
-}
-
-float TextureStreamAV::getTotalFrames() {
-    if (m_totalFrames < 0) {
-
-        if (av_format_ctx == NULL)
-            return -1;
-
-        if (m_device)
-            return 1;
-        
-        int64_t nbf = av_format_ctx->streams[m_streamId]->nb_frames;
-        
-        if (nbf == 0)
-            nbf = (int64_t)floor(getDuration() * getFPS() + 0.5);
-
-        m_totalFrames = nbf;
-    }
-
-    return m_totalFrames;
 }
 
 float TextureStreamAV::getCurrentFrame() const { 
     double delta = m_waitUntil - m_waitFrom;
     double pct = (m_waitUntil - m_time)/delta;
     pct = glm::fract(1.0-glm::clamp(pct, 0.0, 1.0));
-    
     return (m_device)? 1 : m_currentFrame + pct; 
 }
 
@@ -324,6 +293,9 @@ int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
 
 bool TextureStreamAV::update() {
     m_time += ada::getDelta() * m_speed;
+
+    if (m_time < m_waitFrom)
+        m_time = m_waitFrom;
 
     if (m_time > getDuration())
         m_time = 0.0;
@@ -472,6 +444,8 @@ bool TextureStreamAV::decodeFrame() {
     m_currentFrame++;
     // Track start of current frame
     m_waitFrom = currentFramePts();
+    if (m_time < m_waitFrom)
+        m_time = m_waitFrom;
 
     // Swap texture ids
     pushBack();

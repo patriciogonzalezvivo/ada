@@ -25,12 +25,13 @@ public:
     virtual void    restart();
     virtual void    setSpeed( float _speed );
 
-    virtual double  getFPS();
+    virtual float   getFPS() const { return m_fps; };
     virtual float   getTime() const { return (m_device)? 0.0 : m_time; }
-    virtual float   getDuration();
+    virtual float   getDuration() const { return m_duration; };
+    virtual float   getSpeed( float _speed ) const { return m_speed; }
 
-    virtual float   getTotalFrames();
-    virtual float   getCurrentFrame() const;
+    virtual float   getTotalFrames() const { return m_totalFrames; };
+    virtual float   getCurrentFrame() const ;
 
     virtual bool    isDevice() { return m_device; }
 

@@ -12,7 +12,7 @@ public:
 
     // virtual void            setSpeed( float _speed ) {};
 
-    virtual float   getDuration();
+    virtual float   getDuration() const;
     virtual float   getTime() const;
 
     virtual float   getTotalFrames() { return m_frames.size(); };
