@@ -293,9 +293,7 @@ int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
 
 bool TextureStreamAV::update() {
     m_time += ada::getDelta() * m_speed;
-
-    if (m_time < m_waitFrom)
-        m_time = m_waitFrom;
+    m_time = glm::max(m_time, m_waitFrom);
 
     if (m_time > getDuration())
         m_time = 0.0;
@@ -321,15 +319,8 @@ double TextureStreamAV::currentFramePts() {
 
 bool TextureStreamAV::newFrame() {
 
-    if (m_currentFrame > 0 && m_waitUntil > 0.0) {
-        double pts = currentFramePts();
-        if ( m_time >= pts ) {
-            m_waitUntil = 0.0;
-            return true;
-        }
-        else 
-            return false;
-    }
+    if (!m_device && m_currentFrame > 0 && m_waitUntil > 0.0)
+        return m_time >= m_waitUntil;
 
     // Decode next frame
     int response = 0;
@@ -380,7 +371,7 @@ bool TextureStreamAV::newFrame() {
                 return false;
             }
 
-            if (!got_picture)
+            if (!got_picture) 
                 return false;
         }
 
@@ -408,15 +399,16 @@ bool TextureStreamAV::newFrame() {
         break;
     }
     
-    double pts = currentFramePts();
-    if ( m_time >= pts )
+    if (m_device)
         return true;
 
-    m_waitUntil = pts;
-    return  false; 
+    m_waitUntil = currentFramePts();
+    return m_time >= m_waitUntil;
 }
 
 bool TextureStreamAV::decodeFrame() {
+    m_waitFrom = m_waitUntil;//currentFramePts();
+    m_waitUntil = 0.0;
 
     // Set up sws scaler
     if (!conv_ctx) {
@@ -442,10 +434,6 @@ bool TextureStreamAV::decodeFrame() {
     
     // Up the frame count
     m_currentFrame++;
-    // Track start of current frame
-    m_waitFrom = currentFramePts();
-    if (m_time < m_waitFrom)
-        m_time = m_waitFrom;
 
     // Swap texture ids
     pushBack();

@@ -102,14 +102,17 @@ uniform vec2    u_resolution;
 uniform vec2    u_mouse;
 uniform float   u_time;
 
+varying vec2    v_texcoord;
+
 void main(void) {
-    vec3 color = vec3(1.0);
-    vec2 st = gl_FragCoord.xy/u_resolution.xy;
-    st.x *= u_resolution.x/u_resolution.y;
+    vec4 color = vec4(vec3(0.0), 1.0);
+    vec2 pixel = 1.0/u_resolution.xy;
+    vec2 st = gl_FragCoord.xy * pixel;
+    vec2 uv = v_texcoord;
+
+    color.rgb = vec3(st.x,st.y,abs(sin(u_time)));
     
-    color = vec3(st.x,st.y,abs(sin(u_time)));
-    
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = color;
 }
 )";
 
@@ -126,9 +129,13 @@ uniform vec2        u_tex0Resolution;
 uniform sampler2D   u_tex1;
 uniform vec2        u_tex1Resolution;
 
+varying vec2        v_texcoord;
+
 void main (void) {
     vec3 color = vec3(0.0);
-    vec2 st = gl_FragCoord.xy/u_resolution.xy;
+    vec2 pixel = 1.0/u_resolution.xy;
+    vec2 st = gl_FragCoord.xy * pixel;
+    vec2 uv = v_texcoord;
     float screen_aspect = u_resolution.x/u_resolution.y;
 
     float tex0_aspect = u_tex0Resolution.x/u_tex0Resolution.y;
