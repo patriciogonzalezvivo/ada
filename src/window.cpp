@@ -42,6 +42,9 @@ static double           FPS = 0.0;
 static double           restSec = 0.0167; // default 60fps 
 static float            fPixelDensity = 1.0;
 
+static bool             bShift = false;    
+static bool             bControl = false;    
+
 #if defined(DRIVER_GLFW)
 
     #if defined(__APPLE__)
@@ -631,7 +634,17 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         #endif
 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
-            if (_action == GLFW_PRESS)
+            if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
+                bShift = true;
+            else if (_action == GLFW_RELEASE && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
+                bShift = false;
+
+            else if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL) )
+                bControl = true;
+            else if (_action == GLFW_RELEASE && (_key == GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL) )
+                bControl = false;
+
+            else if (_action == GLFW_PRESS)
                 onKeyPress(_key);
         });
 
@@ -1130,5 +1143,8 @@ glm::vec2 getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
 int     getMouseButton(){ return mouse.button;}
 glm::vec4 getMouse4() {return mouse4;}
 bool    getMouseEntered() { return mouse.entered; }
+
+bool    isShiftPressed() { return bShift; }
+bool    isControlPressed() { return bControl; }
 
 }

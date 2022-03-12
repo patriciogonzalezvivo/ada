@@ -102,7 +102,10 @@ bool        getMouseEntered();
 
 // EVENTS
 //----------------------------------------------
+bool isShiftPressed();
+bool isControlPressed();
 void onKeyPress(int _key);
+
 void onMouseMove(float _x, float _y);
 void onMouseClick(float _x, float _y, int _button);
 void onMouseDrag(float _x, float _y, int _button);
