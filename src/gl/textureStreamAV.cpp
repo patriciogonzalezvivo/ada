@@ -234,12 +234,14 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
     m_currentFrame = 0;
     m_time = 0;
 
-    #if defined(PLATFORM_RPI) //|| defined(__EMSCRIPTEN__)
-    int max_size = std::max(m_width, m_height);
-    if ( max_size > 1024) {
-        float factor = max_size/1024.0;
+    #if defined(PLATFORM_RPI)
+    int size = std::max(m_width, m_height);
+    int max_size = std::min(1024, std::max(ada::getWindowWidth(), ada::getWindowHeight())); 
+    if ( size > max_size) {
+        float factor = size/(float)max_size;
         m_width /= factor;
         m_height /= factor;
+        std::cout << "resized to " << m_width << "x" << m_height << std::endl;
     }
     #endif
 
