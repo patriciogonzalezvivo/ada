@@ -207,19 +207,6 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
         return 1;
     }
 
-    // Generate an OpenGL texture ID for this texturez
-    glEnable(GL_TEXTURE_2D);
-    if (m_id == 0)
-        glGenTextures(1, &m_id);
-    glBindTexture(GL_TEXTURE_2D, m_id);
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, getMinificationFilter(m_filter));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, getMagnificationFilter(m_filter));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, getWrap(m_wrap));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, getWrap(m_wrap));
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
     m_path = _path;
 
     // Fps
@@ -246,6 +233,15 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
 
     m_currentFrame = 0;
     m_time = 0;
+
+    #if defined(PLATFORM_RPI) //|| defined(__EMSCRIPTEN__)
+    int max_size = std::max(m_width, m_height);
+    if ( max_size > 1024) {
+        float factor = max_size/1024.0;
+        m_width /= factor;
+        m_height /= factor;
+    }
+    #endif
 
     return true;
 }
@@ -407,14 +403,14 @@ bool TextureStreamAV::newFrame() {
 }
 
 bool TextureStreamAV::decodeFrame() {
-    m_waitFrom = m_waitUntil;//currentFramePts();
+    m_waitFrom = m_waitUntil;
     m_waitUntil = 0.0;
 
     // Set up sws scaler
     if (!conv_ctx) {
         AVPixelFormat source_pix_fmt = correct_for_deprecated_pixel_format(av_codec_ctx->pix_fmt);
         conv_ctx = sws_getContext(  av_codec_ctx->width, av_codec_ctx->height, source_pix_fmt, 
-                                    av_codec_ctx->width, av_codec_ctx->height, AV_PIX_FMT_RGB0,
+                                    m_width, m_height, AV_PIX_FMT_RGB0,
                                     SWS_BILINEAR, NULL, NULL, NULL);
         
     }
@@ -425,12 +421,12 @@ bool TextureStreamAV::decodeFrame() {
 
     // Scale down the image 
     uint8_t* dest[4] = { frame_data, NULL, NULL, NULL };
-    int dest_linesize[4] = { av_frame->width * 4, 0, 0, 0 };
+    int dest_linesize[4] = { m_width * 4, 0, 0, 0 };
     sws_scale(conv_ctx, av_frame->data, av_frame->linesize, 0, av_frame->height, dest, dest_linesize);
 
     // If needs flipping
     if (m_vFlip)
-        flipPixelsVertically(frame_data, av_codec_ctx->width, av_codec_ctx->height, 4);
+        flipPixelsVertically(frame_data, m_width, m_height, 4);
     
     // Up the frame count
     m_currentFrame++;
@@ -439,7 +435,7 @@ bool TextureStreamAV::decodeFrame() {
     pushBack();
 
     // Efectivally load the next frame
-    return Texture::load(av_codec_ctx->width, av_codec_ctx->height, 4, 8, frame_data, m_filter, m_wrap);
+    return Texture::load(m_width, m_height, 4, 8, frame_data, m_filter, m_wrap);
 }
 
 void  TextureStreamAV::clear() {
