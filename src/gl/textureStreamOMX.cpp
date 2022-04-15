@@ -36,7 +36,6 @@ extern "C" {
 #include <libavformat/avformat.h>
 #include <libavutil/mathematics.h>
 #include <libavutil/samplefmt.h>
-//#include <libavresample/avresample.h>
 }
 #endif
 
@@ -46,8 +45,7 @@ namespace ada {
 
 TextureStreamOMX::TextureStreamOMX() : 
     m_eglImage(NULL),
-    m_thread {},
-    m_changed(false)
+    m_thread {}
     {
     m_width = 1920;
     m_height = 1080;
@@ -66,94 +64,125 @@ static OMX_VIDEO_CODINGTYPE decoderType = OMX_VIDEO_CodingAVC;
 int thread_run = 0;
 
 #ifdef SUPPORT_LIBAV
-static AVStream *video_stream = NULL;
-AVFormatContext *pFormatCtx = NULL;
-static int video_stream_idx = -1;
 
-void get_info(const char *filename, int* _width, int* _height) {
-    // Register all formats and codecs
-    av_register_all();
+#ifndef EPS
+#define EPS 0.000025
+#endif
+
+AVFormatContext *av_format_ctx = NULL;
+
+double r2d2(AVRational r) {
+    return r.num == 0 || r.den == 0 ? 0. : (double)r.num / (double)r.den;
+}
+
+void get_info(const char *filename, int* _width, int* _height, double *fps, double *duration, long *totalFrames) {
+    av_format_ctx = avformat_alloc_context();
+    if (!av_format_ctx) {
+        std::cout << "Couldn't created AVFormatContext" << std::endl;
+        return;
+    }
+
     av_log_set_level(AV_LOG_QUIET);
 
-    if (avformat_open_input(&pFormatCtx, filename, NULL, NULL)!=0) {
-        fprintf(stderr, "Can't get format\n");
-        return -1; // Couldn't open file
+    if (avformat_open_input(&av_format_ctx, filename, NULL, NULL) < 0 ) {
+        std::cout << "Failed to open input" << std::endl;
+        return;
     }
-    
-    // Retrieve stream information
-    if (avformat_find_stream_info(pFormatCtx, NULL) < 0)
-        return -1; // Couldn't find stream information
 
-    int ret = av_find_best_stream(pFormatCtx, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-    if (ret >= 0) {
-        video_stream_idx = ret;
-        video_stream = pFormatCtx->streams[video_stream_idx];
-        *_width     = video_stream->codec->width;
-        *_height    = video_stream->codec->height;
+    // find stream info
+    if (avformat_find_stream_info(av_format_ctx, NULL) < 0) {
+        std::cout << "failed to get stream info" << std::endl;
+        return;
+    }
 
-        // AVCodec *codec = avcodec_find_decoder(video_stream->codec->codec_id);
-        // if (codec)
-        //     printf("Codec name %s\n", codec->name);
+    AVCodecParameters* av_codec_params;
+    const AVCodec* av_codec;
 
-        switch (video_stream->codec->codec_id) {
-            case AV_CODEC_ID_H264:
-                decoderType = OMX_VIDEO_CodingAVC;
-                // printf("video codec AVC (H264)\n");
-                break;
+     // find the video stream
+    for (unsigned int i = 0; i < av_format_ctx->nb_streams; ++i) {
+        av_codec_params = av_format_ctx->streams[i]->codecpar;
+        av_codec = avcodec_find_decoder(av_codec_params->codec_id);
+        if (!av_codec)
+            continue;
 
-            case AV_CODEC_ID_MPEG4:
-                decoderType = OMX_VIDEO_CodingMPEG4;
-                // printf("video codec MPEG4\n");
-                break;
+        if (av_codec_params->codec_type == AVMEDIA_TYPE_VIDEO) {
 
-            case AV_CODEC_ID_MPEG1VIDEO:
-            case AV_CODEC_ID_MPEG2VIDEO:
-                decoderType = OMX_VIDEO_CodingMPEG2;
-                // printf("video codec MPEG2\n");
-                break;
+            *_width  = av_codec_params->width;
+            *_height = av_codec_params->height;
 
-            case AV_CODEC_ID_H263:
-                decoderType = OMX_VIDEO_CodingMPEG4;
-                // printf("video codec MPEG4 (H263)\n");
-                break;
+            *fps = r2d2(av_format_ctx->streams[i]->r_frame_rate);
+            if (*fps < EPS)
+                *fps = 1.0 / r2d2(av_format_ctx->streams[i]->time_base);
 
-            case AV_CODEC_ID_VP6:
-            case AV_CODEC_ID_VP6F:
-            case AV_CODEC_ID_VP6A:
-                decoderType = OMX_VIDEO_CodingVP6;
-                // printf("video codec VP6\n");
-                break;
+            // Duration
+            *duration = (double)av_format_ctx->duration / (double)AV_TIME_BASE;
+            if (*duration < EPS)
+                *duration = (double)av_format_ctx->streams[i]->duration * r2d2(av_format_ctx->streams[i]->time_base);
 
-            case AV_CODEC_ID_VP8:
-                decoderType = OMX_VIDEO_CodingVP8;
-                // printf("video codec VP8\n");
-                break;
+            *totalFrames = av_format_ctx->streams[i]->nb_frames;
 
-            case AV_CODEC_ID_THEORA:
-                decoderType = OMX_VIDEO_CodingTheora;
-                // printf("video codec Theora\n");
-                break;
+            switch (av_codec_params->codec_id) {
+                case AV_CODEC_ID_H264:
+                    decoderType = OMX_VIDEO_CodingAVC;
+                    // printf("video codec AVC (H264)\n");
+                    break;
 
-            case AV_CODEC_ID_MJPEG:
-            case AV_CODEC_ID_MJPEGB:
-                decoderType = OMX_VIDEO_CodingMJPEG;
-                // printf("video codec MJPEG\n");
-                break;
+                case AV_CODEC_ID_MPEG4:
+                    decoderType = OMX_VIDEO_CodingMPEG4;
+                    // printf("video codec MPEG4\n");
+                    break;
 
-            case AV_CODEC_ID_VC1:
-            case AV_CODEC_ID_WMV3:
-                decoderType = OMX_VIDEO_CodingWMV;
-                // printf("video codec WMV\n");
-                break;
+                case AV_CODEC_ID_MPEG1VIDEO:
+                case AV_CODEC_ID_MPEG2VIDEO:
+                    decoderType = OMX_VIDEO_CodingMPEG2;
+                    // printf("video codec MPEG2\n");
+                    break;
 
-            default:
-                printf("Video codec unknown: %x \n", video_stream->codec->codec_id);
-                break;
+                case AV_CODEC_ID_H263:
+                    decoderType = OMX_VIDEO_CodingMPEG4;
+                    // printf("video codec MPEG4 (H263)\n");
+                    break;
+
+                case AV_CODEC_ID_VP6:
+                case AV_CODEC_ID_VP6F:
+                case AV_CODEC_ID_VP6A:
+                    decoderType = OMX_VIDEO_CodingVP6;
+                    // printf("video codec VP6\n");
+                    break;
+
+                case AV_CODEC_ID_VP8:
+                    decoderType = OMX_VIDEO_CodingVP8;
+                    // printf("video codec VP8\n");
+                    break;
+
+                case AV_CODEC_ID_THEORA:
+                    decoderType = OMX_VIDEO_CodingTheora;
+                    // printf("video codec Theora\n");
+                    break;
+
+                case AV_CODEC_ID_MJPEG:
+                case AV_CODEC_ID_MJPEGB:
+                    decoderType = OMX_VIDEO_CodingMJPEG;
+                    // printf("video codec MJPEG\n");
+                    break;
+
+                case AV_CODEC_ID_VC1:
+                case AV_CODEC_ID_WMV3:
+                    decoderType = OMX_VIDEO_CodingWMV;
+                    // printf("video codec WMV\n");
+                    break;
+
+                default:
+                    printf("Video codec unknown: %x \n", av_codec_params->codec_id);
+                    break;
+            }
+
+            break;
         }
     }
 
-    if (pFormatCtx)
-        avformat_free_context(pFormatCtx);
+    if (av_format_ctx)
+        avformat_free_context(av_format_ctx);
 }
 #endif
 
@@ -166,7 +195,7 @@ bool TextureStreamOMX::load(const std::string& _filepath, bool _vFlip, TextureFi
     //  - get video width and height
 
     #ifdef SUPPORT_LIBAV
-    get_info(_filepath.c_str(), &m_width, &m_height);
+    get_info(_filepath.c_str(), &m_width, &m_height, &m_fps, &m_duration, &m_totalFrames);
     #endif
 
     glEnable(GL_TEXTURE_2D);
@@ -281,19 +310,19 @@ void* TextureStreamOMX::decode_video(const char* filename, void* _streamTexture)
 
     // create video_decode
     // -------------------
-    if (ilclient_create_component(client, &video_decode, "video_decode", ILCLIENT_DISABLE_ALL_PORTS | ILCLIENT_ENABLE_INPUT_BUFFERS) != 0)
+    if (ilclient_create_component(client, &video_decode, (char*)"video_decode", (ILCLIENT_CREATE_FLAGS_T)(ILCLIENT_DISABLE_ALL_PORTS | ILCLIENT_ENABLE_INPUT_BUFFERS)) != 0)
         status = -14;
     list[0] = video_decode;
 
     // create egl_render
     // -----------------
-    if (status == 0 && ilclient_create_component(client, &egl_render, "egl_render", ILCLIENT_DISABLE_ALL_PORTS | ILCLIENT_ENABLE_OUTPUT_BUFFERS) != 0)
+    if (status == 0 && ilclient_create_component(client, &egl_render, (char*)"egl_render", (ILCLIENT_CREATE_FLAGS_T)(ILCLIENT_DISABLE_ALL_PORTS | ILCLIENT_ENABLE_OUTPUT_BUFFERS)) != 0)
         status = -14;
     list[1] = egl_render;
 
     // create clock
     // ------------
-    if (status == 0 && ilclient_create_component(client, &clock, "clock", ILCLIENT_DISABLE_ALL_PORTS) != 0)
+    if (status == 0 && ilclient_create_component(client, &clock, (char*)"clock", ILCLIENT_DISABLE_ALL_PORTS) != 0)
         status = -14;
     list[2] = clock;
 
@@ -302,7 +331,7 @@ void* TextureStreamOMX::decode_video(const char* filename, void* _streamTexture)
 
     // create video_scheduler
     // ----------------------
-    if (status == 0 && ilclient_create_component(client, &video_scheduler, "video_scheduler", ILCLIENT_DISABLE_ALL_PORTS) != 0)
+    if (status == 0 && ilclient_create_component(client, &video_scheduler, (char*)"video_scheduler", ILCLIENT_DISABLE_ALL_PORTS) != 0)
         status = -14;
     list[3] = video_scheduler;
 
