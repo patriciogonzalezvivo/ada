@@ -86,6 +86,9 @@ bool TextureStreamSequence::update() {
     if (m_frames.size() == 0)
         return false;
 
+    if (!m_play)
+        return false;
+
     pushBack();
 
     if ( Texture::load(m_width, m_height, 4, m_bits, m_frames[ m_currentFrame ]) ) {

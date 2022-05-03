@@ -24,6 +24,7 @@ public:
     virtual bool    load(const std::string& _filepath, bool _vFlip, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT);
     virtual void    restart();
     virtual void    setSpeed( float _speed );
+    virtual void    setTime( float _time );
 
     virtual float   getFPS() const { return m_fps; };
     virtual float   getTime() const { return (m_device)? 0.0 : m_time; }

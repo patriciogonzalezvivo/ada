@@ -12,6 +12,7 @@ class TextureStream : public Texture {
 public:
 
     virtual void            setSpeed( float _speed ) {};
+    virtual void            setTime( float _time ) {};
     
     virtual void            setPrevTextures(size_t _total) {
         if (_total < m_idPrevs.size())
@@ -22,6 +23,7 @@ public:
 
         for (size_t i = 0; i < m_idPrevs.size(); i++) {
             glEnable(GL_TEXTURE_2D);
+            
             if (m_idPrevs[i] == 0)
                 glGenTextures(1, &m_idPrevs[i]);
             
@@ -47,10 +49,13 @@ public:
     virtual float           getTotalFrames() const { return 0.0; };
     virtual float           getCurrentFrame() const { return 0.0; };
     virtual float           getSpeed( float _speed ) const { return 1.0; }
-
-    virtual void            restart() {};
+    
+    virtual void            play() { m_play = true; }
+    virtual void            stop() { m_play = false; };
+    virtual bool            isPlaying() const { return m_play; }
 
     virtual bool            update() { return false; };
+    virtual void            restart() {};
 
     virtual void            bind() {
         glBindTexture(GL_TEXTURE_2D, m_id);
@@ -77,6 +82,8 @@ protected:
         m_idPrevs.clear();
     }
     std::vector<GLuint>     m_idPrevs;
+
+    bool                    m_play = true;
 
 };
 

@@ -273,6 +273,11 @@ void TextureStreamAV::setSpeed( float _speed ) {
     m_waitUntil = 0.0;
 }
 
+void TextureStreamAV::setTime( float _time ) {
+    m_waitUntil = _time;
+    m_time = 0.0;
+}
+
 float TextureStreamAV::getCurrentFrame() const { 
     double delta = m_waitUntil - m_waitFrom;
     double pct = (m_waitUntil - m_time)/delta;
@@ -290,6 +295,9 @@ int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
 }
 
 bool TextureStreamAV::update() {
+    if (!m_play)
+        return false;
+        
     m_time += ada::getDelta() * m_speed;
     m_time = glm::max(m_time, m_waitFrom);
 
