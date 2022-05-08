@@ -274,18 +274,16 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
 #endif
         std::vector<GLchar> infoLog(infoLength);
         glGetShaderInfoLog(shader, infoLength, NULL, &infoLog[0]);
-        std::cerr << "Found " << (isCompiled ? "warning " : "error") << " while compiling " << ((_type == GL_FRAGMENT_SHADER)? "fragment" : "vertex") << " shader:\n" << std::endl;
+        std::cerr << "Found " << (isCompiled ? "warning " : "error") << " while compiling " << ((_type == GL_FRAGMENT_SHADER)? "fragment" : "vertex") << " shader" << std::endl;
         std::string error_msg = &infoLog[0];
         std::cerr << error_msg << std::endl;
-         std::cerr << std::endl;
 
-        // ERROR: 0:20: 'if' : syntax error: syntax error
         std::vector<std::string> chuncks = ada::split(error_msg, ' ');
         std::vector<std::string> error_loc = ada::split(chuncks[1], ':');
 
-        size_t lineNumber = ada::toInt(error_loc[1]) - 2;
+        size_t line_number = ada::toInt(error_loc[1]) - 2;
         std::vector<std::string> lines = ada::split(_src, '\n', true);
-        for (size_t i = lineNumber; i < lines.size() && i < lineNumber + 3; i++)
+        for (size_t i = line_number; i < lines.size() && i < line_number + 3; i++)
             std::cerr << i + 1 << " " << lines[i] << std::endl; 
 
     }
