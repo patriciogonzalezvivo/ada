@@ -48,7 +48,7 @@ public:
     virtual float           getTime() const { return 0.0; }
     virtual float           getTotalFrames() const { return 0.0; };
     virtual float           getCurrentFrame() const { return 0.0; };
-    virtual float           getSpeed( float _speed ) const { return 1.0; }
+    virtual float           getSpeed() const { return 1.0; }
     
     virtual void            play() { m_play = true; }
     virtual void            stop() { m_play = false; };
