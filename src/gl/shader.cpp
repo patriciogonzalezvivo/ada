@@ -176,7 +176,6 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
     bool srcVersionFound = _src.substr(0, 8) == "#version"; // true if user provided a #version directive at the beginning of _src
 
     if (srcVersionFound) {
-
         //
         // split _src into srcVersion and srcBody
         //
@@ -275,15 +274,20 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
 #endif
         std::vector<GLchar> infoLog(infoLength);
         glGetShaderInfoLog(shader, infoLength, NULL, &infoLog[0]);
-        std::cerr << (isCompiled ? "Warnings" : "Errors");
-        std::cerr << " while compiling ";
-        if (_type == GL_FRAGMENT_SHADER) {
-            std::cerr << "fragment ";
-        }
-        else {
-            std::cerr << "vertex ";
-        }
-        std::cerr << "shader:\n" << &infoLog[0] << std::endl;
+        std::cerr << "Found " << (isCompiled ? "warning " : "error") << " while compiling " << ((_type == GL_FRAGMENT_SHADER)? "fragment" : "vertex") << " shader:\n" << std::endl;
+        std::string error_msg = &infoLog[0];
+        std::cerr << error_msg << std::endl;
+         std::cerr << std::endl;
+
+        // ERROR: 0:20: 'if' : syntax error: syntax error
+        std::vector<std::string> chuncks = ada::split(error_msg, ' ');
+        std::vector<std::string> error_loc = ada::split(chuncks[1], ':');
+
+        size_t lineNumber = ada::toInt(error_loc[1]) - 2;
+        std::vector<std::string> lines = ada::split(_src, '\n', true);
+        for (size_t i = lineNumber; i < lines.size() && i < lineNumber + 3; i++)
+            std::cerr << i + 1 << " " << lines[i] << std::endl; 
+
     }
 
     if (isCompiled == GL_FALSE) {
