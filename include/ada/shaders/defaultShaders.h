@@ -14,7 +14,7 @@ enum DefaultShaders {
     VERT_LIGHT, FRAG_LIGHT,
     VERT_WIREFRAME_2D, FRAG_WIREFRAME_2D,
     VERT_WIREFRAME_3D, FRAG_WIREFRAME_3D,
-    FRAG_HISTOGRAM, FRAG_FXAA, FRAG_POISSON
+    FRAG_PLOT, FRAG_FXAA, FRAG_POISSON
 };
 
 void    setVersionFromCode(const std::string& _src);
