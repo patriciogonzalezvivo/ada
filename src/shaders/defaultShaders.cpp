@@ -139,9 +139,9 @@ std::string getDefaultSrc( DefaultShaders _type ) {
 
     else if (_type == FRAG_PLOT) {
         if (versionNumber < 130)
-            rta += histogram_frag;
+            rta += plot_frag;
         else if (versionNumber >= 130) 
-            rta += histogram_frag_300;
+            rta += plot_frag_300;
     }
     else if (_type == FRAG_FXAA) {
         if (versionNumber < 130)
