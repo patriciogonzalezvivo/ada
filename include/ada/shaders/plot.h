@@ -24,7 +24,7 @@ void main() {
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
     vec2 st = v_texcoord;
 
-    vec4 freqs = texture2D(PLOT_DATA_TEXTURE, vec2(st.x, 0.0));
+    vec4 freqs = texture2D(PLOT_DATA_TEXTURE, vec2(st.x, 0.5));
 
     color.r = step(st.y, freqs.r);
     color.g = step(st.y, freqs.g);
@@ -58,7 +58,7 @@ void main() {
     vec4 color = vec4(0.0, 0.0, 0.0, 1.0);
     vec2 st = v_texcoord;
 
-    vec4 freqs = texture(PLOT_DATA_TEXTURE, vec2(st.x, 0.0));
+    vec4 freqs = texture(PLOT_DATA_TEXTURE, vec2(st.x, 0.5));
 
     color.r = step(st.y, freqs.r);
     color.g = step(st.y, freqs.g);
