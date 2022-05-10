@@ -75,11 +75,11 @@ inline std::string toString(const T& _value, int _precision, int _width, char _f
     return out.str();
 }
 
-std::string toString(const glm::vec2& _vec, char _sep = ',');
-std::string toString(const glm::vec3& _vec, char _sep = ',');
-std::string toString(const glm::vec4& _vec, char _sep = ',');
-// std::string toString(const glm::quat& _quat, char _sep = ',');
-std::string toString(const glm::mat4& _mat, char _sep = ' ');
+std::string toString(const glm::vec2& _vec, char _sep = ',', int _precision = 3);
+std::string toString(const glm::vec3& _vec, char _sep = ',', int _precision = 3);
+std::string toString(const glm::vec4& _vec, char _sep = ',', int _precision = 3);
+// std::string toString(const glm::quat& _quat, char _sep = ',', int _precision = 3);
+std::string toString(const glm::mat4& _mat, char _sep = ' ', int _precision = 3);
 
 //-------------------------------------------------- << and >>
 inline std::ostream& operator<<(std::ostream& os, const glm::vec3& vec);

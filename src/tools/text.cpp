@@ -122,45 +122,45 @@ std::string toString(bool _bool) {
     return strStream.str();
 }
 
-std::string toString(const glm::vec2& _vec, char _sep) {
+std::string toString(const glm::vec2& _vec, char _sep, int _precision) {
     std::ostringstream strStream;
-    strStream << std::fixed << std::setprecision(3) << _vec.x << _sep;
-    strStream << std::fixed << std::setprecision(3) << _vec.y;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.x << _sep;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.y;
     return strStream.str();
 }
 
-std::string toString(const glm::vec3& _vec, char _sep) {
+std::string toString(const glm::vec3& _vec, char _sep, int _precision) {
     std::ostringstream strStream;
-    strStream << std::fixed << std::setprecision(3) << _vec.x << _sep;
-    strStream << std::fixed << std::setprecision(3) << _vec.y << _sep; 
-    strStream << std::fixed << std::setprecision(3) << _vec.z;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.x << _sep;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.y << _sep; 
+    strStream << std::fixed << std::setprecision(_precision) << _vec.z;
     return strStream.str();
 }
 
-std::string toString(const glm::vec4& _vec, char _sep) {
+std::string toString(const glm::vec4& _vec, char _sep, int _precision) {
     std::ostringstream strStream;
-    strStream << std::fixed << std::setprecision(3) << _vec.x << _sep;
-    strStream << std::fixed << std::setprecision(3) << _vec.y << _sep;
-    strStream << std::fixed << std::setprecision(3) << _vec.z << _sep; 
-    strStream << std::fixed << std::setprecision(3) << _vec.w;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.x << _sep;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.y << _sep;
+    strStream << std::fixed << std::setprecision(_precision) << _vec.z << _sep; 
+    strStream << std::fixed << std::setprecision(_precision) << _vec.w;
     return strStream.str();
 }
 
-// std::string toString(const glm::quat& _quat, char _sep) {
+// std::string toString(const glm::quat& _quat, char _sep, int _precision)) {
 //     std::ostringstream strStream;
-//     strStream << std::fixed << std::setprecision(3) << _quat.a << _sep;
-//     strStream << std::fixed << std::setprecision(3) << _quat.x << _sep;
-//     strStream << std::fixed << std::setprecision(3) << _quat.y << _sep; 
-//     strStream << std::fixed << std::setprecision(3) << _quat.z;
+//     strStream << std::fixed << std::setprecision(_precision) << _quat.a << _sep;
+//     strStream << std::fixed << std::setprecision(_precision) << _quat.x << _sep;
+//     strStream << std::fixed << std::setprecision(_precision) << _quat.y << _sep; 
+//     strStream << std::fixed << std::setprecision(_precision) << _quat.z;
 //     return strStream.str();
 // }
 
-std::string toString(const glm::mat4& _mat, char _sep) {
+std::string toString(const glm::mat4& _mat, char _sep, int _precision) {
     std::ostringstream strStream;
-    strStream << _mat[0] << _sep << _mat[4] << _sep << _mat[8]  << _sep << _mat[12] << '\n';
-    strStream << _mat[1] << _sep << _mat[5] << _sep << _mat[9]  << _sep << _mat[13] << '\n';
-    strStream << _mat[2] << _sep << _mat[6] << _sep << _mat[10] << _sep << _mat[14] << '\n'; 
-    strStream << _mat[3] << _sep << _mat[7] << _sep << _mat[11] << _sep << _mat[15] << '\n';
+    strStream << std::fixed << std::setprecision(_precision) << _mat[0] << _sep << std::fixed << std::setprecision(_precision) << _mat[4] << _sep << std::fixed << std::setprecision(_precision) << _mat[8]  << _sep << std::fixed << std::setprecision(_precision) << _mat[12] << '\n';
+    strStream << std::fixed << std::setprecision(_precision) << _mat[1] << _sep << std::fixed << std::setprecision(_precision) << _mat[5] << _sep << std::fixed << std::setprecision(_precision) << _mat[9]  << _sep << std::fixed << std::setprecision(_precision) << _mat[13] << '\n';
+    strStream << std::fixed << std::setprecision(_precision) << _mat[2] << _sep << std::fixed << std::setprecision(_precision) << _mat[6] << _sep << std::fixed << std::setprecision(_precision) << _mat[10] << _sep << std::fixed << std::setprecision(_precision) << _mat[14] << '\n'; 
+    strStream << std::fixed << std::setprecision(_precision) << _mat[3] << _sep << std::fixed << std::setprecision(_precision) << _mat[7] << _sep << std::fixed << std::setprecision(_precision) << _mat[11] << _sep << std::fixed << std::setprecision(_precision) << _mat[15] << '\n';
     return strStream.str();
 }
 
