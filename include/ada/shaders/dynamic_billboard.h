@@ -7,12 +7,12 @@ const std::string dynamic_billboard_vert = R"(
 precision mediump float;
 #endif
 
-uniform mat4 u_modelViewProjectionMatrix;
-uniform vec2 u_translate;
-uniform vec2 u_scale;
-attribute vec4 a_position;
-attribute vec2 a_texcoord;
-varying vec2 v_texcoord;
+uniform mat4        u_modelViewProjectionMatrix;
+uniform vec2        u_translate;
+uniform vec2        u_scale;
+attribute vec4      a_position;
+attribute vec2      a_texcoord;
+varying vec2        v_texcoord;
 
 void main(void) {
     vec4 position = a_position;
@@ -27,14 +27,19 @@ const std::string dynamic_billboard_frag = R"(
 precision mediump float;
 #endif
 
-uniform sampler2D u_tex0;
-uniform vec4 u_color;
-uniform float u_depth;
-uniform float u_cameraNearClip;
-uniform float u_cameraFarClip;
-uniform float u_cameraDistance;
+uniform sampler2D   u_tex0;
+uniform float       u_tex0CurrentFrame;
+uniform float       u_tex0TotalFrames;
 
-varying vec2 v_texcoord;
+uniform vec4        u_color;
+uniform vec2        u_scale;
+
+uniform float       u_depth;
+uniform float       u_cameraNearClip;
+uniform float       u_cameraFarClip;
+uniform float       u_cameraDistance;
+
+varying vec2        v_texcoord;
 
 float linearizeDepth(float zoverw) {
 	return (2.0 * u_cameraNearClip) / (u_cameraFarClip + u_cameraNearClip - zoverw * (u_cameraFarClip - u_cameraNearClip));
@@ -47,12 +52,18 @@ vec3 heatmap(float v) {
 
 void main(void) { 
     vec4 color = u_color;
-    color += texture2D(u_tex0, v_texcoord);
+    vec2 pixel = 1./u_scale;
+    vec2 st = v_texcoord;
+
+    color += texture2D(u_tex0, st);
     
     if (u_depth > 0.0) {
         color.r = linearizeDepth(color.r) * u_cameraFarClip;
         color.rgb = heatmap(1.0 - (color.r - u_cameraDistance) * 0.01);
     }
+
+    if (u_tex0TotalFrames > 0.0)
+        color.rgb = mix( color.rgb, vec3(step(st.x, u_tex0CurrentFrame/u_tex0TotalFrames), 0., 0.), step(st.y, 3. * pixel.y) );
     
     gl_FragColor = color;
 }
@@ -85,11 +96,18 @@ precision mediump float;
 #endif
 
 uniform sampler2D   u_tex0;
+uniform float       u_tex0CurrentFrame;
+uniform float       u_tex0TotalFrames;
+
 uniform vec4        u_color;
+uniform vec2        u_scale;
+
 uniform float       u_depth;
 uniform float       u_cameraNearClip;
 uniform float       u_cameraFarClip;
 uniform float       u_cameraDistance;
+
+varying vec2        v_texcoord;
 
 in      vec2        v_texcoord;
 out     vec4        fragColor;
@@ -105,12 +123,18 @@ vec3 heatmap(float v) {
 
 void main(void) { 
     vec4 color = u_color;
-    color += texture(u_tex0, v_texcoord);
+    vec2 pixel = 1./u_scale;
+    vec2 st = v_texcoord;
+
+    color += texture(u_tex0, st);
     
     if (u_depth > 0.0) {
         color.r = linearizeDepth(color.r) * u_cameraFarClip;
         color.rgb = heatmap(1.0 - (color.r - u_cameraDistance) * 0.01);
     }
+
+    if (u_tex0TotalFrames > 0.0)
+        color.rgb = mix( color.rgb, vec3(step(st.x, u_tex0CurrentFrame/u_tex0TotalFrames), 0., 0.), step(st.y, 3. * pixel.y) );
     
     fragColor = color;
 }
