@@ -279,34 +279,46 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
         std::cerr << error_msg << std::endl;
 
         std::vector<std::string> chuncks = ada::split(error_msg, ' ');
-
+        size_t line_number = 0;
+        
 #if defined(__APPLE__) 
-        // Error Message on Apple M1 
+    // Error Message on Apple M1 
         // ERROR: 0:41: 'color' : syntax error: syntax error
 
         std::vector<std::string> error_loc = ada::split(chuncks[1], ':');
-
-        size_t line_number = ada::toInt(error_loc[1]) - 2;
-        std::vector<std::string> lines = ada::split(_src, '\n', true);
-        for (size_t i = line_number; i < lines.size() && i < line_number + 3; i++)
-            std::cerr << i + 1 << " " << lines[i] << std::endl; 
+        if (ada::isInt(error_loc[1]))
+            line_number = ada::toInt(error_loc[1]);
 
 #elif defined(_WIN32)
 
 #elif defined(__EMSCRIPTEN__)
 
-#elif defined(PLATFORM_RPI)
-
 #else 
+    // Linux ARM
+        // 0:41(2): error: syntax error, unexpected IDENTIFIER, expecting ',' or ';'
+    
+    // Linux iX86 
         // Error Message on Mesa Intel(R) Iris(R) Plus Graohics (ICL GT2)
         // 0:41(2): error: syntax error, unexpected IDENTIFIER, expecting ',' or ';'
 
         // Error Message on NVdia GeForce GTX 1650
         // 0(41) : error C0000: syntax error, unexpected '.', expecting "::" at token "."
 
+        std::string error_loc1 = ada::replaceAll(chuncks[0], "(", ":");
+        error_loc1 = ada::replaceAll(error_loc1, ")", ":");
+        std::vector<std::string> error_loc2 = ada::split(error_loc1, ':');
+        if (ada::isInt(error_loc2[1]))
+            line_number = ada::toInt(error_loc2[1]);
+
 #endif
 
-
+        // Print line (-/+ lines for context)
+        if (line_number > 1) {
+            line_number -= 2;
+            std::vector<std::string> lines = ada::split(_src, '\n', true);
+            for (size_t i = line_number; i < lines.size() && i < line_number + 3; i++)
+                std::cerr << i + 1 << " " << lines[i] << std::endl; 
+        }
 
     }
 
