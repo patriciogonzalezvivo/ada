@@ -282,7 +282,7 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
 
 #if defined(__APPLE__) 
         // Error Message on Apple M1 
-        // ERROR  0:41 ...
+        // ERROR: 0:41: 'color' : syntax error: syntax error
 
         std::vector<std::string> error_loc = ada::split(chuncks[1], ':');
 
@@ -298,10 +298,10 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
 #elif defined(PLATFORM_RPI)
 
 #else 
-        // Error Message on Intel
+        // Error Message on Mesa Intel(R) Iris(R) Plus Graohics (ICL GT2)
         // 0:41(2): error: syntax error, unexpected IDENTIFIER, expecting ',' or ';'
 
-        // Error Message on NVdia
+        // Error Message on NVdia GeForce GTX 1650
         // 0(41) : error C0000: syntax error, unexpected '.', expecting "::" at token "."
 
 #endif
