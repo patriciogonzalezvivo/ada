@@ -72,4 +72,8 @@ inline float clamp ( float value , float min , float max ) {
     return value;
 }
 
+inline int roundTo(int num, int factor) {
+    return num + factor - 1 - (num + factor - 1) % factor;
+}
+
 }
