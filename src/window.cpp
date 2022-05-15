@@ -571,10 +571,18 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         if (_prop.style == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+
+        else if (_prop.style == UNDECORATED )
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
             
-        else if (_prop.style == ALLWAYS_ON_TOP)
+        else if (_prop.style == ALLWAYS_ON_TOP )
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
+        else if (_prop.style == UNDECORATED_ALLWAYS_ON_TOP) {
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+            glfwWindowHint(GLFW_FLOATING, GL_TRUE);
+        }
+        
         if (_prop.style == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -617,6 +625,11 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             glfwGetMonitorPos(monitors[monitorID], &xpos, &ypos);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
             
+            if (_viewport.x != 0 || _viewport.y != 0) {
+                xpos += _viewport.x;
+                ypos += _viewport.y;
+            }
+
             glfwSetWindowPos(window, xpos, ypos);
         }
         else
@@ -777,9 +790,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         emscripten_enter_soft_fullscreen("#canvas", &strategy);
 #endif
-
-        if (_viewport.x > 0 || _viewport.y > 0)
-            glfwSetWindowPos(window, _viewport.x, _viewport.y);
         
     #endif
 
