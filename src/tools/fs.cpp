@@ -1,6 +1,9 @@
 #include "ada/tools/fs.h"
 #include "ada/tools/text.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <iostream>     // cout
 #include <fstream>      // File
@@ -9,8 +12,6 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
