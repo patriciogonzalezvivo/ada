@@ -18,6 +18,9 @@ public:
     virtual ~Font();
 
     virtual bool load(const std::string &_filepath, std::string _name = "");
+    virtual bool load(unsigned char* _data, size_t _size, std::string _name = "");
+    virtual bool load(std::vector<unsigned char>& _ttf_data, std::string _name = "");
+    virtual bool loadDefault();
 
     virtual void setSize(float _size) { m_size = _size; }
 
@@ -30,7 +33,7 @@ public:
     virtual void setColor(const glm::vec4 &_color);
 
     // virtual GLint getAtlasTexture();
-    virtual glm::vec4   getBoundingBox(const std::string &_text, float _x = 0, float _y = 0);
+    virtual glm::vec4 getBoundingBox(const std::string &_text, float _x = 0, float _y = 0);
 
     virtual void render(const std::string &_text, float _x, float _y);
     virtual void render(const std::string &_text, const glm::vec2 &_pos) { render(_text, _pos.x, _pos.y); }
