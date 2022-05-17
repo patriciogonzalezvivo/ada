@@ -20,6 +20,7 @@
 #ifndef FONS_H
 #define FONS_H
 
+#include <cstdio>
 #include <cstring>
 #include <stdbool.h>
 
@@ -67,8 +68,7 @@ enum FONSerrorCode {
     FONS_HB_SCRIPT_DETECTION_FAILED = 5,
 };
 
-struct FONSquad
-{
+struct FONSquad {
     float x0,y0,s0,t0;
     float x1,y1,s1,t1;
 };
@@ -119,8 +119,8 @@ int fonsResetAtlas(FONScontext* stash, int width, int height, const char);
 
 // Add fonts
 int fonsAddFont(FONScontext* s, const char* name, const char* path);
-int fonsAddFont(FONScontext* stash, const char* name, unsigned char* data, int dataSize);
-int fonsAddFontMem(FONScontext* s, const char* name, unsigned char* data, int ndata, int freeData);
+int fonsAddFont(FONScontext* s, const char* name, unsigned char* data, size_t dataSize);
+int fonsAddFontMem(FONScontext* s, const char* name, unsigned char* data, size_t dataSize, unsigned char freeData);
 int fonsGetFontByName(FONScontext* s, const char* name);
 
 // State handling
@@ -1069,8 +1069,7 @@ void fonsPopState(FONScontext* stash)
     stash->nstates--;
 }
 
-void fonsClearState(FONScontext* stash)
-{
+void fonsClearState(FONScontext* stash) {
     FONSstate* state = fons__getState(stash);
     state->size = 12.0f;
     state->color = 0xffffffff;
@@ -1082,8 +1081,7 @@ void fonsClearState(FONScontext* stash)
     state->useShaping = 0;
 }
 
-static void fons__freeFont(FONSfont* font)
-{
+static void fons__freeFont(FONSfont* font) {
     if (font == NULL) return;
     if (font->glyphs) free(font->glyphs);
     if (font->freeData && font->data) free(font->data);
@@ -1091,8 +1089,7 @@ static void fons__freeFont(FONSfont* font)
     free(font);
 }
 
-static int fons__allocFont(FONScontext* stash)
-{
+static int fons__allocFont(FONScontext* stash) {
     FONSfont* font = NULL;
     if (stash->nfonts+1 > stash->cfonts) {
         stash->cfonts = stash->cfonts == 0 ? 8 : stash->cfonts * 2;
@@ -1123,16 +1120,13 @@ unsigned int fonsDecUTF8(unsigned int* state, unsigned int byte) {
     return fons__decutf8(state, &codep, byte);
 }
 
-
-int fonsAddFont(FONScontext* stash, const char* name, unsigned char* data, int dataSize)
-{
+int fonsAddFont(FONScontext* stash, const char* name, unsigned char* data, size_t dataSize) {
     return fonsAddFontMem(stash, name, data, dataSize, 1);
 }
 
-int fonsAddFont(FONScontext* stash, const char* name, const char* path)
-{
+int fonsAddFont(FONScontext* stash, const char* name, const char* path) {
     FILE* fp = 0;
-    int dataSize = 0;
+    size_t dataSize = 0;
     int nRead = 0;
     unsigned char* data = NULL;
 
@@ -1157,8 +1151,7 @@ error:
     return FONS_INVALID;
 }
 
-int fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data, int dataSize, int freeData)
-{
+int fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data, size_t dataSize, unsigned char freeData) {
     int i, ascent, descent, fh, lineGap;
     FONSfont* font;
 
@@ -1178,7 +1171,7 @@ int fonsAddFontMem(FONScontext* stash, const char* name, unsigned char* data, in
     // Read in the font data.
     font->dataSize = dataSize;
     font->data = data;
-    font->freeData = (unsigned char)freeData;
+    font->freeData = freeData;
 
     // Init font
     stash->nscratch = 0;
@@ -1200,8 +1193,7 @@ error:
     return FONS_INVALID;
 }
 
-int fonsGetFontByName(FONScontext* s, const char* name)
-{
+int fonsGetFontByName(FONScontext* s, const char* name) {
     int i;
     for (i = 0; i < s->nfonts; i++) {
         if (strcmp(s->fonts[i]->name, name) == 0)
