@@ -16,7 +16,8 @@ static size_t fn = 0;
 
 // Monserrat by Julieta Ulanovsky
 // published under SIL Open Font Licecemse, 1.1 (https://www.fontmirror.com/montserrat)
-const std::string monserrat_ttf = "AAEAAAASAQAABAAgRFNJRwAAAAEABAQQAAAACEdERUbNNs9iAAABLAAAApBHUE9TApSbBgAAA7wAATSkR1NVQngwbeoAAThgAAA9PE9TLzJVpaNCAAF1nAAAAGBjb"
+//
+std::string monserrat_ttf = "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"
@@ -120,12 +121,10 @@ bool Font::load(const std::string &_filepath, std::string _name) {
     if (fs == nullptr) {
         GLFONSparams params;
         params.useGLBackend = true; // if not set to true, you must provide your own gl backend
-        // fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT);
         fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT | FONS_NORMALIZE_TEX_COORDS, params, nullptr);
     }
 
     m_id = fonsAddFont(fs, _name.c_str(), _filepath.c_str());
-
     return m_id >= 0;
 }
 
@@ -136,12 +135,10 @@ bool Font::load(unsigned char* _data, size_t _size, std::string _name) {
     if (fs == nullptr) {
         GLFONSparams params;
         params.useGLBackend = true; // if not set to true, you must provide your own gl backend
-        // fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT);
         fs = glfonsCreate(512, 512, FONS_ZERO_TOPLEFT | FONS_NORMALIZE_TEX_COORDS, params, nullptr);
     }
 
-    m_id = fonsAddFont(fs, _name.c_str(), _data, _size);
-
+    m_id = fonsAddFontMem(fs, _name.c_str(), _data, _size, 1);
     return m_id >= 0;
 }
 
@@ -150,8 +147,9 @@ bool Font::load(std::vector<unsigned char>& _ttf_data, std::string _name) {
 }
 
 bool Font::loadDefault() {
-    std::vector<unsigned char> ttf = ada::decodeBase64(monserrat_ttf);
-    return load(&ttf[0], ttf.size());
+    unsigned char *ttf = new unsigned char[monserrat_ttf.size()];
+    size_t size = ada::decodeBase64(&monserrat_ttf[0], ttf);
+    return load(ttf, size);
 }
 
 void Font::setColor(const glm::vec4 & _color) {
@@ -191,7 +189,7 @@ glm::vec4 Font::getBoundingBox(const std::string &_text, float _x, float _y) {
 void Font::render(const std::string &_text, float _x, float _y) {
     if (m_id < 0)
         loadDefault();
-    
+
     fonsSetFont(fs, m_id);
     fonsSetSize(fs, m_size * ada::getPixelDensity() );
     fonsSetColor(fs, m_color);
@@ -213,7 +211,6 @@ void Font::render(const std::string &_text, float _x, float _y) {
     glfonsDraw(fs);
     glfonsBufferDelete(fs, buffer);
 }
-
 
 }
 

@@ -1257,10 +1257,12 @@ int stbtt_GetGlyphShape(const stbtt_fontinfo *info, int glyph_index, stbtt_verte
          // More components ?
          more = flags & (1<<5);
       }
-   } else if (numberOfContours < 0) {
+   } 
+   else if (numberOfContours < 0) {
       // @TODO other compound variations?
       STBTT_assert(0);
-   } else {
+   } 
+   else {
       // numberOfCounters == 0, do nothing
    }
 

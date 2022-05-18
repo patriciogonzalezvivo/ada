@@ -205,12 +205,11 @@ std::vector<std::string> glob(const std::string& _pattern) {
 
 
 static const std::string base64_chars =
-             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-             "abcdefghijklmnopqrstuvwxyz"
-             "0123456789+/";
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
+    "0123456789+/";
 
-
-static inline bool is_base64(unsigned char c) { return (isalnum(c) || (c == '+') || (c == '/')); }
+bool is_base64(unsigned char c) { return (isalnum(c) || (c == '+') || (c == '/')); }
 
 std::string encodeBase64(const unsigned char* _src, size_t _size) {
     std::string ret;
@@ -252,13 +251,13 @@ std::string encodeBase64(const unsigned char* _src, size_t _size) {
     return ret;
 }
 
-std::vector<unsigned char> decodeBase64(const std::string& _src) {
-    int in_len = _src.size();
+size_t decodeBase64(const std::string& _src, unsigned char *_to) {
+    size_t in_len = _src.size();
     int i = 0;
     int j = 0;
     int in_ = 0;
     unsigned char char_array_4[4], char_array_3[3];
-    std::vector<unsigned char> ret;
+    unsigned char *p = _to;
 
     while (in_len-- && ( _src[in_] != '=') && is_base64(_src[in_])) {
         char_array_4[i++] = _src[in_]; in_++;
@@ -271,7 +270,7 @@ std::vector<unsigned char> decodeBase64(const std::string& _src) {
             char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
             for (i = 0; (i < 3); i++)
-                ret.push_back(char_array_3[i]);
+                *p++ = char_array_3[i] ;
             i = 0;
         }
     }
@@ -287,10 +286,11 @@ std::vector<unsigned char> decodeBase64(const std::string& _src) {
         char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
         char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
 
-        for (j = 0; (j < i - 1); j++) ret.push_back(char_array_3[j]);
+        for (j = 0; (j < i - 1); j++) 
+            *p++ = char_array_3[j] ;
     }
 
-    return ret;
+    return (p - _to);
 }
 
 }

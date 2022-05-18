@@ -25,6 +25,6 @@ bool loadGlslFrom(const std::string& _filename, std::string *_into, const List& 
 
 // Binnaries
 std::string encodeBase64(const unsigned char* _src, size_t _size);
-std::vector<unsigned char> decodeBase64(const std::string& _src);
+size_t decodeBase64(const std::string& _src, unsigned char *_to);
 
 }
