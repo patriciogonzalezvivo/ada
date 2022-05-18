@@ -42,6 +42,9 @@ static double           FPS = 0.0;
 static double           restSec = 0.0167; // default 60fps 
 static float            fPixelDensity = 1.0;
 
+static bool             bShift = false;    
+static bool             bControl = false;    
+
 #if defined(DRIVER_GLFW)
 
     #if defined(__APPLE__)
@@ -568,10 +571,18 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         if (_prop.style == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
+
+        else if (_prop.style == UNDECORATED )
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
             
-        else if (_prop.style == ALLWAYS_ON_TOP)
+        else if (_prop.style == ALLWAYS_ON_TOP )
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
+        else if (_prop.style == UNDECORATED_ALLWAYS_ON_TOP) {
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
+            glfwWindowHint(GLFW_FLOATING, GL_TRUE);
+        }
+        
         if (_prop.style == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -583,7 +594,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
         }
-        else if (_prop.style == HOLOPLAY) {
+        else if (_prop.style == LENTICULAR) {
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
             glfwWindowHint(GLFW_DECORATED, false);
 
@@ -614,6 +625,11 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             glfwGetMonitorPos(monitors[monitorID], &xpos, &ypos);
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
             
+            if (_viewport.x != 0 || _viewport.y != 0) {
+                xpos += _viewport.x;
+                ypos += _viewport.y;
+            }
+
             glfwSetWindowPos(window, xpos, ypos);
         }
         else
@@ -631,7 +647,17 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         #endif
 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
-            if (_action == GLFW_PRESS)
+            if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
+                bShift = true;
+            else if (_action == GLFW_RELEASE && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
+                bShift = false;
+
+            else if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL) )
+                bControl = true;
+            else if (_action == GLFW_RELEASE && (_key == GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL) )
+                bControl = false;
+
+            else if (_action == GLFW_PRESS)
                 onKeyPress(_key);
         });
 
@@ -764,9 +790,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
         emscripten_enter_soft_fullscreen("#canvas", &strategy);
 #endif
-
-        if (_viewport.x > 0 || _viewport.y > 0)
-            glfwSetWindowPos(window, _viewport.x, _viewport.y);
         
     #endif
 
@@ -806,7 +829,6 @@ bool isGL() {
 void updateGL() {
     // Update time
     // --------------------------------------------------------------------
-
     double now = getTimeSec();
     float diff = now - elapseTime;
     if (diff < restSec) {
@@ -940,9 +962,9 @@ void closeGL(){
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW) 
-    glfwSetWindowSize(window, _width, _height);
+    glfwSetWindowSize(window, _width / getPixelDensity(), _height / getPixelDensity());
     #endif
-    setViewport((float)_width, (float)_height);
+    setViewport((float)_width / getPixelDensity(), (float)_height / getPixelDensity());
 }
 
 void setWindowTitle( const char* _title) {
@@ -1095,7 +1117,12 @@ glm::vec4 getDate() {
 double  getTime() { return elapseTime;}
 double  getDelta() { return delta; }
 
-void    setFps(int _fps) { restSec = 1.0f/(float)_fps; }
+void    setFps(int _fps) { 
+    if (_fps == 0)
+        restSec = 0.0;
+    else
+        restSec = 1.0f/(float)_fps; 
+}
 double  getFps() { return FPS; }
 
 float   getRestSec() { return restSec; }
@@ -1126,5 +1153,8 @@ glm::vec2 getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
 int     getMouseButton(){ return mouse.button;}
 glm::vec4 getMouse4() {return mouse4;}
 bool    getMouseEntered() { return mouse.entered; }
+
+bool    isShiftPressed() { return bShift; }
+bool    isControlPressed() { return bControl; }
 
 }

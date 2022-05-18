@@ -982,6 +982,9 @@ bool TextureStreamMMAL::update() {
     if (m_id == 0)
         return false;
 
+    if (!m_play)
+        return false;
+
     if (MMAL_BUFFER_HEADER_T* buf = mmal_queue_get(video_queue)) {
         mmal_buffer_header_mem_lock(buf);
         
@@ -1039,6 +1042,8 @@ void TextureStreamMMAL::clear() {
     if (m_id != 0)
         glDeleteTextures(1, &m_id);
     m_id = 0;
+
+    clearPrevs();
         
     if (m_egl_img!= 0)
         glDeleteTextures(1, &m_egl_img);

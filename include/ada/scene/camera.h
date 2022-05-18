@@ -4,10 +4,11 @@
 
 namespace ada {
 
-enum CameraType {
+enum Projection {
     ORTHO, 
     PERSPECTIVE,
-    PERSPECTIVE_VIRTUAL_OFFSET
+    PERSPECTIVE_VIRTUAL_OFFSET,
+    CUSTOM
 };
 
 class Camera: public Node {
@@ -15,7 +16,9 @@ public:
     Camera();
     virtual ~Camera();
 
-    virtual void        setType(CameraType cam_mode);
+    virtual void        setProjection(Projection cam_mode);
+    virtual void        setProjection(const glm::mat4& _M );
+
     virtual void        setFOV(double _fov);
     virtual void        setViewport(int _width, int _height);
     virtual void        setClipping(double _near_clip_distance, double _far_clip_distance);
@@ -29,7 +32,7 @@ public:
     virtual glm::vec3   worldToScreen(glm::vec3 _WorldXYZ) const;
 
     //Getting Functions
-    virtual const CameraType&   getType() const { return m_type;};
+    virtual const Projection&   getType() const { return m_type;};
 
     virtual const float         getFOV() const { return m_fov; }
     virtual const float         getAspect() const { return m_aspect; }
@@ -79,7 +82,7 @@ private:
     float       m_shutterSpeed;
     float       m_sensitivity;
 
-    CameraType  m_type;
+    Projection  m_type;
 };
 
 }

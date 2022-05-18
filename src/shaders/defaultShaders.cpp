@@ -9,7 +9,7 @@
 #include "ada/shaders/dynamic_billboard.h"
 #include "ada/shaders/wireframe2D.h"
 
-#include "ada/shaders/histogram.h"
+#include "ada/shaders/plot.h"
 #include "ada/shaders/fxaa.h"
 #include "ada/shaders/poissonfill.h"
 
@@ -137,11 +137,11 @@ std::string getDefaultSrc( DefaultShaders _type ) {
             rta += wireframe3D_frag_300;
     }
 
-    else if (_type == FRAG_HISTOGRAM) {
+    else if (_type == FRAG_PLOT) {
         if (versionNumber < 130)
-            rta += histogram_frag;
+            rta += plot_frag;
         else if (versionNumber >= 130) 
-            rta += histogram_frag_300;
+            rta += plot_frag_300;
     }
     else if (_type == FRAG_FXAA) {
         if (versionNumber < 130)

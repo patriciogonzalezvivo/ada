@@ -23,16 +23,19 @@ std::string toUnderscore(const std::string& _string); //Replace spaces by unders
 //  Extract extrange characters from a string
 std::string purifyString(const std::string& _string);
 
-// If match the first letters of stringA
-bool beginsWith(const std::string& _stringA, const std::string& _stringB);
-
-bool isInt(const std::string& _string);
-bool isDigit(const std::string& _string);
-bool isNumber(const std::string& _string);
-
 // Split a string into a vector of strings 
 std::vector<std::string> split(const std::string& _string, char _sep, bool _tolerate_empty = false);
 
+// Replace all _from for _to in a _string
+std::string replaceAll(std::string _string, const std::string& _from, const std::string& _to);
+
+// If match the first letters of stringA
+bool beginsWith(const std::string& _stringA, const std::string& _stringB);
+
+//---------------------------------------- Check Type
+bool isInt(const std::string& _string);
+bool isDigit(const std::string& _string);
+bool isNumber(const std::string& _string);
 bool isFloat(const std::string& _string);
 
 //---------------------------------------- Conversions
@@ -75,11 +78,11 @@ inline std::string toString(const T& _value, int _precision, int _width, char _f
     return out.str();
 }
 
-std::string toString(const glm::vec2& _vec, char _sep = ',');
-std::string toString(const glm::vec3& _vec, char _sep = ',');
-std::string toString(const glm::vec4& _vec, char _sep = ',');
-// std::string toString(const glm::quat& _quat, char _sep = ',');
-std::string toString(const glm::mat4& _mat, char _sep = ' ');
+std::string toString(const glm::vec2& _vec, char _sep = ',', int _precision = 3);
+std::string toString(const glm::vec3& _vec, char _sep = ',', int _precision = 3);
+std::string toString(const glm::vec4& _vec, char _sep = ',', int _precision = 3);
+// std::string toString(const glm::quat& _quat, char _sep = ',', int _precision = 3);
+std::string toString(const glm::mat4& _mat, char _sep = ' ', int _precision = 3);
 
 //-------------------------------------------------- << and >>
 inline std::ostream& operator<<(std::ostream& os, const glm::vec3& vec);

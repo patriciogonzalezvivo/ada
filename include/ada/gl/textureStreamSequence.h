@@ -10,18 +10,24 @@ public:
     TextureStreamSequence();
     virtual ~TextureStreamSequence();
 
-    virtual int     getTotalFrames() { return m_frames.size(); };
-    virtual int     getCurrentFrame() { return m_currentFrame; };
+    // virtual void            setSpeed( float _speed ) {};
+
+    virtual float   getDuration() const;
+    virtual float   getTime() const;
+
+    virtual float   getTotalFrames() { return m_frames.size(); };
+    virtual float   getCurrentFrame() const { return m_currentFrame; };
 
     virtual bool    load(const std::string& _filepath, bool _vFlip);
     virtual bool    update();
+    virtual void    restart();
     virtual void    clear();
 
 private:
 
     std::vector<void*>  m_frames;
-    size_t  m_currentFrame;
-    size_t  m_bits;
+    size_t              m_currentFrame;
+    size_t              m_bits;
 
 };
 

@@ -1,6 +1,9 @@
 #include "ada/tools/fs.h"
 #include "ada/tools/text.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <iostream>     // cout
 #include <fstream>      // File
@@ -9,8 +12,6 @@
 #include <sys/stat.h>
 
 #ifdef _WIN32
-#include <stdlib.h>
-#include <stdio.h>
 #include <errno.h>
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
@@ -106,27 +107,27 @@ bool alreadyInclude(const std::string &_path, List *_dependencies) {
     return false;
 }
 
-std::string loadSrcFrom(const std::string& _path) {
+std::string loadGlslFrom(const std::string& _path) {
     const std::vector<std::string> folders;
     List deps;
-    return loadSrcFrom(_path, folders, &deps);
+    return loadGlslFrom(_path, folders, &deps);
 }
 
-std::string loadSrcFrom(const std::string &_path, const List& _include_folders, List *_dependencies) {
+std::string loadGlslFrom(const std::string &_path, const List& _include_folders, List *_dependencies) {
     std::string str = "";
-    loadSrcFrom(_path, &str, _include_folders, _dependencies);
+    loadGlslFrom(_path, &str, _include_folders, _dependencies);
     return str;
 }
 
-bool loadSrcFrom(const std::string &_path, std::string *_into) {
+bool loadGlslFrom(const std::string &_path, std::string *_into) {
     const std::vector<std::string> folders;
     List deps;
 
     _into->clear();
-    return loadSrcFrom(_path, _into, folders, &deps);
+    return loadGlslFrom(_path, _into, folders, &deps);
 }
 
-bool loadSrcFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
+bool loadGlslFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
     std::ifstream file;
     file.open(_path.c_str());
 
@@ -147,7 +148,7 @@ bool loadSrcFrom(const std::string &_path, std::string *_into, const std::vector
         if (extractDependency(line, &dependency)) {
             dependency = urlResolve(dependency, original_path, _include_folders);
             newBuffer = "";
-            if (loadSrcFrom(dependency, &newBuffer, _include_folders, _dependencies)) {
+            if (loadGlslFrom(dependency, &newBuffer, _include_folders, _dependencies)) {
                 if (!alreadyInclude(dependency, _dependencies)) {
                     // Insert the content of the dependency
                     (*_into) += "\n" + newBuffer + "\n";
@@ -200,6 +201,96 @@ std::vector<std::string> glob(const std::string& _pattern) {
 
 #endif
     return files;
+}
+
+
+static const std::string base64_chars =
+             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+             "abcdefghijklmnopqrstuvwxyz"
+             "0123456789+/";
+
+
+static inline bool is_base64(unsigned char c) { return (isalnum(c) || (c == '+') || (c == '/')); }
+
+std::string encodeBase64(const unsigned char* _src, size_t _size) {
+    std::string ret;
+    int i = 0;
+    int j = 0;
+    unsigned char char_array_3[3];
+    unsigned char char_array_4[4];
+
+    while (_size--) {
+        char_array_3[i++] = *(_src++);
+        if (i == 3) {
+            char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+            char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+            char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+            char_array_4[3] = char_array_3[2] & 0x3f;
+
+            for(i = 0; (i <4) ; i++)
+                ret += base64_chars[char_array_4[i]];
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for(j = i; j < 3; j++)
+            char_array_3[j] = '\0';
+
+        char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
+        char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
+        char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
+        char_array_4[3] = char_array_3[2] & 0x3f;
+
+        for (j = 0; (j < i + 1); j++)
+            ret += base64_chars[char_array_4[j]];
+
+        while((i++ < 3))
+            ret += '=';
+    }
+
+    return ret;
+}
+
+std::vector<unsigned char> decodeBase64(const std::string& _src) {
+    int in_len = _src.size();
+    int i = 0;
+    int j = 0;
+    int in_ = 0;
+    unsigned char char_array_4[4], char_array_3[3];
+    std::vector<unsigned char> ret;
+
+    while (in_len-- && ( _src[in_] != '=') && is_base64(_src[in_])) {
+        char_array_4[i++] = _src[in_]; in_++;
+        if (i ==4) {
+            for (i = 0; i <4; i++)
+                char_array_4[i] = base64_chars.find(char_array_4[i]);
+
+            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+            for (i = 0; (i < 3); i++)
+                ret.push_back(char_array_3[i]);
+            i = 0;
+        }
+    }
+
+    if (i) {
+        for (j = i; j <4; j++)
+            char_array_4[j] = 0;
+
+        for (j = 0; j <4; j++)
+            char_array_4[j] = base64_chars.find(char_array_4[j]);
+
+        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
+        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
+        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
+
+        for (j = 0; (j < i - 1); j++) ret.push_back(char_array_3[j]);
+    }
+
+    return ret;
 }
 
 }

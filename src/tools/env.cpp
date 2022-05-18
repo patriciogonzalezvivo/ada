@@ -596,7 +596,6 @@ float* skyEquirectangular(SkyData* _sky, int _width, int _height) {
         for (int x = 0; x < _width; x++) {
             float u = (x + 0.5f) / _width;
             float phi = float(-2.0 * M_PI * u + M_PI + _sky->azimuth);
-
             float gamma = angleBetween(theta, phi, sunTheta, sunPhi);
 
             glm::vec3 sample = glm::vec3(
@@ -605,9 +604,8 @@ float* skyEquirectangular(SkyData* _sky, int _width, int _height) {
                 arhosek_tristim_skymodel_radiance(skyState[2], theta, gamma, 2)
             );
 
-            if (normalize) {
+            if (normalize)
                 sample *= float(4.0 * M_PI / 683.0);
-            }
 
             maxSample = std::max(maxSample, sample.y);
             sample = XYZ_sRGB * sample;
@@ -636,6 +634,7 @@ float* skyEquirectangular(SkyData* _sky, int _width, int _height) {
                 data[i + 1] = _sky->groundAlbedo.g;
                 data[i + 2] = _sky->groundAlbedo.b;
             }
+
             else {
                 data[i + 0] *= hdrScale;
                 data[i + 1] *= hdrScale;

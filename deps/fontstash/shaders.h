@@ -9,13 +9,11 @@
 #ifndef SHADERS_H
 #define SHADERS_H
 
-#define USE_VARIABLE __attribute__((used))
-
 #include "ada/gl/gl.h"
 
 namespace glfs {
 
-USE_VARIABLE static const GLchar* vertexShaderSrc = R"END(
+static const GLchar* vertexShaderSrc = R"(
 #ifdef GL_ES
 precision mediump float;
 #define LOWP lowp
@@ -55,9 +53,9 @@ void main() {
     v_alpha = a_alpha;
 }
 
-)END";
+)";
 
-USE_VARIABLE static const GLchar* sdfFragShaderSrc = R"END(
+static const GLchar* sdfFragShaderSrc = R"(
 #extension GL_OES_standard_derivatives : enable
     
 #ifdef GL_ES
@@ -116,9 +114,9 @@ void main(void) {
     gl_FragColor = vec4(u_color, v_alpha * alpha);
 }
 
-)END";
+)";
 
-USE_VARIABLE static const GLchar* defaultFragShaderSrc = R"END(
+static const GLchar* defaultFragShaderSrc = R"(
 
 #ifdef GL_ES
 precision mediump float;
@@ -142,7 +140,7 @@ void main(void) {
     gl_FragColor = vec4(u_color.rgb, texColor.a * v_alpha);
 }
 
-)END";
+)";
     
 }
 

@@ -26,9 +26,17 @@ uniform samplerCube u_cubeMap;
 
 varying vec4        v_position;
 
+#ifndef SCENE_CUBEMAP_HDR
+#define SCENE_CUBEMAP_HDR 0
+#endif
+
 void main(void) {
     vec4 reflection = textureCube(u_cubeMap, v_position.xyz);
+
+// #if SCENE_CUBEMAP_HDR == 1
     reflection.rgb = pow(reflection.rgb, vec3(0.4545454545));
+// #endif
+
     gl_FragColor = reflection;
 }
 )";
