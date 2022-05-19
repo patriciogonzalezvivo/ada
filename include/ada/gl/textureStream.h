@@ -13,6 +13,7 @@ public:
 
     virtual void            setSpeed( float _speed ) {};
     virtual void            setTime( float _time ) {};
+    virtual void            setPct( float _pct ) { setTime( _pct * getDuration() ); };
     
     virtual void            setPrevTextures(size_t _total) {
         if (_total < m_idPrevs.size())
@@ -46,6 +47,7 @@ public:
     virtual float           getFps() const { return ada::getFps(); }
     virtual float           getDuration() const { return 0.0; }
     virtual float           getTime() const { return 0.0; }
+    virtual float           getPct() const { return getTime() / getDuration(); }
     virtual float           getTotalFrames() const { return 0.0; };
     virtual float           getCurrentFrame() const { return 0.0; };
     virtual float           getSpeed() const { return 1.0; }

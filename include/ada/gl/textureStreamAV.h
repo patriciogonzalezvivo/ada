@@ -42,10 +42,11 @@ public:
 private:
     int64_t         dts_to_frame_number(int64_t dts);
     double          dts_to_sec(int64_t dts);
+    int64_t         sec_to_ts(double _sec);
 
-    double          currentFramePts();
-    bool            decodeFrame();
     bool            newFrame();
+    bool            decodeFrame();
+    double          currentFramePts();
 
     AVFormatContext *av_format_ctx;
     AVCodecContext  *av_codec_ctx;
@@ -69,6 +70,7 @@ private:
     int             m_streamId;
     
     bool            m_device;
+    bool            m_frameReady;
 };
 
 }

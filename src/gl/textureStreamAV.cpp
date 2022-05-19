@@ -44,12 +44,12 @@ TextureStreamAV::TextureStreamAV() :
     m_totalFrames(-1),
     m_currentFrame(-1),
     m_streamId(-1),
-    m_device(false)
+    m_device(false),
+    m_frameReady(false)
 {
-
     // initialize libav
     avformat_network_init();
-    
+
     // https://gist.github.com/shakkhar/619fd90ccbd17734089b
     avdevice_register_all();
 }
@@ -73,7 +73,6 @@ TextureStreamAV::TextureStreamAV( bool _isDevice ) :
     m_streamId(-1),
     m_device(_isDevice)
 {
-
     // initialize libav
     avformat_network_init();
     
@@ -248,24 +247,13 @@ bool TextureStreamAV::load(const std::string& _path, bool _vFlip, TextureFilter 
     return true;
 }
 
-// av_err2str returns a temporary array. This doesn't work in gcc.
-// This function can be used as a replacement for av_err2str.
-static const char* av_make_error(int errnum) {
-    static char str[AV_ERROR_MAX_STRING_SIZE];
-    memset(str, 0, sizeof(str));
-    return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
-}
-
-static AVPixelFormat correct_for_deprecated_pixel_format(AVPixelFormat pix_fmt) {
-    // Fix swscaler deprecated pixel format warning
-    // (YUVJ has been deprecated, change pixel format to regular YUV)
-    switch (pix_fmt) {
-        case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
-        case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
-        case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
-        case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
-        default:                  return pix_fmt;
-    }
+void TextureStreamAV::restart() {
+    m_currentFrame = 0;
+    m_time = 0.0;
+    m_waitFrom = 0.0;
+    m_waitUntil = 0.0;
+    avio_seek(av_format_ctx->pb, 0, SEEK_SET);
+    avformat_seek_file(av_format_ctx, m_streamId, 0, 0, av_format_ctx->streams[m_streamId]->duration, 0);
 }
 
 void TextureStreamAV::setSpeed( float _speed ) {
@@ -274,8 +262,16 @@ void TextureStreamAV::setSpeed( float _speed ) {
 }
 
 void TextureStreamAV::setTime( float _time ) {
+    m_time = _time;
+    m_currentFrame = getTotalFrames() * ( _time / getDuration() );
+    double frameSec = (1.0/getFPS());
+    m_waitFrom = _time-frameSec;
     m_waitUntil = _time;
-    m_time = 0.0;
+
+    avformat_seek_file(av_format_ctx, -1, sec_to_ts(_time - frameSec), sec_to_ts(_time), sec_to_ts(_time + frameSec), 0);
+    // avformat_seek_file(av_format_ctx, m_streamId, m_currentFrame-1, m_currentFrame, m_currentFrame, AVSEEK_FLAG_FRAME);
+
+    m_frameReady = true;
 }
 
 float TextureStreamAV::getCurrentFrame() const { 
@@ -287,6 +283,10 @@ float TextureStreamAV::getCurrentFrame() const {
 
 double TextureStreamAV::dts_to_sec(int64_t dts) {
     return (double)(dts - av_format_ctx->streams[m_streamId]->start_time) * r2d(av_format_ctx->streams[m_streamId]->time_base);
+}
+
+int64_t TextureStreamAV::sec_to_ts(double _sec) {
+    return (int64_t)( ( _sec / av_q2d(av_format_ctx->streams[m_streamId]->time_base)));
 }
 
 int64_t TextureStreamAV::dts_to_frame_number(int64_t dts) {
@@ -304,27 +304,32 @@ bool TextureStreamAV::update() {
     if (m_time > getDuration())
         m_time = 0.0;
 
-    if ( newFrame() )
+    // TODO:
+    //  - this should be a thread instead of calculating deltas on the main loop
+    //  - if glslViewer is going slower/faster or even with inconsistent framerates 
+    //      will affect the sync of the video
+
+    m_frameReady += newFrame();
+
+    if (m_frameReady)
         return decodeFrame();
 
     return false;
 }
 
-void TextureStreamAV::restart() {
-    avio_seek(av_format_ctx->pb, 0, SEEK_SET);
-    avformat_seek_file(av_format_ctx, m_streamId, 0, 0, av_format_ctx->streams[m_streamId]->duration, 0);
-    m_currentFrame = 0;
-    m_time = 0.0;
-    m_waitFrom = 0.0;
-    m_waitUntil = 0.0;
+// av_err2str returns a temporary array. This doesn't work in gcc.
+// This function can be used as a replacement for av_err2str.
+static const char* av_make_error(int errnum) {
+    static char str[AV_ERROR_MAX_STRING_SIZE];
+    memset(str, 0, sizeof(str));
+    return av_make_error_string(str, AV_ERROR_MAX_STRING_SIZE, errnum);
 }
 
-double TextureStreamAV::currentFramePts() {
-    return dts_to_sec( av_frame->pts );
+double TextureStreamAV::currentFramePts() { 
+    return dts_to_sec( av_frame->pts ); 
 }
 
 bool TextureStreamAV::newFrame() {
-
     if (!m_device && m_currentFrame > 0 && m_waitUntil > 0.0)
         return m_time >= m_waitUntil;
 
@@ -355,13 +360,12 @@ bool TextureStreamAV::newFrame() {
 
         // If the stream is from a DEVICE
         if (m_device) {
-            
             bool got_picture = false;
             if (av_codec_ctx->codec_type == AVMEDIA_TYPE_VIDEO ||
                 av_codec_ctx->codec_type == AVMEDIA_TYPE_AUDIO) {
                 response = avcodec_send_packet(av_codec_ctx, av_packet);
                 if (response < 0 && response != AVERROR(EAGAIN) && response != AVERROR_EOF) {
-                    // TODO
+                    restart();
                 } else {
                     if (response >= 0)
                         av_packet->size = 0;
@@ -412,10 +416,19 @@ bool TextureStreamAV::newFrame() {
     return m_time >= m_waitUntil;
 }
 
-bool TextureStreamAV::decodeFrame() {
-    m_waitFrom = m_waitUntil;
-    m_waitUntil = 0.0;
+static AVPixelFormat correct_for_deprecated_pixel_format(AVPixelFormat pix_fmt) {
+    // Fix swscaler deprecated pixel format warning
+    // (YUVJ has been deprecated, change pixel format to regular YUV)
+    switch (pix_fmt) {
+        case AV_PIX_FMT_YUVJ420P: return AV_PIX_FMT_YUV420P;
+        case AV_PIX_FMT_YUVJ422P: return AV_PIX_FMT_YUV422P;
+        case AV_PIX_FMT_YUVJ444P: return AV_PIX_FMT_YUV444P;
+        case AV_PIX_FMT_YUVJ440P: return AV_PIX_FMT_YUV440P;
+        default:                  return pix_fmt;
+    }
+}
 
+bool TextureStreamAV::decodeFrame() {
     // Set up sws scaler
     if (!conv_ctx) {
         AVPixelFormat source_pix_fmt = correct_for_deprecated_pixel_format(av_codec_ctx->pix_fmt);
@@ -424,6 +437,7 @@ bool TextureStreamAV::decodeFrame() {
                                     SWS_BILINEAR, NULL, NULL, NULL);
         
     }
+
     if (!conv_ctx) {
         printf("Couldn't initialize sw scaler\n");
         return false;
@@ -440,6 +454,9 @@ bool TextureStreamAV::decodeFrame() {
     
     // Up the frame count
     m_currentFrame++;
+    m_waitFrom = m_waitUntil;
+    m_waitUntil = 0.0;
+    m_frameReady = false;
 
     // Swap texture ids
     pushBack();
