@@ -13,14 +13,14 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
     setup();
 
-// #ifdef EVENTS_AS_CALLBACKS
-//     ada::setViewportResizeCallback( [&](int _width, int _height) { onViewportResize(_width, _height); } );
-//     ada::setKeyPressCallback( [&](int _key) { onKeyPress(_key); } );
-//     ada::setMouseMoveCallback( [&](float _x, float _y) { onMouseMove(_x, _y); } );
-//     ada::setMouseClickCallback( [&](float _x, float _y, int _button) { onMouseClick(_x, _y, _button); } );
-//     ada::setMouseDragCallback( [&](float _x, float _y, int _button) { onMouseDrag(_x, _y, _button); } );
-//     ada::setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
-// #endif
+#ifdef EVENTS_AS_CALLBACKS
+    ada::setViewportResizeCallback( [&](int _width, int _height) { onViewportResize(_width, _height); } );
+    ada::setKeyPressCallback( [&](int _key) { onKeyPress(_key); } );
+    ada::setMouseMoveCallback( [&](float _x, float _y) { onMouseMove(_x, _y); } );
+    ada::setMouseClickCallback( [&](float _x, float _y, int _button) { onMouseClick(_x, _y, _button); } );
+    ada::setMouseDragCallback( [&](float _x, float _y, int _button) { onMouseDrag(_x, _y, _button); } );
+    ada::setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
+#endif
 
 #ifdef __EMSCRIPTEN__
         // Run the loop 

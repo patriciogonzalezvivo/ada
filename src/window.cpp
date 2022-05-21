@@ -45,23 +45,6 @@ static float            fPixelDensity = 1.0;
 static bool             bShift = false;    
 static bool             bControl = false;    
 
-
-#if defined(EVENTS_AS_CALLBACKS)
-std::function<void(int,int)>            onViewportResize;
-std::function<void(int)>                onKeyPress;
-std::function<void(float, float)>       onMouseMove;
-std::function<void(float, float, int)>  onMouseClick;
-std::function<void(float, float, int)>  onMouseDrag;
-std::function<void(float)>              onScroll;
-
-void setViewportResizeCallback(std::function<void(int,int)> _callback) { onViewportResize = _callback; }
-void setKeyPressCallback(std::function<void(int)> _callback) { onKeyPress = _callback; }
-void setMouseMoveCallback(std::function<void(float, float)> _callback) { onMouseMove = _callback; }
-void setMouseClickCallback(std::function<void(float, float, int)> _callback) { onMouseClick = _callback; }
-void setMouseDragCallback(std::function<void(float, float, int)> _callback) { onMouseDrag = _callback; }
-void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callback; }
-#endif
-
 #if defined(DRIVER_GLFW)
 
     #if defined(__APPLE__)
@@ -185,6 +168,22 @@ static const char *eglGetErrorStr() {
     }
     return "Unknown error!";
 }
+#endif
+
+#if defined(EVENTS_AS_CALLBACKS)
+std::function<void(int,int)>            onViewportResize;
+std::function<void(int)>                onKeyPress;
+std::function<void(float, float)>       onMouseMove;
+std::function<void(float, float, int)>  onMouseClick;
+std::function<void(float, float, int)>  onMouseDrag;
+std::function<void(float)>              onScroll;
+
+void setViewportResizeCallback(std::function<void(int,int)> _callback) { onViewportResize = _callback; }
+void setKeyPressCallback(std::function<void(int)> _callback) { onKeyPress = _callback; }
+void setMouseMoveCallback(std::function<void(float, float)> _callback) { onMouseMove = _callback; }
+void setMouseClickCallback(std::function<void(float, float, int)> _callback) { onMouseClick = _callback; }
+void setMouseDragCallback(std::function<void(float, float, int)> _callback) { onMouseDrag = _callback; }
+void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callback; }
 #endif
 
 #if defined(DRIVER_BROADCOM)
