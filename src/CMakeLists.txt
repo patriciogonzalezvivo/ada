@@ -15,6 +15,7 @@ set(ADA_SOURCES
     gl/vbo.cpp 
     gl/mesh.cpp 
     gl/shader.cpp
+    gl/render.cpp
     gl/defines.cpp 
     gl/pingpong.cpp
     gl/texture.cpp 
