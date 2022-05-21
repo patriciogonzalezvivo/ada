@@ -45,6 +45,23 @@ static float            fPixelDensity = 1.0;
 static bool             bShift = false;    
 static bool             bControl = false;    
 
+
+#if defined(EVENTS_AS_CALLBACKS)
+std::function<void(int,int)>            onViewportResize;
+std::function<void(int)>                onKeyPress;
+std::function<void(float, float)>       onMouseMove;
+std::function<void(float, float, int)>  onMouseClick;
+std::function<void(float, float, int)>  onMouseDrag;
+std::function<void(float)>              onScroll;
+
+void setViewportResizeCallback(std::function<void(int,int)> _callback) { onViewportResize = _callback; }
+void setKeyPressCallback(std::function<void(int)> _callback) { onKeyPress = _callback; }
+void setMouseMoveCallback(std::function<void(float, float)> _callback) { onMouseMove = _callback; }
+void setMouseClickCallback(std::function<void(float, float, int)> _callback) { onMouseClick = _callback; }
+void setMouseDragCallback(std::function<void(float, float, int)> _callback) { onMouseDrag = _callback; }
+void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callback; }
+#endif
+
 #if defined(DRIVER_GLFW)
 
     #if defined(__APPLE__)
@@ -652,6 +669,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             glewInit();
         #endif
 
+        #ifdef EVENTS_AS_CALLBACKS
+        if (onKeyPress)
+        #endif 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
             if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
                 bShift = true;
@@ -668,6 +688,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 
         // callback when a mouse button is pressed or released
+        #ifdef EVENTS_AS_CALLBACKS
+        if (onMouseClick || onMouseDrag || onMouseMove)
+        #endif 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
             if (button == GLFW_MOUSE_BUTTON_1) {
                 // update mouse4 when left mouse button is pressed or released
@@ -689,6 +712,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             }
         });
 
+        #ifdef EVENTS_AS_CALLBACKS
+        if (onScroll)
+        #endif 
         glfwSetScrollCallback(window, [](GLFWwindow* _window, double xoffset, double yoffset) {
             onScroll(-yoffset * fPixelDensity);
         });
@@ -709,6 +735,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             mouse.entered = (bool)entered;
         });
 
+        #ifdef EVENTS_AS_CALLBACKS
+        if (onMouseClick || onMouseDrag || onMouseMove)
+        #endif 
         // callback when the mouse cursor moves
         glfwSetCursorPosCallback(window, [](GLFWwindow* _window, double x, double y) {
             // Convert x,y to pixel coordinates relative to viewport.
@@ -756,6 +785,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             // Lunch events
             if (mouse.button == 0 && button != mouse.button) {
                 mouse.button = button;
+                #ifdef EVENTS_AS_CALLBACKS
+                if (onMouseClick)
+                #endif 
                 onMouseClick(mouse.x, mouse.y, mouse.button);
             }
             else {
@@ -763,8 +795,18 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             }
 
             if (mouse.velX != 0.0 || mouse.velY != 0.0) {
-                if (button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
-                else onMouseMove(mouse.x, mouse.y);
+                if (button != 0) {
+                    #ifdef EVENTS_AS_CALLBACKS
+                    if (onMouseDrag)
+                    #endif 
+                    onMouseDrag(mouse.x, mouse.y, mouse.button);
+                }
+                else {
+                    #ifdef EVENTS_AS_CALLBACKS
+                    if (onMouseMove)
+                    #endif 
+                    onMouseMove(mouse.x, mouse.y);
+                }
             }
         });
 
@@ -861,62 +903,80 @@ void updateGL() {
         glfwPollEvents();
 
     #else
-        const int XSIGN = 1<<4, YSIGN = 1<<5;
-        static int fd = -1;
-        if (fd < 0) {
-            fd = open(properties.mouse.c_str(),O_RDONLY|O_NONBLOCK);
-        }
-
-        if (fd >= 0) {
-            // Set values to 0
-            mouse.velX=0;
-            mouse.velY=0;
-
-            // Extract values from driver
-            struct {char buttons, dx, dy; } m;
-            while (1) {
-                int bytes = read(fd, &m, sizeof m);
-
-                if (bytes < (int)sizeof m)
-                    return;
-                else if (m.buttons&8) 
-                    break; // This bit should always be set
-
-                read(fd, &m, 1); // Try to sync up again
+        #ifdef EVENTS_AS_CALLBACKS
+        if (onMouseClick || onMouseDrag || onMouseMove)
+        #endif 
+        {
+            const int XSIGN = 1<<4, YSIGN = 1<<5;
+            static int fd = -1;
+            if (fd < 0) {
+                fd = open(properties.mouse.c_str(),O_RDONLY|O_NONBLOCK);
             }
 
-            // Set button value
-            int button = m.buttons&3;
-            if (button) mouse.button = button;
-            else mouse.button = 0;
+            if (fd >= 0) {
+                // Set values to 0
+                mouse.velX=0;
+                mouse.velY=0;
 
-            // Set deltas
-            mouse.velX=m.dx;
-            mouse.velY=m.dy;
-            if (m.buttons&XSIGN) mouse.velX-=256;
-            if (m.buttons&YSIGN) mouse.velY-=256;
+                // Extract values from driver
+                struct {char buttons, dx, dy; } m;
+                while (1) {
+                    int bytes = read(fd, &m, sizeof m);
 
-            // Add movement
-            mouse.x += mouse.velX;
-            mouse.y += mouse.velY;
+                    if (bytes < (int)sizeof m)
+                        return;
+                    else if (m.buttons&8) 
+                        break; // This bit should always be set
 
-            // Clamp values
-            if (mouse.x < 0) mouse.x=0;
-            if (mouse.y < 0) mouse.y=0;
-            if (mouse.x > viewport.z) mouse.x = viewport.z;
-            if (mouse.y > viewport.w) mouse.y = viewport.w;
+                    read(fd, &m, 1); // Try to sync up again
+                }
 
-            // Lunch events
-            if (mouse.button == 0 && button != mouse.button) {
-                mouse.button = button;
-                onMouseClick(mouse.x, mouse.y, mouse.button);
-            }
-            else
-                mouse.button = button;
+                // Set button value
+                int button = m.buttons&3;
+                if (button) mouse.button = button;
+                else mouse.button = 0;
 
-            if (mouse.velX != 0.0 || mouse.velY != 0.0) {
-                if (button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
-                else onMouseMove(mouse.x, mouse.y);
+                // Set deltas
+                mouse.velX=m.dx;
+                mouse.velY=m.dy;
+                if (m.buttons&XSIGN) mouse.velX-=256;
+                if (m.buttons&YSIGN) mouse.velY-=256;
+
+                // Add movement
+                mouse.x += mouse.velX;
+                mouse.y += mouse.velY;
+
+                // Clamp values
+                if (mouse.x < 0) mouse.x=0;
+                if (mouse.y < 0) mouse.y=0;
+                if (mouse.x > viewport.z) mouse.x = viewport.z;
+                if (mouse.y > viewport.w) mouse.y = viewport.w;
+
+                // Lunch events
+                if (mouse.button == 0 && button != mouse.button) {
+                    mouse.button = button;
+                    #ifdef EVENTS_AS_CALLBACKS
+                    if (onMouseClick)
+                    #endif 
+                    onMouseClick(mouse.x, mouse.y, mouse.button);
+                }
+                else
+                    mouse.button = button;
+
+                if (mouse.velX != 0.0 || mouse.velY != 0.0) {
+                    if (button != 0) {
+                        #ifdef EVENTS_AS_CALLBACKS
+                        if (onMouseDrag)
+                        #endif 
+                        onMouseDrag(mouse.x, mouse.y, mouse.button);
+                    }
+                    else {
+                        #ifdef EVENTS_AS_CALLBACKS
+                        if (onMouseMove)
+                        #endif 
+                        onMouseMove(mouse.x, mouse.y);
+                    }
+                }
             }
         }
     #endif
@@ -1001,6 +1061,9 @@ void updateViewport() {
     orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
                                 (float)viewport.y * fPixelDensity, height);
 
+#ifdef EVENTS_AS_CALLBACKS
+    if (onViewportResize)
+#endif 
     onViewportResize(width, height);
 }
 

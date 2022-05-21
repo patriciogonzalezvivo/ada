@@ -4,6 +4,10 @@
 #include "glm/glm.hpp"
 #include <string>
 
+#ifdef EVENTS_AS_CALLBACKS
+#include <functional>
+#endif
+
 namespace ada {
 
 enum WindowStyle {
@@ -43,34 +47,11 @@ struct WindowProperties {
 
 //	GL Context
 //----------------------------------------------
-int  initGL(glm::ivec4 &_viewport, WindowProperties _properties = WindowProperties());
-bool isGL();
-void updateGL();
-void renderGL();
-void closeGL();
-
-//	SET
-//----------------------------------------------
-void updateViewport();
-
-void setFps(int _fps);
-void setViewport(float _width, float _height);
-void setWindowSize(int _width, int _height);
-void setWindowTitle(const char* _title);
-void setWindowVSync(bool _value);
-void setMousePosition(float _x, float _y);
-void setMousePosition(glm::vec2 _pos);
-
-//	GET
-//----------------------------------------------
-glm::ivec2  getScreenSize();
-float       getPixelDensity();
-
-glm::ivec4  getViewport();
-glm::mat4   getOrthoMatrix();
-int         getWindowWidth();
-int         getWindowHeight();
-int         getWindowMSAA();
+int         initGL(glm::ivec4 &_viewport, WindowProperties _properties = WindowProperties());
+bool        isGL();
+void        updateGL();
+void        renderGL();
+void        closeGL();
 
 std::string getVendor();
 std::string getRenderer();
@@ -81,8 +62,33 @@ bool        haveExtension(std::string _name);
 
 #if defined(__EMSCRIPTEN__)
 size_t      getWebGLVersionNumber();
+#elif defined(PLATFORM_RPI)
+EGLDisplay  getEGLDisplay();
+EGLContext  getEGLContext();
 #endif
 
+//	Windows/Viewport
+//----------------------------------------------
+void        updateViewport();
+
+void        setFps(int _fps);
+void        setViewport(float _width, float _height);
+void        setWindowSize(int _width, int _height);
+void        setWindowTitle(const char* _title);
+void        setWindowVSync(bool _value);
+
+glm::ivec2  getScreenSize();
+float       getPixelDensity();
+
+glm::ivec4  getViewport();
+glm::mat4   getOrthoMatrix();
+int         getWindowWidth();
+int         getWindowHeight();
+int         getWindowMSAA();
+
+
+// TIME
+// ---------------------------------------
 glm::vec4   getDate();
 double      getTimeSec();
 double      getTime();
@@ -91,6 +97,11 @@ double      getFps();
 float       getRestSec();
 int         getRestMs();
 int         getRestUs();
+
+// Mouse Keyboards
+// ---------------------------------------
+void        setMousePosition(float _x, float _y);
+void        setMousePosition(glm::vec2 _pos);
 
 float       getMouseX();
 float       getMouseY();
@@ -102,21 +113,29 @@ int         getMouseButton();
 glm::vec4   getMouse4();
 bool        getMouseEntered();
 
+bool        isShiftPressed();
+bool        isControlPressed();
+
 // EVENTS
 //----------------------------------------------
-bool isShiftPressed();
-bool isControlPressed();
-void onKeyPress(int _key);
 
-void onMouseMove(float _x, float _y);
-void onMouseClick(float _x, float _y, int _button);
-void onMouseDrag(float _x, float _y, int _button);
-void onViewportResize(int _width, int _height);
-void onScroll(float _yoffset);
+#ifdef EVENTS_AS_CALLBACKS
+void    setViewportResizeCallback(std::function<void(int,int)>);
+void    setKeyPressCallback(std::function<void(int)>);
+void    setMouseMoveCallback(std::function<void(float, float)>);
+void    setMouseClickCallback(std::function<void(float, float, int)>);
+void    setMouseDragCallback(std::function<void(float, float, int)>);
+void    setScrollCallback(std::function<void(float)>);
 
-#ifdef PLATFORM_RPI
-EGLDisplay getEGLDisplay();
-EGLContext getEGLContext();
+#else
+void    onViewportResize(int _width, int _height);
+void    onKeyPress(int _key);
+void    onMouseMove(float _x, float _y);
+void    onMouseClick(float _x, float _y, int _button);
+void    onMouseDrag(float _x, float _y, int _button);
+void    onScroll(float _yoffset);
+
 #endif
+
 
 }

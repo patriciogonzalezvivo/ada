@@ -8,6 +8,7 @@ file(GLOB TOOLS_HEADER "${INCLUDE_FOLDER}/ada/tools/*.h")
 file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
 set(ADA_SOURCES
+    app.cpp
     window.cpp
     gl/gl.cpp 
     gl/fbo.cpp
