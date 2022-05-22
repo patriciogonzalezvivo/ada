@@ -1,5 +1,6 @@
 #include "ada/scene/model.h"
 
+#include "ada/gl/meshes.h"
 #include "ada/tools/text.h"
 #include "ada/tools/geom.h"
 

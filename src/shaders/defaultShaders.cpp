@@ -17,6 +17,7 @@
 #include "ada/shaders/light_ui.h"
 #include "ada/shaders/cubemap.h"
 #include "ada/shaders/wireframe3D.h"
+#include "ada/shaders/points.h"
 
 #include "ada/tools/text.h"
 
@@ -135,6 +136,19 @@ std::string getDefaultSrc( DefaultShaders _type ) {
             rta += wireframe3D_frag;
         else if (versionNumber >= 130) 
             rta += wireframe3D_frag_300;
+    }
+
+    else if (_type == VERT_POINTS) {
+        if (versionNumber < 130)
+            rta += points_vert;
+        else if (versionNumber >= 130) 
+            rta += points_vert_300;
+    }
+    else if (_type == FRAG_POINTS) {
+        if (versionNumber < 130)
+            rta += points_frag;
+        else if (versionNumber >= 130) 
+            rta += points_frag_300;
     }
 
     else if (_type == FRAG_PLOT) {

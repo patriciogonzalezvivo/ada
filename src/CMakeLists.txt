@@ -13,9 +13,10 @@ set(ADA_SOURCES
     gl/gl.cpp 
     gl/fbo.cpp
     gl/vbo.cpp 
+    gl/draw.cpp
     gl/mesh.cpp 
+    gl/meshes.cpp 
     gl/shader.cpp
-    gl/render.cpp
     gl/defines.cpp 
     gl/pingpong.cpp
     gl/texture.cpp 
