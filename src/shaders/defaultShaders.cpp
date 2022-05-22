@@ -7,7 +7,6 @@
 
 #include "ada/shaders/billboard.h"
 #include "ada/shaders/dynamic_billboard.h"
-#include "ada/shaders/wireframe2D.h"
 
 #include "ada/shaders/plot.h"
 #include "ada/shaders/fxaa.h"
@@ -16,8 +15,7 @@
 // 3D SCENE
 #include "ada/shaders/light_ui.h"
 #include "ada/shaders/cubemap.h"
-#include "ada/shaders/wireframe3D.h"
-#include "ada/shaders/points.h"
+#include "ada/shaders/draw.h"
 
 #include "ada/tools/text.h"
 
@@ -112,30 +110,31 @@ std::string getDefaultSrc( DefaultShaders _type ) {
         else if (versionNumber >= 130) 
             rta += light_frag_300;
     }
-    else if (_type == VERT_WIREFRAME_2D) {
+
+    else if (_type == VERT_FILL) {
         if (versionNumber < 130)
-            rta += wireframe2D_vert;
+            rta += fill_vert;
         else if (versionNumber >= 130) 
-            rta += wireframe2D_vert_300;
+            rta += fill_vert_300;
     }
-    else if (_type == FRAG_WIREFRAME_2D) {
+    else if (_type == FRAG_FILL) {
         if (versionNumber < 130)
-            rta += wireframe2D_frag;
+            rta += fill_frag;
         else if (versionNumber >= 130) 
-            rta += wireframe2D_frag_300;
+            rta += fill_frag_300;
     }
 
-    else if (_type == VERT_WIREFRAME_3D) {
+    else if (_type == VERT_LINES) {
         if (versionNumber < 130)
-            rta += wireframe3D_vert;
+            rta += lines_vert;
         else if (versionNumber >= 130) 
-            rta += wireframe3D_vert_300;
+            rta += lines_vert_300;
     }
-    else if (_type == FRAG_WIREFRAME_3D) {
+    else if (_type == FRAG_LINES) {
         if (versionNumber < 130)
-            rta += wireframe3D_frag;
+            rta += lines_frag;
         else if (versionNumber >= 130) 
-            rta += wireframe3D_frag_300;
+            rta += lines_frag_300;
     }
 
     else if (_type == VERT_POINTS) {

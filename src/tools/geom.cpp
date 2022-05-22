@@ -12,6 +12,61 @@
 
 namespace ada {
 
+float getArea(const std::vector<glm::vec2>& _points) {
+    float area = 0.0;
+
+    for (int i=0;i<(int)_points.size()-1;i++) {
+        area += _points[i].x * _points[i+1].y - _points[i+1].x * _points[i].y;
+    }
+    area += _points[_points.size()-1].x * _points[0].y - _points[0].x * _points[_points.size()-1].y;
+    area *= 0.5;
+
+    return area;
+}
+
+glm::vec2 getCentroid(const std::vector<glm::vec2>& _points) {
+    glm::vec2 centroid;
+    for (size_t i = 0; i < _points.size(); i++) {
+        centroid += _points[i] / (float)_points.size();
+    }
+    return centroid;
+}
+
+glm::vec4 getBoundingBox(const std::vector<glm::vec2> &_pts) {
+    glm::vec2 mmin = glm::vec2(10000.0, 10000.0);
+    glm::vec2 mmax = glm::vec2(-10000.0, -10000.0);
+    expandBoundingBox(_pts, mmin, mmax);
+    return glm::vec4(mmin.x, mmin.y, mmax.x, mmax.y);
+}
+
+void expandBoundingBox(const std::vector<glm::vec2> &_pts, glm::vec2 &_min, glm::vec2 &_max) {
+    for (unsigned int i = 0; i < _pts.size(); i++)
+        expandBoundingBox(_pts[i], _min, _max);
+}
+
+void expandBoundingBox(const glm::vec2 &_pt, glm::vec2 &_min, glm::vec2 &_max) {
+    if ( _pt.x < _min.x)
+        _min.x = _pt.x;
+
+    if ( _pt.y < _min.y)
+        _min.y = _pt.y;
+
+    if ( _pt.x > _max.x)
+        _max.x = _pt.x;
+
+    if ( _pt.y > _max.y)
+        _max.y = _pt.y;
+}
+
+
+glm::vec3 getCentroid(const std::vector<glm::vec3>& _points) {
+    glm::vec3 centroid;
+    for (size_t i = 0; i < _points.size(); i++) {
+        centroid += _points[i] / (float)_points.size();
+    }
+    return centroid;
+}
+
 void getBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::vec3 &_max) {
     _min = glm::vec3(10000.0, 10000.0, 10000.0);
     _max = glm::vec3(-10000.0, -10000.0, -10000.0);
@@ -20,9 +75,8 @@ void getBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::ve
 }
 
 void expandBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::vec3 &_max) {
-    for (unsigned int i = 0; i < _pts.size(); i++) {
+    for (unsigned int i = 0; i < _pts.size(); i++)
         expandBoundingBox(_pts[i], _min, _max);
-    }
 }
 
 void expandBoundingBox(const glm::vec3 &_pt, glm::vec3 &_min, glm::vec3 &_max) {
@@ -45,14 +99,6 @@ void expandBoundingBox(const glm::vec3 &_pt, glm::vec3 &_min, glm::vec3 &_max) {
         _max.z = _pt.z;
 }
 
-glm::vec3 getCentroid(const std::vector<glm::vec3> &_pts) {
-    glm::vec3 centroid;
-    for (uint32_t i = 0; i < _pts.size(); i++) {
-        centroid += _pts[i] / (float)_pts.size();
-    }
-    return centroid;
-}
-
 void calcNormal(const glm::vec3& _v0, const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3& _N) {
     glm::vec3 v10 = _v1 - _v0;
     glm::vec3 v20 = _v2 - _v0;
@@ -65,28 +111,28 @@ void calcNormal(const glm::vec3& _v0, const glm::vec3& _v1, const glm::vec3& _v2
 }
 
 
-bool lexicalComparison(const glm::vec3 &_v1, const glm::vec3 &_v2) {
+bool lexicalComparison(const glm::vec2 &_v1, const glm::vec2 &_v2) {
     if (_v1.x > _v2.x) return true;
     else if (_v1.x < _v2.x) return false;
     else if (_v1.y > _v2.y) return true;
     else return false;
 }
 
-bool isRightTurn(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c) {
+bool isRightTurn(const glm::vec2 &a, const glm::vec2 &b, const glm::vec2 &c) {
     // use the cross product to determin if we have a right turn
     return ((b.x - a.x)*(c.y - a.y) - (b.y - a.y)*(c.x - a.x)) > 0;
 }
 
-std::vector<glm::vec3> getConvexHull(const std::vector<glm::vec3> &_pts){
-    std::vector<glm::vec3> pts;
+std::vector<glm::vec2> getConvexHull(const std::vector<glm::vec2> &_pts){
+    std::vector<glm::vec2> pts;
     pts.assign(_pts.begin(),_pts.end());
     
     return getConvexHull(pts);
 }
 
-std::vector<glm::vec3> getConvexHull(std::vector<glm::vec3> &pts){
-    std::vector<glm::vec3> hull;
-    glm::vec3 h1,h2,h3;
+std::vector<glm::vec2> getConvexHull(std::vector<glm::vec2> &pts){
+    std::vector<glm::vec2> hull;
+    glm::vec2 h1,h2,h3;
     
     if (pts.size() < 3) {
         std::cout << "Error: you need at least three points to calculate the convex hull" << std::endl;
