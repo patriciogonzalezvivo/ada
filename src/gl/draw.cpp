@@ -28,64 +28,6 @@ void clear( const glm::vec4& _color ) {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void blendMode( BlendMode _mode ) {
-    switch (_mode) {
-        case BLEND_ALPHA:
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-
-        case BLEND_ADD:
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            break;
-
-        case BLEND_MULTIPLY:
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA /* GL_ZERO or GL_ONE_MINUS_SRC_ALPHA */);
-            break;
-
-        case BLEND_SCREEN:
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
-            break;
-
-        case BLEND_SUBSTRACT:
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            break;
-
-        case BLEND_NONE:
-            glDisable(GL_BLEND);
-            break;
-
-        default:
-            break;
-    }
-}
-
-void cullingMode( CullingMode _mode ) {
-    if (_mode == CULL_NONE) {
-        glDisable(GL_CULL_FACE);
-    }
-    else {
-        glEnable(GL_CULL_FACE);
-
-        if (_mode == CULL_FRONT) 
-            glCullFace(GL_FRONT);
-        
-        else if (_mode == CULL_BACK)
-            glCullFace(GL_BACK);
-        
-        else if (_mode == CULL_BOTH)
-            glCullFace(GL_FRONT_AND_BACK);
-    }
-}
-
 void noFill() { fill_enabled = false; }
 void fill( float _brightness ) { fill( glm::vec4( _brightness, _brightness, _brightness, fill_color.a ) ); }
 void fill( float _red, float _green, float _blue) { fill( glm::vec4( _red, _green, _blue, fill_color.a ) );  }

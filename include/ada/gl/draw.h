@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+
 #include "shader.h"
 #include "vbo.h"
 #include "ada/tools/font.h"
@@ -16,35 +17,17 @@ enum PointShape {
     X_SHAPE
 };
 
-enum BlendMode {
-    BLEND_NONE = 0,
-    BLEND_ALPHA,
-    BLEND_ADD,
-    BLEND_MULTIPLY,
-    BLEND_SCREEN,
-    BLEND_SUBSTRACT
-};
-
-enum CullingMode {
-    CULL_NONE = 0,
-    CULL_FRONT,
-    CULL_BACK,
-    CULL_BOTH
-};
-
 // GENERAL GL STATE
 // ---------------------------------
 
 // background()
+
+// colorMode()
+
 void clear();
 void clear( float _brightness );
 void clear( const glm::vec3& _color );
 void clear( const glm::vec4& _color );
-
-void blendMode( BlendMode _mode );
-void cullingMode( CullingMode _mode );
-
-// colorMode()
 
 void fill( float _brightness );
 void fill( float _red, float _green, float _blue);

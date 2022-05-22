@@ -1,8 +1,8 @@
 #include "ada/gl/gl.h"
 
-#if defined(PLATFORM_RPI)
-
 namespace ada {
+
+#if defined(PLATFORM_RPI)
 
     #ifndef DRIVER_BROADCOM
     static PFNEGLCREATEIMAGEKHRPROC createImageProc = NULL;
@@ -48,6 +48,65 @@ namespace ada {
         imageTargetTexture2DProc(target, image);
         #endif
     }
-}
 
 #endif
+
+void blendMode( BlendMode _mode ) {
+    switch (_mode) {
+        case BLEND_ALPHA:
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+
+        case BLEND_ADD:
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+
+        case BLEND_MULTIPLY:
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA /* GL_ZERO or GL_ONE_MINUS_SRC_ALPHA */);
+            break;
+
+        case BLEND_SCREEN:
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_ADD);
+            glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE);
+            break;
+
+        case BLEND_SUBSTRACT:
+            glEnable(GL_BLEND);
+            glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            break;
+
+        case BLEND_NONE:
+            glDisable(GL_BLEND);
+            break;
+
+        default:
+            break;
+    }
+}
+
+void cullingMode( CullingMode _mode ) {
+    if (_mode == CULL_NONE) {
+        glDisable(GL_CULL_FACE);
+    }
+    else {
+        glEnable(GL_CULL_FACE);
+
+        if (_mode == CULL_FRONT) 
+            glCullFace(GL_FRONT);
+        
+        else if (_mode == CULL_BACK)
+            glCullFace(GL_BACK);
+        
+        else if (_mode == CULL_BOTH)
+            glCullFace(GL_FRONT_AND_BACK);
+    }
+}
+
+}

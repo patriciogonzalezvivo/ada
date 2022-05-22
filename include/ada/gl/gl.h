@@ -83,3 +83,27 @@
     #include <GLFW/glfw3.h>
 
 #endif
+
+
+namespace ada {
+
+enum BlendMode {
+    BLEND_NONE = 0,
+    BLEND_ALPHA,
+    BLEND_ADD,
+    BLEND_MULTIPLY,
+    BLEND_SCREEN,
+    BLEND_SUBSTRACT
+};
+
+enum CullingMode {
+    CULL_NONE = 0,
+    CULL_FRONT,
+    CULL_BACK,
+    CULL_BOTH
+};
+
+void blendMode( BlendMode _mode );
+void cullingMode( CullingMode _mode );
+
+};
