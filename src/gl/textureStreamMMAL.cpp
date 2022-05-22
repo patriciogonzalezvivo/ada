@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "ada/window.h"
-#include "ada/tools/geom.h"
+#include "ada/gl/meshes.h"
 #include "ada/tools/text.h"
 
 #if defined(DRIVER_GBM)
@@ -883,7 +883,7 @@ bool TextureStreamMMAL::load(const std::string& _filepath, bool _vFlip, TextureF
     glViewport(0.0f, 0.0f, getWindowWidth(), getWindowHeight());
 
     glEnable(GL_TEXTURE_EXTERNAL_OES);
-    m_vbo = rect(0.0,0.0,1.0,1.0).getVbo();
+    m_vbo = rectMesh(0.0,0.0,1.0,1.0).getVbo();
 
     const std::string vert = R"(
 #ifdef GL_ES
