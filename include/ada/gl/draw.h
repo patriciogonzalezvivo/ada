@@ -96,18 +96,18 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
 
 // 2D Text
 // -----------------------------------
-void textAlign(FontAlign _align, Font* _font = nullptr);
 // textLeading()
-void textSize(float _size, Font* _font = nullptr);
 // textStyle()
 // textWidth()
 // textAscent()
 // textDescent()
 // textWrap()
 // loadFont()
+// textFont()
+void textAlign(FontAlign _align, Font* _font = nullptr);
+void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
-// textFont()
 
 // 3D Shapes
 // ---------------------------------------------------
