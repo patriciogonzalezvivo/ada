@@ -4,6 +4,9 @@
 #include "ada/tools/font.h"
 #include "ada/shaders/defaultShaders.h"
 
+#include "glm/gtc/matrix_transform.hpp"
+#include <stack>
+
 namespace ada {
 
 bool        fill_enabled    = true;
@@ -19,6 +22,41 @@ Shader*     stroke_shader   = nullptr;
 glm::vec4   stroke_color    = glm::vec4(1.0f);
 
 ada::Font*  font;
+
+glm::mat4   matrix          = glm::mat4(1.0f);
+std::stack<glm::mat4> matrix_stack;
+
+glm::mat4   cameraMatrix    = glm::mat4(1.0f);
+bool        cameraUse       = false;
+
+void resetMatrix() { matrix = glm::mat4(1.0f); }
+
+void applyMatrix(const glm::mat3& _mat ) { matrix = _mat; }
+void applyMatrix(const glm::mat4& _mat ) { matrix = glm::mat4(_mat); };
+
+void rotate(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+void rotateX(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
+void rotateY(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 1.0f, 0.0f) ); }
+void rotateZ(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+
+void scale(float _s) { matrix = glm::scale(matrix, glm::vec3(_s) ); }
+void scale(float _x, float _y, float _z) { matrix = glm::scale(matrix, glm::vec3(_x, _y, _z) ); }
+void scale(const glm::vec2& _s) { matrix = glm::scale(matrix, glm::vec3(_s, 1.0f) ) ; }
+void scale(const glm::vec3& _s) { matrix = glm::scale(matrix, _s) ; }
+
+void translate(float _x, float _y, float _z) { matrix = glm::translate(matrix, glm::vec3(_x, _y, _z) ); }
+void translate(const glm::vec2& _t) { matrix = glm::translate(matrix, glm::vec3(_t, 0.0f) ); }
+void translate(const glm::vec3& _t) { matrix = glm::translate(matrix, _t ); }
+
+void push() { matrix_stack.push(matrix); }
+void pop() { 
+    matrix = matrix_stack.top(); 
+    matrix_stack.pop();
+}
+
+void camera(bool _useMatrix) { cameraUse = _useMatrix; };
+void setCameraMatrix( const glm::mat4& _mat ) { cameraMatrix = _mat; }
+const glm::mat4& getCameraMatrix() { return cameraMatrix; }
 
 void clear() { clear( glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) ); }
 void clear( float _brightness ) { clear( glm::vec4(_brightness, _brightness, _brightness, 1.0f) ); }
@@ -63,7 +101,10 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+        if (cameraUse)
+            points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+        else 
+            points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
         _program = points_shader;
     }
 
@@ -92,7 +133,10 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+        if (cameraUse)
+            points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+        else
+            points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
         _program = points_shader;
     }
 
@@ -134,7 +178,10 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         stroke_shader->use();
         stroke_shader->setUniform("u_color", stroke_color);
-        stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+        if (cameraUse)
+            stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+        else
+            stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
         _program = stroke_shader;
     }
 
@@ -162,7 +209,10 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
 
         stroke_shader->use();
         stroke_shader->setUniform("u_color", stroke_color);
-        stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+        if (cameraUse)
+            stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+        else 
+            stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
         _program = stroke_shader;
     }
 
@@ -183,7 +233,10 @@ void line(Vbo* _vbo) {
 
     stroke_shader->use();
     stroke_shader->setUniform("u_color", stroke_color);
-    stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+    if (cameraUse)
+        stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+    else
+        stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
     _vbo->render( stroke_shader );
 }
 
@@ -197,7 +250,10 @@ void points(Vbo* _vbo) {
     points_shader->setUniform("u_size", points_size);
     points_shader->setUniform("u_shape", points_shape);
     points_shader->setUniform("u_color", fill_color);
-    points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+    if (cameraUse)
+        points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+    else
+        points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     glEnable(GL_POINT_SPRITE);
@@ -270,7 +326,10 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         fill_shader->use();
         fill_shader->setUniform("u_color", fill_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+        if (cameraUse)
+            fill_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+        else
+            fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
         _program = fill_shader;
     }
 
@@ -291,7 +350,10 @@ void triangles(Vbo* _vbo) {
 
     fill_shader->use();
     fill_shader->setUniform("u_color", fill_color);
-    fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() );
+    if (cameraUse)
+        fill_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
+    else
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
     _vbo->render(fill_shader);
 }
 

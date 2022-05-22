@@ -44,6 +44,9 @@ public:
     void        render(Shader* _shader);
     void        renderBbox(Shader* _shader);
 
+    Vbo*        getVbo() { return m_model_vbo; }
+    Vbo*        getVboBbox() { return m_bbox_vbo; }
+
 protected:
     Shader      m_shader;
     

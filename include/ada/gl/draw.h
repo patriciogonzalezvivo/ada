@@ -36,6 +36,10 @@ void fill( const glm::vec3& _color );
 void fill( const glm::vec4& _color );
 void noFill();
 
+void camera(bool _useMatrix);
+void setCameraMatrix( const glm::mat4& _mat );
+const glm::mat4& getCameraMatrix();
+
 void stroke( float _brightness );
 void stroke( float _red, float _green, float _blue);
 void stroke( float _red, float _green, float _blue, float _alpha);
@@ -43,6 +47,27 @@ void stroke( const glm::vec3& _color );
 void stroke( const glm::vec4& _color );
 void noStroke();
 void strokeWeight(float _weight);
+
+void resetMatrix();
+void applyMatrix(const glm::mat3& _mat );
+void applyMatrix(const glm::mat4& _mat );
+
+void rotate(float _rad);
+void rotateX(float _rad);
+void rotateY(float _rad);
+void rotateZ(float _rad);
+
+void scale(float _s);
+void scale(float _x, float _y, float _z = 1.0f);
+void scale(const glm::vec2& _s);
+void scale(const glm::vec3& _s);
+
+void translate(float _x, float _y, float _z = 0.0f);
+void translate(const glm::vec2& _t);
+void translate(const glm::vec3& _t);
+
+void push();
+void pop();
 
 // erase()
 // noErase()
