@@ -64,7 +64,7 @@ void calcNormal(const glm::vec3& _v0, const glm::vec3& _v1, const glm::vec3& _v2
     _N = glm::normalize(_N);
 }
 
-Mesh line (const glm::vec3 &_a, const glm::vec3 &_b) {
+Mesh lineMesh(const glm::vec3 &_a, const glm::vec3 &_b) {
     glm::vec3 linePoints[2];
     linePoints[0] = glm::vec3(_a.x,_a.y,_a.z);
     linePoints[1] = glm::vec3(_b.x,_b.y,_b.z);;
@@ -75,11 +75,11 @@ Mesh line (const glm::vec3 &_a, const glm::vec3 &_b) {
     return mesh;
 };
 
-Mesh lineTo(const glm::vec3 &_a, const glm::vec3 &_dir, float _size) {
-    return line(_a, _a + normalize(_dir) * _size );
+Mesh lineToMesh(const glm::vec3 &_a, const glm::vec3 &_dir, float _size) {
+    return lineMesh(_a, _a + normalize(_dir) * _size );
 }
 
-Mesh cross (const glm::vec3 &_pos, float _width) {
+Mesh crossMesh(const glm::vec3 &_pos, float _width) {
     glm::vec3 linePoints[4] = { glm::vec3(_pos.x,_pos.y,_pos.z),
                                 glm::vec3(_pos.x,_pos.y,_pos.z),
                                 glm::vec3(_pos.x,_pos.y,_pos.z),
@@ -103,7 +103,7 @@ Mesh cross (const glm::vec3 &_pos, float _width) {
 
 // Billboard
 //============================================================================
-Mesh rect (float _x, float _y, float _w, float _h) {
+Mesh rectMesh(float _x, float _y, float _w, float _h) {
     float x = _x * 2.0f - 1.0f;
     float y = _y * 2.0f - 1.0f;
     float w = _w * 2.0f;
@@ -136,7 +136,7 @@ Mesh rect (float _x, float _y, float _w, float _h) {
     return mesh;
 }
 
-Mesh cube(float _size) {
+Mesh cubeMesh(float _size) {
     float vertices[] = {
         -_size,  _size,  _size,
         -_size, -_size,  _size,
@@ -169,7 +169,7 @@ Mesh cube(float _size) {
     return mesh;
 }
 
-Mesh cubeCorners(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size) {
+Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size) {
     float size = glm::min(glm::length(_min_v), glm::length(_max_v)) * _size *  0.5;
 
     //    D ---- A
@@ -191,60 +191,60 @@ Mesh cubeCorners(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size) 
 
     Mesh mesh;
     mesh.setDrawMode(GL_LINES);
-    mesh.add( lineTo(A, normalize(D-A), size) );
-    mesh.add( lineTo(A, normalize(B-A), size) );
-    mesh.add( lineTo(A, normalize(F-A), size) );
+    mesh.add( lineToMesh(A, normalize(D-A), size) );
+    mesh.add( lineToMesh(A, normalize(B-A), size) );
+    mesh.add( lineToMesh(A, normalize(F-A), size) );
 
-    mesh.add( lineTo(B, normalize(A-B), size) );
-    mesh.add( lineTo(B, normalize(C-B), size) );
-    mesh.add( lineTo(B, normalize(G-B), size) );
+    mesh.add( lineToMesh(B, normalize(A-B), size) );
+    mesh.add( lineToMesh(B, normalize(C-B), size) );
+    mesh.add( lineToMesh(B, normalize(G-B), size) );
 
-    mesh.add( lineTo(C, normalize(D-C), size) );
-    mesh.add( lineTo(C, normalize(B-C), size) );
-    mesh.add( lineTo(C, normalize(H-C), size) );
+    mesh.add( lineToMesh(C, normalize(D-C), size) );
+    mesh.add( lineToMesh(C, normalize(B-C), size) );
+    mesh.add( lineToMesh(C, normalize(H-C), size) );
     
-    mesh.add( lineTo(D, normalize(A-D), size) );
-    mesh.add( lineTo(D, normalize(C-D), size) );
-    mesh.add( lineTo(D, normalize(I-D), size) );
+    mesh.add( lineToMesh(D, normalize(A-D), size) );
+    mesh.add( lineToMesh(D, normalize(C-D), size) );
+    mesh.add( lineToMesh(D, normalize(I-D), size) );
 
-    mesh.add( lineTo(F, normalize(G-F), size) );
-    mesh.add( lineTo(F, normalize(A-F), size) );
-    mesh.add( lineTo(F, normalize(I-F), size) );
+    mesh.add( lineToMesh(F, normalize(G-F), size) );
+    mesh.add( lineToMesh(F, normalize(A-F), size) );
+    mesh.add( lineToMesh(F, normalize(I-F), size) );
 
-    mesh.add( lineTo(G, normalize(H-G), size) );
-    mesh.add( lineTo(G, normalize(F-G), size) );
-    mesh.add( lineTo(G, normalize(B-G), size) );
+    mesh.add( lineToMesh(G, normalize(H-G), size) );
+    mesh.add( lineToMesh(G, normalize(F-G), size) );
+    mesh.add( lineToMesh(G, normalize(B-G), size) );
 
-    mesh.add( lineTo(H, normalize(I-H), size) );
-    mesh.add( lineTo(H, normalize(G-H), size) );
-    mesh.add( lineTo(H, normalize(C-H), size) );
+    mesh.add( lineToMesh(H, normalize(I-H), size) );
+    mesh.add( lineToMesh(H, normalize(G-H), size) );
+    mesh.add( lineToMesh(H, normalize(C-H), size) );
 
-    mesh.add( lineTo(I, normalize(F-I), size) );
-    mesh.add( lineTo(I, normalize(H-I), size) );
-    mesh.add( lineTo(I, normalize(D-I), size) );
+    mesh.add( lineToMesh(I, normalize(F-I), size) );
+    mesh.add( lineToMesh(I, normalize(H-I), size) );
+    mesh.add( lineToMesh(I, normalize(D-I), size) );
 
     return mesh;
 }
 
-Mesh cubeCorners(const std::vector<glm::vec3> &_pts, float _size) {
+Mesh cubeCornersMesh(const std::vector<glm::vec3> &_pts, float _size) {
     glm::vec3 min_v;
     glm::vec3 max_v;
     getBoundingBox( _pts, min_v, max_v);
-    return cubeCorners(min_v, max_v, _size);
+    return cubeCornersMesh(min_v, max_v, _size);
 }
 
-Mesh axis(float _size, float _y) {
+Mesh axisMesh(float _size, float _y) {
     Mesh mesh;
     mesh.setDrawMode(GL_LINES);
 
-    mesh.add( line(glm::vec3(_size,_y,0.0), glm::vec3(-_size,_y,0.0)));
-    mesh.add( line(glm::vec3(0.0, _size, 0.0), glm::vec3(0.0, -_size, 0.0)));
-    mesh.add( line(glm::vec3(0.0, _y, _size), glm::vec3(0.0, _y, -_size)));
+    mesh.add( lineMesh(glm::vec3(_size,_y,0.0), glm::vec3(-_size,_y,0.0)));
+    mesh.add( lineMesh(glm::vec3(0.0, _size, 0.0), glm::vec3(0.0, -_size, 0.0)));
+    mesh.add( lineMesh(glm::vec3(0.0, _y, _size), glm::vec3(0.0, _y, -_size)));
 
     return mesh;
 }
 
-Mesh grid (float _width, float _height, int _columns, int _rows, float _y) {
+Mesh gridMesh(float _width, float _height, int _columns, int _rows, float _y) {
     Mesh mesh;
     mesh.setDrawMode(GL_LINES);
 
@@ -266,7 +266,7 @@ Mesh grid (float _width, float _height, int _columns, int _rows, float _y) {
         glm::vec3 left = glm::mix(A, B, glm::vec3(0.0, _y, pct));
         glm::vec3 right = glm::mix(A, B, glm::vec3(1.0, _y, pct));
 
-        mesh.add( line(left, right) );
+        mesh.add( lineMesh(left, right) );
     }
 
     for(int ix = 0; ix != _columns; ix++) {
@@ -275,17 +275,17 @@ Mesh grid (float _width, float _height, int _columns, int _rows, float _y) {
         glm::vec3 top = glm::mix(A, B, glm::vec3(pct, _y, 0.0));
         glm::vec3 down = glm::mix(A, B, glm::vec3(pct, _y, 1.0));
 
-        mesh.add( line(top, down) );
+        mesh.add( lineMesh(top, down) );
     }
 
     return mesh;
 }
 
-Mesh grid(float _size, int _segments, float _y) {
-    return grid(_size, _size, _segments, _segments, _y);
+Mesh gridMesh(float _size, int _segments, float _y) {
+    return gridMesh(_size, _size, _segments, _segments, _y);
 }
 
-Mesh floor(float _area, int _subD, float _y) {
+Mesh floorMesh(float _area, int _subD, float _y) {
 
     int N = pow(2,_subD);
 
@@ -323,7 +323,7 @@ Mesh floor(float _area, int _subD, float _y) {
     return mesh;
 }
 
-Mesh sphere(int _resolution, float _radius ) {
+Mesh sphereMesh(int _resolution, float _radius ) {
     Mesh mesh;
 
     float doubleRes = _resolution*2.f;
@@ -392,7 +392,7 @@ Mesh sphere(int _resolution, float _radius ) {
 }
 
 
-Mesh sphereHalf(int _resolution, float _radius ) {
+Mesh sphereHalfMesh(int _resolution, float _radius ) {
     Mesh mesh;
 
     float halfRes = _resolution*.5f;

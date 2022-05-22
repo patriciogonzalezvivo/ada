@@ -15,27 +15,27 @@ void expandBoundingBox(const glm::vec3& _pt, glm::vec3& _min, glm::vec3& _max);
 
 void calcNormal(const glm::vec3& _v0, const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3& _N);
 
-Mesh line(const glm::vec3 &_a, const glm::vec3 &_b);
+Mesh lineMesh(const glm::vec3 &_a, const glm::vec3 &_b);
 
-Mesh lineTo(const glm::vec3 &_a, const glm::vec3 &_dir, float _size);
+Mesh lineToMesh(const glm::vec3 &_a, const glm::vec3 &_dir, float _size);
 
-Mesh cross(const glm::vec3 &_pos, float _width);
+Mesh crossMesh(const glm::vec3 &_pos, float _width);
 
-Mesh rect(float _x, float _y, float _w, float _h);
+Mesh rectMesh(float _x, float _y, float _w, float _h);
 
-Mesh axis(float _size, float _y = 0.0);
+Mesh axisMesh(float _size, float _y = 0.0);
 
-Mesh grid(float _size, int _segments, float _y = 0.0);
-Mesh grid(float _width, float _height, int _columns, int _rows, float _y = 0.0);
+Mesh gridMesh(float _size, int _segments, float _y = 0.0);
+Mesh gridMesh(float _width, float _height, int _columns, int _rows, float _y = 0.0);
 
-Mesh floor(float _area, int _subD, float _y = 0.0);
+Mesh floorMesh(float _area, int _subD, float _y = 0.0);
 
-Mesh cube(float _size = 1.0f);
-Mesh cubeCorners(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size);
-Mesh cubeCorners(const std::vector<glm::vec3> &_pts, float _size = 1.0);
+Mesh cubeMesh(float _size = 1.0f);
+Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size);
+Mesh cubeCornersMesh(const std::vector<glm::vec3> &_pts, float _size = 1.0);
 
-Mesh sphere(int _resolution = 24, float _radius = 1.0f);
+Mesh sphereMesh(int _resolution = 24, float _radius = 1.0f);
 
-Mesh sphereHalf(int _resolution = 24, float _radius = 1.0f);
+Mesh sphereHalfMesh(int _resolution = 24, float _radius = 1.0f);
 
 }

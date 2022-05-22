@@ -55,7 +55,7 @@ bool Model::loadGeom(Mesh& _mesh) {
 
     getBoundingBox( _mesh.getVertices(), m_bbmin, m_bbmax);
     m_area = glm::min(glm::length(m_bbmin), glm::length(m_bbmax));
-    m_bbox_vbo = cubeCorners( m_bbmin, m_bbmax, 0.25 ).getVbo();
+    m_bbox_vbo = cubeCornersMesh( m_bbmin, m_bbmax, 0.25 ).getVbo();
 
     // Setup Shader and GEOMETRY DEFINE FLAGS
     if (_mesh.hasColors())
