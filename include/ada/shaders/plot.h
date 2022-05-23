@@ -287,7 +287,6 @@ void main() {
     color.r = step(st.y, data.r);
     color.g = step(st.y, data.g);
     color.b = step(st.y, data.b);
-    // color += stroke(data.a, st.y, 0.1);
 
     #ifdef PLOT_VALUE
     vec4 value = texture2D(PLOT_DATA_TEXTURE, vec2(1.0-PLOT_DATA_PIXEL*0.5, 0.5));
