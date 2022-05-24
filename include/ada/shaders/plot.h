@@ -458,7 +458,12 @@ void main() {
     color.r = step(st.y, data.r);
     color.g = step(st.y, data.g);
     color.b = step(st.y, data.b);
-    // color += stroke(data.a, st.y, 0.1);
+
+    #ifdef PLOT_VALUE
+    vec4 value = texture(PLOT_DATA_TEXTURE, vec2(1.0-PLOT_DATA_PIXEL*0.5, 0.5));
+    vec2 uv = ratio(st, u_viewport);
+    PLOT_VALUE
+    #endif
 
     fragColor = color;
 }
