@@ -76,4 +76,28 @@ inline int roundTo(int num, int factor) {
     return num + factor - 1 - (num + factor - 1) % factor;
 }
 
+inline float remap(const float& _value, const float& _inputMin, const float& _inputMax, const float& _outputMin, const float& _outputMax, bool _clamp) {
+    if (fabs(_inputMin - _inputMax) < std::numeric_limits<float>::epsilon()) { return _outputMin; } else {
+        float outVal = ((_value - _inputMin) / (_inputMax - _inputMin) * (_outputMax - _outputMin) + _outputMin);
+
+        if (_clamp) {
+            if (_outputMax < _outputMin) {
+                if (outVal < _outputMax) {
+                    outVal = _outputMax;
+                } else if (outVal > _outputMin) {
+                    outVal = _outputMin;
+                }
+            } else {
+                if (outVal > _outputMax) {
+                    outVal = _outputMax;
+                } else if (outVal < _outputMin) {
+                    outVal = _outputMin;
+                }
+            }
+        }
+        return outVal;
+    }
+}
+
+
 }
