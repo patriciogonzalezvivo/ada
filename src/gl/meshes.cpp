@@ -756,7 +756,7 @@ Mesh sphereHalfMesh(int _resolution, float _radius ) {
 }
 
 
-Mesh icosphere(float _radius, size_t _iterations) {
+Mesh icosphereMesh(float _radius, size_t _iterations) {
 
     /// Step 1 : Generate icosahedron
     const float sqrt5 = sqrt(5.0f);

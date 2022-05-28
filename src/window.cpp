@@ -687,9 +687,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         });
 
         // callback when a mouse button is pressed or released
-        #ifdef EVENTS_AS_CALLBACKS
-        if (onMouseClick || onMouseDrag || onMouseMove)
-        #endif 
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
             if (button == GLFW_MOUSE_BUTTON_1) {
                 // update mouse4 when left mouse button is pressed or released
@@ -734,9 +731,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             mouse.entered = (bool)entered;
         });
 
-        #ifdef EVENTS_AS_CALLBACKS
-        if (onMouseClick || onMouseDrag || onMouseMove)
-        #endif 
         // callback when the mouse cursor moves
         glfwSetCursorPosCallback(window, [](GLFWwindow* _window, double x, double y) {
             // Convert x,y to pixel coordinates relative to viewport.

@@ -1,5 +1,7 @@
 #include "ada/app.h"
 
+#include <iostream>
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 // #define GLFW_INCLUDE_ES3
@@ -9,17 +11,71 @@
 namespace ada {
 
 void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
-    ada::initGL(_viewport, _properties);
+    initGL(_viewport, _properties);
+
+    width = getWindowWidth();
+    height = getWindowHeight();
+    deltaTime = getDelta();
+    time = getTime();
+    frameCount = 0;
+
+    mouseX = 0.0f;
+    mouseY = 0.0f;
+    movedX = 0.0f;
+    movedY = 0.0f;
+    pmouseX = 0.0f;
+    pmouseY = 0.0f;
 
     setup();
 
 #ifdef EVENTS_AS_CALLBACKS
-    ada::setViewportResizeCallback( [&](int _width, int _height) { onViewportResize(_width, _height); } );
-    ada::setKeyPressCallback( [&](int _key) { onKeyPress(_key); } );
-    ada::setMouseMoveCallback( [&](float _x, float _y) { onMouseMove(_x, _y); } );
-    ada::setMouseClickCallback( [&](float _x, float _y, int _button) { onMouseClick(_x, _y, _button); } );
-    ada::setMouseDragCallback( [&](float _x, float _y, int _button) { onMouseDrag(_x, _y, _button); } );
-    ada::setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
+    setViewportResizeCallback( [&](int _width, int _height) { 
+        onViewportResize(_width, _height); 
+        windowResized();
+    } );
+    
+    setKeyPressCallback( [&](int _key) { 
+        onKeyPress(_key); 
+        keyPressed();
+    } );
+
+    setMouseMoveCallback( [&](float _x, float _y) { 
+        mouseX = _x;
+        mouseY = _y;
+        
+        movedX = getMouseVelX();
+        movedY = getMouseVelY();
+
+        pmouseX = _x - movedX;
+        pmouseY = _y - movedY;
+
+        onMouseMove(_x, _y); 
+        mouseMoved();
+    } );
+    
+    setMouseClickCallback( [&](float _x, float _y, int _button) { 
+        mouseButton = _button;
+        mouseClick();
+        onMouseClick(_x, _y, _button); 
+    } );
+
+    setMouseDragCallback( [&](float _x, float _y, int _button) { 
+        mouseButton = _button;
+
+        mouseX = _x;
+        mouseY = _y;
+        
+        movedX = getMouseVelX();
+        movedY = getMouseVelY();
+
+        pmouseX = _x - movedX;
+        pmouseY = _y - movedY;
+
+        onMouseDrag(_x, _y, _button); 
+        mouseDragged();
+    } );
+
+    setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
 #endif
 
 #ifdef __EMSCRIPTEN__
@@ -28,15 +84,15 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
     double width,  height;
     emscripten_get_element_css_size("#canvas", &width, &height);
-    ada::setWindowSize(width, height);
+    setWindowSize(width, height);
     
 #else
     
     // Render Loop
-    while ( ada::isGL() )
+    while ( isGL() )
         loop();
 
-    ada::closeGL();
+    closeGL();
         close();
 
 #endif
@@ -50,12 +106,18 @@ EM_BOOL App::loop (double time, void* userData) {
 void App::loop() {
 #endif
 
+    width = getWindowWidth();
+    height = getWindowHeight();
+    deltaTime = getDelta();
+    time = getTime();
+    frameCount++;
+
     // Update
     update();
-    ada::updateGL();
+    updateGL();
 
     draw();
-    ada::renderGL();
+    renderGL();
 
     #if defined(__EMSCRIPTEN__)
     return true;

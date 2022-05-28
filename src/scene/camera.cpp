@@ -1,6 +1,6 @@
 #include "ada/scene/camera.h"
 
-// #include "../window.h"
+#include "ada/window.h"
 
 #include "glm/gtc/matrix_inverse.hpp"
 
@@ -18,6 +18,7 @@ Camera::Camera():
     m_aspect(4.0f/3.0f), m_fov(45.), m_nearClip(0.01f), m_farClip(1000.0f), 
     m_exposure(2.60417e-05), m_ev100(14.9658), m_aperture(16), m_shutterSpeed(1.0f/125.0f), m_sensitivity(100.0f), 
     m_type(Projection::PERSPECTIVE) {
+
     updateCameraSettings();
 }
 
