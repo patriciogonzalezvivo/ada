@@ -198,7 +198,7 @@ void pointShape( PointShape _shape) { points_shape = _shape; }
 void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
         if (points_shader == nullptr) {
-            points_shader = ShaderPtr();
+            points_shader = std::make_shared<Shader>();
             points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
         }
 
@@ -227,7 +227,7 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
 void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
     if (_program == nullptr) {
         if (points_shader == nullptr) {
-            points_shader = ShaderPtr();
+            points_shader = std::make_shared<Shader>();
             points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
         }
 
@@ -272,7 +272,7 @@ void line(const glm::vec2& _a, const glm::vec2& _b, Shader* _program) {
 void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
         if (shaderPtr == nullptr) {
-            shaderPtr = ShaderPtr();
+            shaderPtr = std::make_shared<Shader>();
             shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
         }
 
@@ -301,7 +301,7 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
 
     if (_program == nullptr) {
         if (shaderPtr == nullptr) {
-            shaderPtr = ShaderPtr();
+            shaderPtr = std::make_shared<Shader>();
             shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
         }
 
@@ -323,7 +323,7 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
 
 void points(Vbo* _vbo) {
     if (points_shader == nullptr) {
-        points_shader = ShaderPtr();
+        points_shader = std::make_shared<Shader>();
         points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
     }
 
@@ -398,7 +398,7 @@ void text(const std::string& _text, float _x, float _y, Font* _font) {
 void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
         if (shaderPtr == nullptr) {
-            shaderPtr = ShaderPtr();
+            shaderPtr = std::make_shared<Shader>();
             shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
         }
 
@@ -450,7 +450,7 @@ void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
     if (_program == nullptr) {
         if (shaderPtr == nullptr) {
-            shaderPtr = ShaderPtr();
+            shaderPtr = std::make_shared<Shader>();
             shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
         }
         _program = shaderPtr.get();
