@@ -123,7 +123,8 @@ bool        isControlPressed();
 void    setViewportResizeCallback(std::function<void(int,int)>);
 void    setKeyPressCallback(std::function<void(int)>);
 void    setMouseMoveCallback(std::function<void(float, float)>);
-void    setMouseClickCallback(std::function<void(float, float, int)>);
+void    setMouseDownCallback(std::function<void(float, float, int)>);
+void    setMouseReleaseCallback(std::function<void(float, float, int)>);
 void    setMouseDragCallback(std::function<void(float, float, int)>);
 void    setScrollCallback(std::function<void(float)>);
 
@@ -131,7 +132,8 @@ void    setScrollCallback(std::function<void(float)>);
 void    onViewportResize(int _width, int _height);
 void    onKeyPress(int _key);
 void    onMouseMove(float _x, float _y);
-void    onMouseClick(float _x, float _y, int _button);
+void    onMouseDown(float _x, float _y, int _button);
+void    onMouseRelease(float _x, float _y, int _button);
 void    onMouseDrag(float _x, float _y, int _button);
 void    onScroll(float _yoffset);
 

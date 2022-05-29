@@ -20,6 +20,8 @@ public:
 
 };
 
+typedef std::shared_ptr<Material> MaterialPtr;
+typedef std::unique_ptr<Material> MaterialUnPtr;
 typedef std::map<std::string,Material> Materials;
 
 }

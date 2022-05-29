@@ -7,7 +7,6 @@
 // #define GLFW_INCLUDE_ES3
 #endif
 
-
 namespace ada {
 
 void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
@@ -49,14 +48,19 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         pmouseX = _x - movedX;
         pmouseY = _y - movedY;
 
+        mouseIsPressed = false;
+
         onMouseMove(_x, _y); 
         mouseMoved();
     } );
     
-    setMouseClickCallback( [&](float _x, float _y, int _button) { 
+    setMouseDownCallback( [&](float _x, float _y, int _button) { 
         mouseButton = _button;
-        mouseClick();
-        onMouseClick(_x, _y, _button); 
+        mouseIsPressed = true;
+
+        mousePressed();
+        mouseClicked();
+        onMouseDown(_x, _y, _button); 
     } );
 
     setMouseDragCallback( [&](float _x, float _y, int _button) { 
@@ -71,9 +75,19 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         pmouseX = _x - movedX;
         pmouseY = _y - movedY;
 
+        mouseIsPressed = true;
+
         onMouseDrag(_x, _y, _button); 
         mouseDragged();
     } );
+
+    setMouseReleaseCallback( [&](float _x, float _y, int _button) { 
+        mouseButton =_button;
+        mouseIsPressed = false;
+        mouseReleased();
+        onMouseRelease(_x, _y, _button);
+    } );
+
 
     setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
 #endif
@@ -97,6 +111,37 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
 #endif
 
+}
+
+void App::orbitControl() {
+    if (mouseIsPressed) {
+        CameraPtr camera = getCamera();
+
+        if (camera) {
+            camera->setViewport(width, height);
+            float dist = camera->getDistance();
+
+            if (mouseButton == 1) {
+
+                // Left-button drag is used to rotate geometry.
+                if (fabs(movedX) < 50.0 && fabs(movedY) < 50.0) {
+                    cameraLat -= movedX;
+                    cameraLon -= movedY * 0.5;
+                    camera->orbit(cameraLat, cameraLon, dist);
+                    camera->lookAt(glm::vec3(0.0));
+                }
+            } 
+            else {
+
+                // Right-button drag is used to zoom geometry.
+                dist += (-.008f * movedY);
+                if (dist > 0.0f) {
+                    camera->orbit(cameraLat, cameraLon, dist);
+                    camera->lookAt(glm::vec3(0.0));
+                }
+            }
+        }
+    }
 }
 
 

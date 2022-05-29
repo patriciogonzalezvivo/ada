@@ -67,7 +67,7 @@ std::string getAbsPath(const std::string& _path) {
     else return "";
 }
 
-std::string urlResolve(const std::string& _path, const std::string& _pwd, const List &_include_folders) {
+std::string urlResolve(const std::string& _path, const std::string& _pwd, const stringList &_include_folders) {
     std::string url = _pwd +'/'+ _path;
 
     // If the path is not in the same directory
@@ -98,7 +98,7 @@ bool extractDependency(const std::string &_line, std::string *_dependency) {
     return false;
 }
 
-bool alreadyInclude(const std::string &_path, List *_dependencies) {
+bool alreadyInclude(const std::string &_path, stringList *_dependencies) {
     for (unsigned int i = 0; i < _dependencies->size(); i++) {
         if ( _path == (*_dependencies)[i]) {
             return true;
@@ -109,11 +109,11 @@ bool alreadyInclude(const std::string &_path, List *_dependencies) {
 
 std::string loadGlslFrom(const std::string& _path) {
     const std::vector<std::string> folders;
-    List deps;
+    stringList deps;
     return loadGlslFrom(_path, folders, &deps);
 }
 
-std::string loadGlslFrom(const std::string &_path, const List& _include_folders, List *_dependencies) {
+std::string loadGlslFrom(const std::string &_path, const stringList& _include_folders, stringList *_dependencies) {
     std::string str = "";
     loadGlslFrom(_path, &str, _include_folders, _dependencies);
     return str;
@@ -121,13 +121,13 @@ std::string loadGlslFrom(const std::string &_path, const List& _include_folders,
 
 bool loadGlslFrom(const std::string &_path, std::string *_into) {
     const std::vector<std::string> folders;
-    List deps;
+    stringList deps;
 
     _into->clear();
     return loadGlslFrom(_path, _into, folders, &deps);
 }
 
-bool loadGlslFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, List *_dependencies) {
+bool loadGlslFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, stringList *_dependencies) {
     std::ifstream file;
     file.open(_path.c_str());
 

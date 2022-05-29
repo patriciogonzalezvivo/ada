@@ -4,7 +4,10 @@
 #define EVENTS_AS_CALLBACKS
 #endif
 
+#include "draw.h"
 #include "window.h"
+#include "scene/camera.h"
+
 #include <math.h>
 
 namespace ada {
@@ -28,13 +31,19 @@ public:
     virtual void mouseMoved() {}
     virtual void onMouseMove(float _x, float _y) {};
     
-    virtual void mouseClick() {};
-    virtual void onMouseClick(float _x, float _y, int _button) {};
+    virtual void mouseClicked() {};
+    virtual void mousePressed() {};
+    virtual void onMouseDown(float _x, float _y, int _button) {};
+
+    virtual void mouseReleased() {}
+    virtual void onMouseRelease(float _x, float _y, int _button) {};
 
     virtual void mouseDragged() {};
     virtual void onMouseDrag(float _x, float _y, int _button) {};
 
     virtual void onScroll(float _yoffset) {};
+
+    virtual void orbitControl();
 
     int     year()  const { return getDate().x; }
     int     month() const { return getDate().y; }
@@ -45,10 +54,15 @@ public:
     int     second()    const { return std::fmod( getDate().w, 60.0f ); }
     float   millis()    const { return getDate().w * 1000.0f; }
 
+
+    float   cameraLat = 180.0f;
+    float   cameraLon = 0.0f;
+
     float   mouseX, mouseY;
     float   movedX, movedY;
     float   pmouseX, pmouseY;
     int     mouseButton;
+    bool    mouseIsPressed;
 
     float   width, height;
     float   time, deltaTime;

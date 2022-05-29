@@ -1,5 +1,8 @@
 #pragma once
 
+#include <map>
+#include <memory>
+
 #include "node.h"
 #include "ada/gl/fbo.h"
 
@@ -16,6 +19,8 @@ public:
     Light(glm::vec3 _pos, float _falloff);
     Light(glm::vec3 _pos, glm::vec3 _dir, float _falloff = -1.0);
     virtual ~Light();
+
+    void                setType(LightType _type) { m_type = _type; }
 
     const LightType&    getType() const { return m_type; }
     glm::mat4           getMVPMatrix( const glm::mat4 &_model, float _area );
@@ -44,5 +49,11 @@ protected:
     
     GLint               m_viewport[4];
 };
+
+typedef std::shared_ptr<Light> LightPtr;
+typedef std::unique_ptr<Light> LightUnPtr;
+typedef std::shared_ptr<Light const> LightConstPtr;
+typedef std::map<std::string,Light> Lights;
+typedef std::map<std::string,LightPtr> LightPtrs;
 
 }

@@ -45,6 +45,13 @@ Shader::~Shader() {
         glDeleteProgram(m_program);
 }
 
+void Shader::operator = (const Shader &_parent ) {
+    m_fragmentSource = _parent.m_fragmentSource;
+    m_vertexSource = _parent.m_vertexSource;
+
+    m_defineChange = true;
+}
+
 bool Shader::load(const std::string& _fragmentSrc, const std::string& _vertexSrc, bool _verbose, bool _error_screen) {
     std::chrono::time_point<std::chrono::steady_clock> start_time, end_time;
     start_time = std::chrono::steady_clock::now();

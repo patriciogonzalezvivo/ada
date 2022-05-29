@@ -14,7 +14,6 @@ set(ADA_SOURCES
     fs.cpp 
     time.cpp
     string.cpp
-    list.cpp
     pixel.cpp 
     font.cpp
     geom/triangle.cpp 

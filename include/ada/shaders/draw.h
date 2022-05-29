@@ -146,59 +146,6 @@ void main(void) {
 }
 )";
 
-
-const std::string lines_vert = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-uniform mat4    u_modelViewProjectionMatrix;
-attribute vec4  a_position;
-
-void main(void) {
-    vec4 position = a_position;
-    gl_Position = u_modelViewProjectionMatrix * position;
-}
-)";
-
-const std::string lines_frag = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-uniform vec4 u_color;
-
-void main(void) {
-    gl_FragColor = u_color;
-}
-)";
-
-const std::string lines_vert_300 = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-uniform mat4    u_modelViewProjectionMatrix;
-in      vec4    a_position;
-
-void main(void) {
-    gl_Position = u_modelViewProjectionMatrix * a_position;
-}
-)";
-
-const std::string lines_frag_300 = R"(
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-uniform vec4    u_color;
-out     vec4    fragColor;
-
-void main(void) {
-    fragColor = u_color;
-}
-)";
-
 const std::string fill_vert = R"(
 #ifdef GL_ES
 precision mediump float;

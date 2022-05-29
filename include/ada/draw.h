@@ -122,7 +122,6 @@ void points(Vbo* _vbo);
 void line(float _x1, float _y1, float _z1, float _x2, float _y2, float _z2, Shader* _program = nullptr);
 void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program = nullptr);
 void line(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
-void line(Vbo* _vbo);
 
 void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
@@ -136,27 +135,14 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 // torus()
 // p5.Geometry
 
-// Interaction
-// orbitControl()
-// debugMode()
-// noDebugMode()
-
-// Lights
-// ambientLight()
-// specularColor()
-// directionalLight()
-// pointLight()
-// lights()
-// lightFalloff()
-// spotLight()
-// noLights()
-
 // Material
-// Shader& loadShader(std::string& _fragFile, std::string& _vertFile);
+Shader loadShader(std::string& _fragFile, std::string& _vertFile);
 Shader createShader(std::string& _fragSrc, std::string& _vertSrc);
 Shader createShader(DefaultShaders _frag, DefaultShaders _vert);
 void shader(Shader& _shader);
-// resetShader()
+void shader(Shader* _shader);
+void resetShader();
+
 // texture()
 // textureMode()
 // textureWrap()
@@ -175,8 +161,31 @@ void shader(Shader& _shader);
 // createCamera()
 // p5.Camera
 void setCamera(Camera &_camera);
+CameraPtr getCamera();
 
-// void addLight(Light& _light, std::string _name = "defaultLight");
+// Interaction
+// orbitControl()
+// debugMode()
+// noDebugMode()
 
+// Lights
+// ambientLight()
+// specularColor()
+// directionalLight()
+// pointLight()
+// lights()
+// lightFalloff()
+// spotLight()
+// noLights()
+
+void addLight(Light& _light, const std::string& _name = "default");
+void addLight(Light* _light, const std::string& _name = "default");
+
+// void loadModel( const std::string& _filename );
+void model(Vbo& _vbo, Shader* _program = nullptr);
+void model(Vbo* _vbo, Shader* _program = nullptr);
+
+// void model(Mesh& _mesh);
+// void model(Mesh* _mesh);
 
 };

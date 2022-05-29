@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #include "gl.h"
@@ -10,12 +11,19 @@
 
 #include "glm/glm.hpp"
 
+// tmp
+#include <iostream>
+
 namespace ada {
 
 class Shader : public HaveDefines {
 public:
     Shader();
+    // Shader(const Shader&) { std::cout << "copy-constructed\n"; }
+    // Shader(Shader&&) { std::cout << "move-constructed\n"; }
     virtual ~Shader();
+
+    void    operator = (const Shader &_parent );
 
     void    use();
     bool    load(const std::string& _fragmentSrc, const std::string& _vertexSrc, bool _verbose = false, bool _error_screen = true);
@@ -82,5 +90,8 @@ private:
     GLuint      m_fragmentShader;
     GLuint      m_vertexShader;
 };
+
+typedef std::shared_ptr<Shader> ShaderPtr;
+typedef std::unique_ptr<Shader> ShaderUnPtr;
 
 }
