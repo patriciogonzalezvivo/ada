@@ -4,9 +4,8 @@
 #include <string>
 #include "glm/glm.hpp"
 
-#include "../tools/fs.h"
-#include "../gl/shader.h"
-
+#include "ada/fs.h"
+#include "ada/gl/shader.h"
 
 namespace ada {
 

@@ -1,4 +1,6 @@
-#include "ada/tools/geom.h"
+#include "ada/geom/ops.h"
+
+
 
 #include <algorithm>
 #include <iostream>
@@ -32,32 +34,43 @@ glm::vec2 getCentroid(const std::vector<glm::vec2>& _points) {
     return centroid;
 }
 
-glm::vec4 getBoundingBox(const std::vector<glm::vec2> &_pts) {
-    glm::vec2 mmin = glm::vec2(10000.0, 10000.0);
-    glm::vec2 mmax = glm::vec2(-10000.0, -10000.0);
-    expandBoundingBox(_pts, mmin, mmax);
-    return glm::vec4(mmin.x, mmin.y, mmax.x, mmax.y);
+
+BoundingBox getBoundingBox(const Mesh& _mesh) {
+    return getBoundingBox(_mesh.getVertices());
 }
 
-void expandBoundingBox(const std::vector<glm::vec2> &_pts, glm::vec2 &_min, glm::vec2 &_max) {
-    for (unsigned int i = 0; i < _pts.size(); i++)
-        expandBoundingBox(_pts[i], _min, _max);
+BoundingBox getBoundingBox(const std::vector<glm::vec2>& _points ) {
+    BoundingBox bbox;
+    for (std::vector<glm::vec2>::const_iterator it = _points.begin(); it != _points.end(); ++it)
+        bbox.expand(*it);
+    return bbox;
 }
 
-void expandBoundingBox(const glm::vec2 &_pt, glm::vec2 &_min, glm::vec2 &_max) {
-    if ( _pt.x < _min.x)
-        _min.x = _pt.x;
-
-    if ( _pt.y < _min.y)
-        _min.y = _pt.y;
-
-    if ( _pt.x > _max.x)
-        _max.x = _pt.x;
-
-    if ( _pt.y > _max.y)
-        _max.y = _pt.y;
+BoundingBox getBoundingBox(const std::vector<glm::vec3>& _points ) {
+    BoundingBox bbox;
+    for (std::vector<glm::vec3>::const_iterator it = _points.begin(); it != _points.end(); ++it)
+        bbox.expand(*it);
+    return bbox;
 }
 
+BoundingBox getBoundingBox(const std::vector<Line>& _lines) {
+    BoundingBox bbox;
+    for (std::vector<Line>::const_iterator it = _lines.begin(); it != _lines.end(); ++it) {
+        bbox.expand(it->getPoint(0));
+        bbox.expand(it->getPoint(1));
+    }
+    return bbox;
+}
+
+BoundingBox getBoundingBox(const std::vector<Triangle>& _triangles) {
+    BoundingBox bbox;
+    for (std::vector<Triangle>::const_iterator it = _triangles.begin(); it != _triangles.end(); ++it) {
+        bbox.expand(it->getVertex(0));
+        bbox.expand(it->getVertex(1));
+        bbox.expand(it->getVertex(2));
+    }
+    return bbox;
+}
 
 glm::vec3 getCentroid(const std::vector<glm::vec3>& _points) {
     glm::vec3 centroid;
@@ -65,38 +78,6 @@ glm::vec3 getCentroid(const std::vector<glm::vec3>& _points) {
         centroid += _points[i] / (float)_points.size();
     }
     return centroid;
-}
-
-void getBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::vec3 &_max) {
-    _min = glm::vec3(10000.0, 10000.0, 10000.0);
-    _max = glm::vec3(-10000.0, -10000.0, -10000.0);
-
-    return expandBoundingBox(_pts, _min, _max);
-}
-
-void expandBoundingBox(const std::vector<glm::vec3> &_pts, glm::vec3 &_min, glm::vec3 &_max) {
-    for (unsigned int i = 0; i < _pts.size(); i++)
-        expandBoundingBox(_pts[i], _min, _max);
-}
-
-void expandBoundingBox(const glm::vec3 &_pt, glm::vec3 &_min, glm::vec3 &_max) {
-    if ( _pt.x < _min.x)
-        _min.x = _pt.x;
-
-    if ( _pt.y < _min.y)
-        _min.y = _pt.y;
-
-    if ( _pt.z < _min.z)
-        _min.z = _pt.z;
-
-    if ( _pt.x > _max.x)
-        _max.x = _pt.x;
-
-    if ( _pt.y > _max.y)
-        _max.y = _pt.y;
-
-    if ( _pt.z > _max.z)
-        _max.z = _pt.z;
 }
 
 void calcNormal(const glm::vec3& _v0, const glm::vec3& _v1, const glm::vec3& _v2, glm::vec3& _N) {
@@ -315,5 +296,130 @@ void simplify(std::vector<glm::vec2> &_pts, float _tolerance){
     else
         _pts = sV;
 }
+
+
+void transform(std::vector<glm::vec3>& _points, const glm::quat& _quat) {
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it = _quat * *it;
+}
+
+void transform(std::vector<glm::vec3>& _points, const glm::mat3& _mat) {
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it = _mat * (*it);
+}
+
+void transform(std::vector<glm::vec3>& _points, const glm::mat4& _mat) {
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it = glm::vec3(_mat * glm::vec4(*it, 0.0));
+}
+
+void scale(std::vector<glm::vec3>& _points, float _v){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it *= _v;
+}
+
+void scaleX(std::vector<glm::vec3>& _points, float _x){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->x *= _x;
+}
+
+void scaleY(std::vector<glm::vec3>& _points, float _y){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->y *= _y;
+}
+
+void scaleZ(std::vector<glm::vec3>& _points, float _z){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->z *= _z;
+}
+
+void scale(std::vector<glm::vec3>& _points, float _x, float _y, float _z){
+    scale(_points, glm::vec3(_x, _y, _z));
+}
+
+void scale(std::vector<glm::vec3>& _points, const glm::vec3& _v ){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it *= _v;
+}
+
+
+void translateX(std::vector<glm::vec3>& _points, float _x){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->x += _x;
+}
+
+void translateY(std::vector<glm::vec3>& _points, float _y){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->y += _y;
+}
+
+void translateZ(std::vector<glm::vec3>& _points, float _z){
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        it->z += _z;
+}
+
+void translate(std::vector<glm::vec3>& _points, float _x, float _y, float _z){
+    translate(_points, glm::vec3(_x, _y, _z));
+}
+
+void translate(std::vector<glm::vec3>& _points, const glm::vec3& _v) {
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it += _v;
+}
+
+void rotate(std::vector<glm::vec3>& _points, float _rad, const glm::vec3& _axis ) {
+    glm::quat q = glm::angleAxis(_rad, _axis);
+    glm::mat3 M = glm::mat3_cast(q);
+    for (std::vector<glm::vec3>::iterator it = _points.begin(); it != _points.end(); ++it)
+        *it = M * *it;
+}
+
+void rotate(std::vector<glm::vec3>& _points, float _rad, float _x, float _y, float _z ) {
+    rotate( _points, _rad, glm::vec3(_x, _y, _z));
+}
+
+void rotateX(std::vector<glm::vec3>& _points, float _rad){
+    rotate( _points, _rad, 1.0f, 0.0f, 0.0f);
+}
+
+void rotateY(std::vector<glm::vec3>& _points, float _rad){
+    rotate( _points, _rad, 0.0f, 1.0f, 0.0f);
+}
+
+void rotateZ(std::vector<glm::vec3>& _points, float _rad){
+    rotate( _points, _rad, 0.0f, 0.0f, 1.0f);
+}
+
+void center(std::vector<glm::vec3>& _points){
+    BoundingBox bbox = getBoundingBox(_points);
+    glm::vec3 center = bbox.getCenter();
+    translate(_points, -center);
+}
+
+void rotateX(Mesh& _mesh, float _rad) {
+    rotateX(_mesh.m_vertices, _rad);
+    if (_mesh.haveNormals()) rotateX(_mesh.m_normals, _rad);
+}
+
+void rotateY(Mesh& _mesh, float _rad) {
+    rotateY(_mesh.m_vertices, _rad);
+    if (_mesh.haveNormals()) rotateY(_mesh.m_normals, _rad);
+}
+
+void rotateZ(Mesh& _mesh, float _rad) {
+    rotateZ(_mesh.m_vertices, _rad);
+    if (_mesh.haveNormals()) rotateZ(_mesh.m_normals, _rad);
+}
+
+void rotate(Mesh& _mesh, float _rad, const glm::vec3& _axis ) {
+    rotate(_mesh.m_vertices, _rad, _axis);
+    if (_mesh.haveNormals()) rotate(_mesh.m_normals, _rad, _axis);
+}
+
+void rotate(Mesh& _mesh, float _rad, float _x, float _y, float _z ) {
+    rotate(_mesh.m_vertices, _rad, _x, _y, _z);
+    if (_mesh.haveNormals()) rotate(_mesh.m_normals, _rad, _x, _y, _z);
+}
+
 
 }

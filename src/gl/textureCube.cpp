@@ -3,9 +3,9 @@
 
 #include "ada/gl/textureCube.h"
 
-#include "ada/tools/fs.h"
-#include "ada/tools/pixels.h"
-#include "ada/tools/math.h"
+#include "ada/fs.h"
+#include "ada/math.h"
+#include "ada/pixel.h"
 
 namespace ada {
 

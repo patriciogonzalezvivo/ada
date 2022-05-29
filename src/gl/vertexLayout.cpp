@@ -1,5 +1,5 @@
 #include "ada/gl/vertexLayout.h"
-#include "ada/tools/text.h"
+#include "ada/string.h"
 
 namespace ada {
 

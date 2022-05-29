@@ -1,7 +1,9 @@
-#include "ada/gl/draw.h"
+#include "ada/draw.h"
+#include "ada/fs.h"
+#include "ada/font.h"
+#include "ada/string.h"
 #include "ada/window.h"
-#include "ada/tools/text.h"
-#include "ada/tools/font.h"
+
 #include "ada/shaders/defaultShaders.h"
 
 #include "glm/gtc/matrix_transform.hpp"
@@ -26,8 +28,7 @@ ada::Font*  font;
 glm::mat4   matrix          = glm::mat4(1.0f);
 std::stack<glm::mat4> matrix_stack;
 
-glm::mat4   cameraMatrix    = glm::mat4(1.0f);
-bool        cameraUse       = false;
+Camera*     cameraPtr       = nullptr;
 
 void resetMatrix() { matrix = glm::mat4(1.0f); }
 
@@ -54,9 +55,58 @@ void pop() {
     matrix_stack.pop();
 }
 
-void camera(bool _useMatrix) { cameraUse = _useMatrix; };
-void setCameraMatrix( const glm::mat4& _mat ) { cameraMatrix = _mat; }
-const glm::mat4& getCameraMatrix() { return cameraMatrix; }
+void setCamera(Camera &_camera) { 
+    cameraPtr = &_camera; 
+    glEnable(GL_DEPTH_TEST);
+};
+
+glm::mat4 getMatrix() { 
+    if (cameraPtr)
+        return cameraPtr->getProjectionViewMatrix() * matrix; 
+    else
+        return getOrthoMatrix() * matrix;
+}
+
+Shader loadShader(std::string& _fragFile, std::string& _vertFile) {
+    Shader s;
+    s.load(loadGlslFrom(_fragFile), loadGlslFrom(_vertFile));
+    return s;
+}
+
+Shader createShader(std::string& _fragSrc, std::string& _vertSrc) {
+    Shader s;
+    s.load(_fragSrc, _vertSrc);
+    return s;
+}
+
+Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
+    Shader s;
+    s.load(getDefaultSrc(_frag), getDefaultSrc(_vert));
+    return s;
+}
+
+void shader(Shader& _shader) {
+    _shader.use();
+
+    if (cameraPtr) {
+        _shader.setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
+        _shader.setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
+        _shader.setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
+
+        _shader.setUniform("u_camera", -cameraPtr->getPosition() );
+        _shader.setUniform("u_cameraDistance", cameraPtr->getDistance());
+        _shader.setUniform("u_cameraNearClip", cameraPtr->getNearClip());
+        _shader.setUniform("u_cameraFarClip", cameraPtr->getFarClip());
+        _shader.setUniform("u_cameraEv100", cameraPtr->getEv100());
+        _shader.setUniform("u_cameraExposure", cameraPtr->getExposure());
+        _shader.setUniform("u_cameraAperture", cameraPtr->getAperture());
+        _shader.setUniform("u_cameraShutterSpeed", cameraPtr->getShutterSpeed());
+        _shader.setUniform("u_cameraSensitivity", cameraPtr->getSensitivity());
+        _shader.setUniform("u_cameraChange", cameraPtr->bChange);
+        _shader.setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
+    }
+    
+}
 
 void clear() { clear( glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) ); }
 void clear( float _brightness ) { clear( glm::vec4(_brightness, _brightness, _brightness, 1.0f) ); }
@@ -101,10 +151,7 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        if (cameraUse)
-            points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-        else 
-            points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
         _program = points_shader;
     }
 
@@ -133,10 +180,8 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        if (cameraUse)
-            points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-        else
-            points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+
         _program = points_shader;
     }
 
@@ -178,10 +223,8 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         stroke_shader->use();
         stroke_shader->setUniform("u_color", stroke_color);
-        if (cameraUse)
-            stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-        else
-            stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+        stroke_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+
         _program = stroke_shader;
     }
 
@@ -209,10 +252,7 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
 
         stroke_shader->use();
         stroke_shader->setUniform("u_color", stroke_color);
-        if (cameraUse)
-            stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-        else 
-            stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+        stroke_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
         _program = stroke_shader;
     }
 
@@ -233,10 +273,8 @@ void line(Vbo* _vbo) {
 
     stroke_shader->use();
     stroke_shader->setUniform("u_color", stroke_color);
-    if (cameraUse)
-        stroke_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-    else
-        stroke_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+    stroke_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+
     _vbo->render( stroke_shader );
 }
 
@@ -250,10 +288,7 @@ void points(Vbo* _vbo) {
     points_shader->setUniform("u_size", points_size);
     points_shader->setUniform("u_shape", points_shape);
     points_shader->setUniform("u_color", fill_color);
-    if (cameraUse)
-        points_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-    else
-        points_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+    points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     glEnable(GL_POINT_SPRITE);
@@ -326,10 +361,7 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         fill_shader->use();
         fill_shader->setUniform("u_color", fill_color);
-        if (cameraUse)
-            fill_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-        else
-            fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
         _program = fill_shader;
     }
 
@@ -350,10 +382,8 @@ void triangles(Vbo* _vbo) {
 
     fill_shader->use();
     fill_shader->setUniform("u_color", fill_color);
-    if (cameraUse)
-        fill_shader->setUniform("u_modelViewProjectionMatrix", cameraMatrix * matrix );
-    else
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix );
+    fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+    
     _vbo->render(fill_shader);
 }
 

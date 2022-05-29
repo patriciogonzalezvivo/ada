@@ -1,5 +1,5 @@
 #include "ada/window.h"
-#include "ada/tools/pixels.h"
+#include "ada/pixel.h"
 #include "ada/gl/textureProps.h"
 
 namespace ada {

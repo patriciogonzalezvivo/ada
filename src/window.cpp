@@ -13,9 +13,9 @@
     #include <sys/time.h>
 #endif 
 
-#include "ada/tools/fs.h"
-#include "ada/tools/text.h"
-#include "ada/tools/time.h"
+#include "ada/fs.h"
+#include "ada/time.h"
+#include "ada/string.h"
 #include "glm/gtc/matrix_transform.hpp"
 
 // Common global variables
@@ -1105,8 +1105,8 @@ float getPixelDensity() {
 #endif
 }
 
-glm::ivec4  getViewport() { return viewport; }
-glm::mat4   getOrthoMatrix() { return orthoMatrix; }
+const glm::ivec4& getViewport() { return viewport; }
+const glm::mat4& getOrthoMatrix() { return orthoMatrix; }
 int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
 int         getWindowMSAA() { return properties.msaa; }

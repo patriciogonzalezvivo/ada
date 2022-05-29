@@ -1,8 +1,8 @@
 #include "ada/gl/textureStreamSequence.h"
 
 #include "ada/window.h"
-#include "ada/tools/fs.h"
-#include "ada/tools/pixels.h"
+#include "ada/fs.h"
+#include "ada/pixel.h"
 
 namespace ada {
 

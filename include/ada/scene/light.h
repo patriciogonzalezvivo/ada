@@ -1,7 +1,7 @@
 #pragma once
 
 #include "node.h"
-#include "../gl/fbo.h"
+#include "ada/gl/fbo.h"
 
 namespace ada {
 

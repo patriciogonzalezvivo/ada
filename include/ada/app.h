@@ -36,15 +36,14 @@ public:
 
     virtual void onScroll(float _yoffset) {};
 
-    int year()  const { return getDate().x; }
-    int month() const { return getDate().y; }
-    int day()   const { return getDate().z; }
-
-    int hour()      const { return std::fmod( getDate().w * 0.000277778f, 24.0f); }
-    int minute()    const { return std::fmod( getDate().w * 0.0166667f, 60.0f); }
-    int second()    const { return std::fmod( getDate().w, 60.0f ); }
-
-    float millis()  const { return getDate().w * 1000.0f; }
+    int     year()  const { return getDate().x; }
+    int     month() const { return getDate().y; }
+    int     day()   const { return getDate().z; }
+    
+    int     hour()      const { return std::fmod( getDate().w * 0.000277778f, 24.0f); }
+    int     minute()    const { return std::fmod( getDate().w * 0.0166667f, 60.0f); }
+    int     second()    const { return std::fmod( getDate().w, 60.0f ); }
+    float   millis()    const { return getDate().w * 1000.0f; }
 
     float   mouseX, mouseY;
     float   movedX, movedY;

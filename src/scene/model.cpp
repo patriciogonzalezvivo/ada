@@ -1,21 +1,21 @@
 #include "ada/scene/model.h"
 
-#include "ada/gl/meshes.h"
-#include "ada/tools/text.h"
-#include "ada/tools/geom.h"
+#include "ada/geom/meshes.h"
+#include "ada/geom/ops.h"
+
+#include "ada/string.h"
 
 namespace ada {
 
 Model::Model():
-    m_model_vbo(nullptr), m_bbox_vbo(nullptr), 
-    m_bbmin(100000.0), m_bbmax(-1000000.),
+    m_model_vbo(nullptr), m_bbox_vbo(nullptr),
     m_name(""), m_area(0.0f) {
 
     addDefine("LIGHT_SHADOWMAP", "u_lightShadowMap");
     addDefine("LIGHT_SHADOWMAP_SIZE", "1024.0");
 }
 
-Model::Model(const std::string& _name, Mesh &_mesh, const Material &_mat):
+Model::Model(const std::string& _name, const Mesh &_mesh, const Material &_mat):
     m_model_vbo(nullptr), m_bbox_vbo(nullptr), 
     m_area(0.0f) {
     setName(_name);
@@ -50,25 +50,28 @@ void Model::printVboInfo() {
         m_model_vbo->printInfo();
 }
 
-bool Model::loadGeom(Mesh& _mesh) {
+bool Model::loadGeom(const Mesh& _mesh) {
     // Load Geometry VBO
-    m_model_vbo = _mesh.getVbo();
+    m_model_vbo = new Vbo(_mesh);
 
-    getBoundingBox( _mesh.getVertices(), m_bbmin, m_bbmax);
-    m_area = glm::min(glm::length(m_bbmin), glm::length(m_bbmax));
-    m_bbox_vbo = cubeCornersMesh( m_bbmin, m_bbmax, 0.25 ).getVbo();
+    m_bbox.clean();
+    for (size_t i = 0; i < _mesh.getVerticesTotal(); i++)
+        m_bbox.expand( _mesh.getVertex(i) );
+
+    m_area = glm::min(glm::length(m_bbox.min), glm::length(m_bbox.max));
+    m_bbox_vbo = new Vbo( cubeCornersMesh( m_bbox, 0.25 ) );
 
     // Setup Shader and GEOMETRY DEFINE FLAGS
-    if (_mesh.hasColors())
+    if (_mesh.haveColors())
         addDefine("MODEL_VERTEX_COLOR", "v_color");
 
-    if (_mesh.hasNormals())
+    if (_mesh.haveNormals())
         addDefine("MODEL_VERTEX_NORMAL", "v_normal");
 
-    if (_mesh.hasTexCoords())
+    if (_mesh.haveTexCoords())
         addDefine("MODEL_VERTEX_TEXCOORD", "v_texcoord");
 
-    if (_mesh.hasTangents())
+    if (_mesh.haveTangents())
         addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
 
     if (_mesh.getDrawMode() == GL_POINTS)

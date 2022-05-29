@@ -2,24 +2,24 @@
 
 #include <vector>
 
-#include "../gl/vbo.h"
-#include "../gl/mesh.h"
-#include "../gl/shader.h"
 #include "node.h"
-
 #include "material.h"
 
-// #include "../uniforms.h"
+#include "ada/gl/vbo.h"
+#include "ada/gl/shader.h"
+
+#include "ada/geom/mesh.h"
+#include "ada/geom/boundingBox.h"
 
 namespace ada {
 
 class Model : public Node {
 public:
     Model();
-    Model(const std::string& _name, Mesh& _mesh, const Material& _mat);
+    Model(const std::string& _name, const Mesh& _mesh, const Material& _mat);
     virtual ~Model();
 
-    bool        loadGeom(Mesh& _mesh);
+    bool        loadGeom(const Mesh& _mesh);
     bool        loadShader(const std::string& _fragStr, const std::string& _vertStr, bool verbose);
     bool        loadMaterial(const Material& _material);
 
@@ -35,8 +35,7 @@ public:
     void        printVboInfo();
 
     float       getArea() const { return m_area; }
-    glm::vec3   getMinBoundingBox() const { return m_bbmin; }
-    glm::vec3   getMaxBoundingBox() const { return m_bbmax; }
+    BoundingBox getBoundingBox() const { return m_bbox; }
 
     Shader*     getShader() { return &m_shader; }
     
@@ -53,8 +52,7 @@ protected:
     Vbo*        m_model_vbo;
     Vbo*        m_bbox_vbo;
 
-    glm::vec3   m_bbmin;
-    glm::vec3   m_bbmax;
+    BoundingBox m_bbox;
 
     std::string m_name;
     float       m_area;

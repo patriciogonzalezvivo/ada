@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include "ada/window.h"
+#include "ada/string.h"
 #include "ada/gl/shader.h"
-#include "ada/tools/text.h"
 #include "ada/shaders/defaultShaders.h"
 
 #include "glm/gtc/type_ptr.hpp"

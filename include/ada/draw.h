@@ -2,9 +2,17 @@
 
 #include <vector>
 
-#include "shader.h"
-#include "vbo.h"
-#include "ada/tools/font.h"
+#include "ada/gl/vbo.h"
+
+#include "ada/gl/shader.h"
+#include "ada/shaders/defaultShaders.h"
+
+#include "ada/scene/camera.h"
+#include "ada/scene/light.h"
+
+#include "ada/geom/mesh.h"
+
+#include "ada/font.h"
 
 namespace ada {
 
@@ -36,10 +44,6 @@ void fill( const glm::vec3& _color );
 void fill( const glm::vec4& _color );
 void noFill();
 
-void camera(bool _useMatrix);
-void setCameraMatrix( const glm::mat4& _mat );
-const glm::mat4& getCameraMatrix();
-
 void stroke( float _brightness );
 void stroke( float _red, float _green, float _blue);
 void stroke( float _red, float _green, float _blue, float _alpha);
@@ -51,6 +55,7 @@ void strokeWeight(float _weight);
 void resetMatrix();
 void applyMatrix(const glm::mat3& _mat );
 void applyMatrix(const glm::mat4& _mat );
+glm::mat4 getMatrix();
 
 void rotate(float _rad);
 void rotateX(float _rad);
@@ -121,5 +126,57 @@ void line(Vbo* _vbo);
 
 void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
+
+// plane()
+// box()
+// sphere()
+// cylinder()
+// cone()
+// ellipsoid()
+// torus()
+// p5.Geometry
+
+// Interaction
+// orbitControl()
+// debugMode()
+// noDebugMode()
+
+// Lights
+// ambientLight()
+// specularColor()
+// directionalLight()
+// pointLight()
+// lights()
+// lightFalloff()
+// spotLight()
+// noLights()
+
+// Material
+// Shader& loadShader(std::string& _fragFile, std::string& _vertFile);
+Shader createShader(std::string& _fragSrc, std::string& _vertSrc);
+Shader createShader(DefaultShaders _frag, DefaultShaders _vert);
+void shader(Shader& _shader);
+// resetShader()
+// texture()
+// textureMode()
+// textureWrap()
+// normalMaterial()
+// ambientMaterial()
+// emissiveMaterial()
+// specularMaterial()
+// shininess()
+// p5.Shader
+
+// Camera
+// camera()
+// perspective()
+// ortho()
+// frustum()
+// createCamera()
+// p5.Camera
+void setCamera(Camera &_camera);
+
+// void addLight(Light& _light, std::string _name = "defaultLight");
+
 
 };

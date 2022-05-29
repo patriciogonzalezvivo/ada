@@ -1,8 +1,8 @@
-#include "ada/tools/env.h"
+#include "ada/scene/sky.h"
 
 #include "ada/gl/fbo.h"
-#include "ada/tools/math.h"
-#include "ada/tools/pixels.h"
+#include "ada/math.h"
+#include "ada/pixel.h"
 
 #include <math.h>
 

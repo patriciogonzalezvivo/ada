@@ -1,7 +1,7 @@
-#include "ada/gl/meshes.h"
+#include "ada/geom/meshes.h"
+#include "ada/geom/ops.h"
 
-#include "ada/tools/math.h"
-#include "ada/tools/geom.h"
+#include "ada/math.h"
 
 #include <iostream>
 
@@ -25,7 +25,7 @@ Mesh lineMesh(const glm::vec3 &_a, const glm::vec3 &_b) {
 
     Mesh mesh;
     mesh.addVertices(linePoints,2);
-    mesh.setDrawMode(GL_LINES);
+    mesh.setDrawMode(LINES);
     return mesh;
 };
 
@@ -45,7 +45,7 @@ Mesh crossMesh(const glm::vec3 &_pos, float _width) {
     linePoints[3].y += _width;
 
     Mesh mesh;
-    mesh.setDrawMode(GL_LINES);
+    mesh.setDrawMode(LINES);
     mesh.addVertices(linePoints, 4);
 
     // mesh.append( line(linePoints[0] , linePoints[1]) );
@@ -90,11 +90,11 @@ Mesh rectMesh(float _x, float _y, float _w, float _h) {
     return mesh;
 }
 
-Mesh planeMesh(float _width, float _height, int _columns, int _rows, GLenum _drawMode) {
+Mesh planeMesh(float _width, float _height, int _columns, int _rows, DrawMode _drawMode) {
     Mesh mesh;
 
-    if (_drawMode != GL_TRIANGLE_STRIP && _drawMode != GL_TRIANGLES)
-        _drawMode = GL_TRIANGLES;
+    if (_drawMode != TRIANGLE_STRIP && _drawMode != TRIANGLES)
+        _drawMode = TRIANGLES;
 
     _columns++;
     _rows++;
@@ -126,7 +126,7 @@ Mesh planeMesh(float _width, float _height, int _columns, int _rows, GLenum _dra
         }
     }
 
-    if (_drawMode == GL_TRIANGLE_STRIP) {
+    if (_drawMode == TRIANGLE_STRIP) {
         for (int y = 0; y < _rows-1; y++) {
             // even _rows //
             if ((y&1)==0) {
@@ -171,7 +171,7 @@ Mesh boxMesh( float _width, float _height, float _depth, int _resX, int _resY, i
 
     // mesh only available as triangles //
     Mesh mesh;
-    mesh.setDrawMode( GL_TRIANGLES );
+    mesh.setDrawMode( TRIANGLES );
 
     _resX = _resX + 1;
     _resY = _resY + 1;
@@ -453,6 +453,15 @@ Mesh cubeMesh(float _size) {
     return mesh;
 }
 
+Mesh cubeCornersMesh(const std::vector<glm::vec3> &_pts, float _size) {
+    BoundingBox bbox = getBoundingBox(_pts);
+    return cubeCornersMesh(bbox.min, bbox.max, _size);
+}
+
+Mesh cubeCornersMesh(const BoundingBox& _bbox, float _size) {
+    return cubeCornersMesh(_bbox.min, _bbox.max, _size);
+}
+
 Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size) {
     float size = glm::min(glm::length(_min_v), glm::length(_max_v)) * _size *  0.5;
 
@@ -474,7 +483,7 @@ Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _si
     glm::vec3 I = glm::vec3(H.x, H.y, A.z);
 
     Mesh mesh;
-    mesh.setDrawMode(GL_LINES);
+    mesh.setDrawMode(LINES);
     mesh.append( lineToMesh(A, normalize(D-A), size) );
     mesh.append( lineToMesh(A, normalize(B-A), size) );
     mesh.append( lineToMesh(A, normalize(F-A), size) );
@@ -510,16 +519,9 @@ Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _si
     return mesh;
 }
 
-Mesh cubeCornersMesh(const std::vector<glm::vec3> &_pts, float _size) {
-    glm::vec3 min_v;
-    glm::vec3 max_v;
-    getBoundingBox( _pts, min_v, max_v);
-    return cubeCornersMesh(min_v, max_v, _size);
-}
-
 Mesh axisMesh(float _size, float _y) {
     Mesh mesh;
-    mesh.setDrawMode(GL_LINES);
+    mesh.setDrawMode(LINES);
 
     mesh.append( lineMesh(glm::vec3(_size,_y,0.0), glm::vec3(-_size,_y,0.0)));
     mesh.append( lineMesh(glm::vec3(0.0, _size, 0.0), glm::vec3(0.0, -_size, 0.0)));
@@ -530,7 +532,7 @@ Mesh axisMesh(float _size, float _y) {
 
 Mesh gridMesh(float _width, float _height, int _columns, int _rows, float _y) {
     Mesh mesh;
-    mesh.setDrawMode(GL_LINES);
+    mesh.setDrawMode(LINES);
 
     // the origin of the plane is at the center //
     float halfW = _width  * 0.5f;
@@ -607,15 +609,15 @@ Mesh floorMesh(float _area, int _subD, float _y) {
     return mesh;
 }
 
-Mesh sphereMesh(int _resolution, float _radius, GLenum _drawMode) {
+Mesh sphereMesh(int _resolution, float _radius, DrawMode _drawMode) {
     Mesh mesh;
 
     float doubleRes = _resolution*2.f;
     float polarInc = PI/(_resolution); // ringAngle
     float azimInc = TAU/(doubleRes); // segAngle
 
-    if (_drawMode != GL_TRIANGLE_STRIP && _drawMode != GL_TRIANGLES)
-        _drawMode = GL_TRIANGLE_STRIP;
+    if (_drawMode != TRIANGLE_STRIP && _drawMode != TRIANGLES)
+        _drawMode = TRIANGLE_STRIP;
     mesh.setDrawMode(_drawMode);
     
     glm::vec3 vert;
@@ -646,7 +648,7 @@ Mesh sphereMesh(int _resolution, float _radius, GLenum _drawMode) {
 
     int nr = doubleRes+1;
     
-    if (_drawMode == GL_TRIANGLES) {
+    if (_drawMode == TRIANGLES) {
         int index1, index2, index3;
         for (float iy = 0; iy < _resolution; iy++) {
             for (float ix = 0; ix < doubleRes; ix++) {
@@ -915,11 +917,11 @@ Mesh icosphereMesh(float _radius, size_t _iterations) {
     return  mesh;
 }
 
-Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSegments, int _numCapSegments, bool _bCapped, GLenum _drawMode ) {
+Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSegments, int _numCapSegments, bool _bCapped, DrawMode _drawMode ) {
     Mesh mesh;
 
-    if (_drawMode != GL_TRIANGLE_STRIP && _drawMode != GL_TRIANGLES)
-        _drawMode = GL_TRIANGLE_STRIP;
+    if (_drawMode != TRIANGLE_STRIP && _drawMode != TRIANGLES)
+        _drawMode = TRIANGLE_STRIP;
         
     mesh.setDrawMode(_drawMode);
 
@@ -968,7 +970,7 @@ Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSeg
             }
         }
 
-        if (_drawMode == GL_TRIANGLES) {
+        if (_drawMode == TRIANGLES) {
             for (int y = 0; y < capSegs-1; y++) {
                 for (int x = 0; x < _radiusSegments-1; x++) {
                     if (y > 0) {
@@ -1025,7 +1027,7 @@ Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSeg
         }
     }
 
-    if (_drawMode == GL_TRIANGLES) {
+    if (_drawMode == TRIANGLES) {
         for (int y = 0; y < _heightSegments-1; y++) {
             for (int x = 0; x < _radiusSegments-1; x++) {
                 // first triangle //
@@ -1072,7 +1074,7 @@ Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSeg
             }
         }
 
-        if (_drawMode == GL_TRIANGLES) {
+        if (_drawMode == TRIANGLES) {
             for (int y = 0; y < capSegs-1; y++) {
                 for (int x = 0; x < _radiusSegments-1; x++) {
                     // first triangle //
@@ -1104,10 +1106,10 @@ Mesh cylinder( float _radius, float _height, int _radiusSegments, int _heightSeg
     return mesh;
 }
 
-Mesh cone( float radius, float _height, int _radiusSegments, int _heightSegments, int _capSegments, GLenum _drawMode ) {
+Mesh cone( float radius, float _height, int _radiusSegments, int _heightSegments, int _capSegments, DrawMode _drawMode ) {
     Mesh mesh;
-    if (_drawMode != GL_TRIANGLE_STRIP && _drawMode != GL_TRIANGLES)
-        _drawMode = GL_TRIANGLE_STRIP;
+    if (_drawMode != TRIANGLE_STRIP && _drawMode != TRIANGLES)
+        _drawMode = TRIANGLE_STRIP;
 
     mesh.setDrawMode(_drawMode);
 
@@ -1167,7 +1169,7 @@ Mesh cone( float radius, float _height, int _radiusSegments, int _heightSegments
         }
     }
 
-    if (_drawMode == GL_TRIANGLES) {
+    if (_drawMode == TRIANGLES) {
         for (int y = 0; y < _heightSegments-1; y++) {
             for (int x = 0; x < _radiusSegments-1; x++) {
                 if (y > 0){
@@ -1214,7 +1216,7 @@ Mesh cone( float radius, float _height, int _radiusSegments, int _heightSegments
         }
     }
 
-    if (_drawMode == GL_TRIANGLES) {
+    if (_drawMode == TRIANGLES) {
         if ( capSegs > 0 ) {
             for (int y = 0; y < capSegs-1; y++) {
                 for (int x = 0; x < _radiusSegments-1; x++) {

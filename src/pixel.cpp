@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "ada/tools/pixels.h"
-#include "ada/tools/fs.h"
+#include "ada/pixel.h"
+#include "ada/fs.h"
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION

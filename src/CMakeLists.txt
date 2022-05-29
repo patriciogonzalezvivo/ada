@@ -9,13 +9,22 @@ file(GLOB SHADERS_HEADER "${INCLUDE_FOLDER}/ada/shaders/*.h")
 
 set(ADA_SOURCES
     app.cpp
+    draw.cpp
     window.cpp
+    fs.cpp 
+    time.cpp
+    string.cpp
+    list.cpp
+    pixel.cpp 
+    font.cpp
+    geom/triangle.cpp 
+    geom/line.cpp
+    geom/mesh.cpp 
+    geom/meshes.cpp
+    geom/ops.cpp
     gl/gl.cpp 
     gl/fbo.cpp
-    gl/vbo.cpp 
-    gl/draw.cpp
-    gl/mesh.cpp 
-    gl/meshes.cpp 
+    gl/vbo.cpp
     gl/shader.cpp
     gl/defines.cpp 
     gl/pingpong.cpp
@@ -29,22 +38,15 @@ set(ADA_SOURCES
     gl/textureStreamSequence.cpp
     gl/convolutionPyramid.cpp
     gl/vertexLayout.cpp 
-    tools/fs.cpp 
-    tools/env.cpp
-    tools/list.cpp
-    tools/pixels.cpp 
-    tools/geom.cpp
-    tools/text.cpp
-    tools/time.cpp
-    tools/font.cpp
-    tools/holoplay.cpp 
+    scene/sky.cpp
     scene/node.cpp
     scene/model.cpp
     scene/light.cpp
     scene/camera.cpp
     scene/material.cpp
     shaders/defaultShaders.cpp
-)
+    devices/holoPlay.cpp 
+    )
 
 # C++ LIBRAY
 #

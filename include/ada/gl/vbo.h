@@ -5,6 +5,8 @@
 #include "gl.h"
 #include "vertexLayout.h"
 
+#include "ada/geom/mesh.h"
+
 namespace ada {
 
 #if defined(PLATFORM_RPI) || defined(__EMSCRIPTEN__)
@@ -23,11 +25,15 @@ class Vbo {
 public:
 
     Vbo();
+    Vbo(const Mesh& _mesh);
     Vbo(VertexLayout* _vertexlayout, GLenum _drawMode = GL_TRIANGLES);
     virtual ~Vbo();
 
+    void load(const Mesh& _mesh);
+
     void setDrawType(GLenum _drawType = GL_STATIC_DRAW);
     void setDrawMode(GLenum _drawMode = GL_TRIANGLES);  // Set Draw mode for the Vbo object
+    void setDrawMode(DrawMode _drawMode = TRIANGLES);
     void setVertexLayout(VertexLayout* _vertexLayout);  // Set Vertex Layout for the Vbo object
 
     VertexLayout* getVertexLayout() { return m_vertexLayout; };
@@ -47,7 +53,7 @@ public:
     /*
      * Adds a single index to the mesh; indices are unsigned shorts
      */
-    void addIndex(INDEX_TYPE_GL* _index);
+    void addIndex(INDEX_TYPE_GL _index);
 
     /*
      * Adds _nIndices indices to the mesh; _indices must be a pointer to the beginning of a contiguous

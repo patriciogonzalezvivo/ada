@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "ada/gl/texture.h"
-#include "ada/tools/fs.h"
-#include "ada/tools/pixels.h"
+#include "ada/fs.h"
+#include "ada/pixel.h"
 
 namespace ada {
 

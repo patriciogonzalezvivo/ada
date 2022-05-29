@@ -1,5 +1,5 @@
-#include "ada/tools/fs.h"
-#include "ada/tools/text.h"
+#include "ada/fs.h"
+#include "ada/string.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
 #include "ada/scene/node.h"
-#include "ada/tools/math.h"
+#include "ada/math.h"
 
 #include "glm/gtx/matrix_decompose.hpp"
 #include "glm/gtc/matrix_access.hpp"

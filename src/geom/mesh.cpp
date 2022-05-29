@@ -1,12 +1,14 @@
 
 #include <iostream>
 
-#include "ada/gl/mesh.h"
 #include "ada/gl/vertexLayout.h"
+
+#include "ada/geom/mesh.h"
+#include "ada/string.h"
 
 namespace ada {
 
-Mesh::Mesh():m_drawMode(GL_TRIANGLES) {
+Mesh::Mesh():m_drawMode(TRIANGLES) {
 }
 
 Mesh::Mesh(const Mesh &_mother) : m_drawMode(_mother.getDrawMode()) {
@@ -14,11 +16,6 @@ Mesh::Mesh(const Mesh &_mother) : m_drawMode(_mother.getDrawMode()) {
 }
 
 Mesh::~Mesh() {
-
-}
-
-void Mesh::setDrawMode(GLenum _drawMode) {
-    m_drawMode = _drawMode;
 }
 
 void Mesh::setColor(const glm::vec4 &_color) {
@@ -104,7 +101,7 @@ void Mesh::append(const Mesh &_mesh) {
 }
 
 void Mesh::invertWindingOrder() {
-    if ( getDrawMode() == GL_TRIANGLES) {
+    if ( getDrawMode() == TRIANGLES) {
         int tmp;
         for (size_t i = 0; i < m_indices.size(); i += 3) {
             tmp = m_indices[i+1];
@@ -117,8 +114,8 @@ void Mesh::invertWindingOrder() {
 std::vector<glm::ivec3> Mesh::getTrianglesIndices() const {
     std::vector<glm::ivec3> faces;
 
-    if (getDrawMode() == GL_TRIANGLES) {
-        if (hasIndices()) {
+    if (getDrawMode() == TRIANGLES) {
+        if (haveIndices()) {
             for(unsigned int j = 0; j < m_indices.size(); j += 3) {
                 glm::ivec3 tri;
                 for(int k = 0; k < 3; k++) {
@@ -140,7 +137,7 @@ std::vector<glm::ivec3> Mesh::getTrianglesIndices() const {
     else {
         //  TODO
         //
-        std::cout << "ERROR: getTriangles(): Mesh only add GL_TRIANGLES for NOW !!" << std::endl;
+        std::cout << "ERROR: getTriangles(): Mesh only add TRIANGLES for NOW !!" << std::endl;
     }
 
     return faces;
@@ -148,15 +145,15 @@ std::vector<glm::ivec3> Mesh::getTrianglesIndices() const {
 
 void Mesh::clear() {
     if (!m_vertices.empty()) m_vertices.clear();
-    if (hasColors()) m_colors.clear();
-    if (hasNormals()) m_normals.clear();
-    if (hasTexCoords()) m_texCoords.clear();
-    if (hasTangents()) m_tangents.clear();
-    if (hasIndices()) m_indices.clear();
+    if (haveColors()) m_colors.clear();
+    if (haveNormals()) m_normals.clear();
+    if (haveTexCoords()) m_texCoords.clear();
+    if (haveTangents()) m_tangents.clear();
+    if (haveIndices()) m_indices.clear();
 }
 
 bool Mesh::computeNormals() {
-    if (getDrawMode() != GL_TRIANGLES) 
+    if (getDrawMode() != TRIANGLES) 
         return false;
 
     //The number of the vertices
@@ -205,7 +202,7 @@ void Mesh::invertNormals() {
 }
 
 void Mesh::flatNormals() {
-    if ( getDrawMode() == GL_TRIANGLES) {
+    if ( getDrawMode() == TRIANGLES) {
         
         // get copy original mesh data
         size_t numIndices = m_indices.size();
@@ -239,84 +236,84 @@ void Mesh::flatNormals() {
     }
 }
 
-// void Mesh::smoothNormals(float _angle) {
+void Mesh::smoothNormals(float _angle) {
 
-//     std::vector<Triangle> triangles = getTriangles();
-//     std::vector<glm::vec3> verts;
-//     for (size_t i = 0; i < triangles.size(); i++)
-//         for (size_t j = 0; j < 3; j++) 
-//             verts.push_back( triangles[i][j] );
+    std::vector<Triangle> triangles = getTriangles();
+    std::vector<glm::vec3> verts;
+    for (size_t i = 0; i < triangles.size(); i++)
+        for (size_t j = 0; j < 3; j++) 
+            verts.push_back( triangles[i][j] );
 
-//     std::map<int, int> removeIds;
-//     float epsilon = .01f;
-//     for (size_t i = 0; i < verts.size()-1; i++) {
-//         for (size_t j = i+1; j < verts.size(); j++) {
-//             if (i != j) {
-//                 const glm::vec3& v1 = verts[i];
-//                 const glm::vec3& v2 = verts[j];
-//                 if ( glm::distance(v1, v2) <= epsilon ) {
-//                     // average the location //
-//                     verts[i] = (v1+v2)/2.f;
-//                     verts[j] = verts[i];
-//                     removeIds[j] = 1;
-//                 }
-//             }
-//         }
-//     }
+    std::map<int, int> removeIds;
+    float epsilon = .01f;
+    for (size_t i = 0; i < verts.size()-1; i++) {
+        for (size_t j = i+1; j < verts.size(); j++) {
+            if (i != j) {
+                const glm::vec3& v1 = verts[i];
+                const glm::vec3& v2 = verts[j];
+                if ( glm::distance(v1, v2) <= epsilon ) {
+                    // average the location //
+                    verts[i] = (v1+v2)/2.f;
+                    verts[j] = verts[i];
+                    removeIds[j] = 1;
+                }
+            }
+        }
+    }
 
-//     std::map<std::string, std::vector<int> > vertHash;
-//     std::string xStr, yStr, zStr;
+    std::map<std::string, std::vector<int> > vertHash;
+    std::string xStr, yStr, zStr;
 
-//     for (size_t i = 0; i < verts.size(); i++ ) {
-//         xStr = "x" + toString(verts[i].x == -0 ? 0: verts[i].x);
-//         yStr = "y" + toString(verts[i].y == -0 ? 0: verts[i].y);
-//         zStr = "z" + toString(verts[i].z == -0 ? 0: verts[i].z);
-//         std::string vstring = xStr+yStr+zStr;
+    for (size_t i = 0; i < verts.size(); i++ ) {
+        xStr = "x" + toString(verts[i].x == -0 ? 0: verts[i].x);
+        yStr = "y" + toString(verts[i].y == -0 ? 0: verts[i].y);
+        zStr = "z" + toString(verts[i].z == -0 ? 0: verts[i].z);
+        std::string vstring = xStr+yStr+zStr;
 
-//         if (vertHash.find(vstring) == vertHash.end())
-//             for (size_t j = 0; j < triangles.size(); j++) 
-//                 for (size_t k = 0; k < 3; k++) 
-//                     if (verts[i].x == triangles[j][k].x)
-//                         if (verts[i].y == triangles[j][k].y) 
-//                             if (verts[i].z == triangles[j][k].z)
-//                                 vertHash[vstring].push_back( j );
-//     }
+        if (vertHash.find(vstring) == vertHash.end())
+            for (size_t j = 0; j < triangles.size(); j++) 
+                for (size_t k = 0; k < 3; k++) 
+                    if (verts[i].x == triangles[j][k].x)
+                        if (verts[i].y == triangles[j][k].y) 
+                            if (verts[i].z == triangles[j][k].z)
+                                vertHash[vstring].push_back( j );
+    }
 
-//     glm::vec3 vert;
-//     glm::vec3 normal;
-//     float angleCos = cos(glm::radians(_angle));
-//     float numNormals = 0.0f;
+    glm::vec3 vert;
+    glm::vec3 normal;
+    float angleCos = cos(glm::radians(_angle));
+    float numNormals = 0.0f;
 
-//     for (size_t j = 0; j < triangles.size(); j++) {
-//         for (size_t k = 0; k < 3; k++) {
-//             vert = triangles[j][k];
-//             xStr = "x" + toString(vert.x==-0?0:vert.x);
-//             yStr = "y" + toString(vert.y==-0?0:vert.y);
-//             zStr = "z" + toString(vert.z==-0?0:vert.z);
+    for (size_t j = 0; j < triangles.size(); j++) {
+        for (size_t k = 0; k < 3; k++) {
+            vert = triangles[j][k];
+            xStr = "x" + toString(vert.x==-0?0:vert.x);
+            yStr = "y" + toString(vert.y==-0?0:vert.y);
+            zStr = "z" + toString(vert.z==-0?0:vert.z);
 
-//             std::string vstring = xStr+yStr+zStr;
-//             numNormals=0;
-//             normal = {0.f,0.f,0.f};
-//             if (vertHash.find(vstring) != vertHash.end()) {
-//                 for (size_t i = 0; i < vertHash[vstring].size(); i++) {
-//                     glm::vec3 f1 = triangles[j].getNormal();
-//                     glm::vec3 f2 = triangles[vertHash[vstring][i]].getNormal();
-//                     if (glm::dot(f1, f2) >= angleCos ) {
-//                         normal += f2;
-//                         numNormals+=1.f;
-//                     }
-//                 }
-//                 //normal /= (float)vertHash[vstring].size();
-//                 normal /= numNormals;
+            std::string vstring = xStr+yStr+zStr;
+            numNormals=0;
+            normal = {0.f,0.f,0.f};
+            if (vertHash.find(vstring) != vertHash.end()) {
+                for (size_t i = 0; i < vertHash[vstring].size(); i++) {
+                    glm::vec3 f1 = triangles[j].getNormal();
+                    glm::vec3 f2 = triangles[vertHash[vstring][i]].getNormal();
+                    if (glm::dot(f1, f2) >= angleCos ) {
+                        normal += f2;
+                        numNormals+=1.f;
+                    }
+                }
+                //normal /= (float)vertHash[vstring].size();
+                normal /= numNormals;
 
-//                 triangles[j].setNormal(k, normal);
-//             }
-//         }
-//     }
+                triangles[j].setNormal(k, normal);
+            }
+        }
+    }
 
-//     clear();
-//     addTriangles( triangles.data(), triangles.size() );
-// }
+    clear();
+    addTriangles( triangles );
+}
 
 
 // http://www.terathon.com/code/tangent.html
@@ -326,7 +323,7 @@ bool Mesh::computeTangents() {
 
     if (m_texCoords.size() != nV || 
         m_normals.size() != nV || 
-        getDrawMode() != GL_TRIANGLES)
+        getDrawMode() != TRIANGLES)
         return false;
 
     //The number of the triangles
@@ -400,153 +397,63 @@ bool Mesh::computeTangents() {
     return true;
 }
 
-Vbo* Mesh::getVbo() {
+void Mesh::addTriangle(const Triangle& _tri) {
+    INDEX_TYPE index = m_vertices.size();
 
-    // Create Vertex Layout
-    //
-    std::vector<VertexAttrib> attribs;
-    attribs.push_back({"position", 3, GL_FLOAT, false, 0});
-    int  nBits = 3;
+    addVertex(_tri[0]);
+    addVertex(_tri[1]);
+    addVertex(_tri[2]);
 
-    bool bColor = false;
-    if (hasColors() && getColors().size() == m_vertices.size()) {
-        attribs.push_back({"color", 4, GL_FLOAT, false, 0});
-        bColor = true;
-        nBits += 4;
+    if (_tri.haveColors()) {
+        addColor(_tri.getColor(0));
+        addColor(_tri.getColor(1));
+        addColor(_tri.getColor(2));
     }
 
-    bool bNormals = false;
-    if (hasNormals() && getNormals().size() == m_vertices.size()) {
-        attribs.push_back({"normal", 3, GL_FLOAT, false, 0});
-        bNormals = true;
-        nBits += 3;
+    if (_tri.haveNormals()) {
+        addNormal(_tri.getNormal(0));
+        addNormal(_tri.getNormal(1));
+        addNormal(_tri.getNormal(2));
+    }
+    else {
+        addNormal(_tri.getNormal());
+        addNormal(_tri.getNormal());
+        addNormal(_tri.getNormal());
     }
 
-    bool bTexCoords = false;
-    if (hasTexCoords()  && getTexCoords().size() == m_vertices.size()) {
-        attribs.push_back({"texcoord", 2, GL_FLOAT, false, 0});
-        bTexCoords = true;
-        nBits += 2;
+    if (_tri.haveTexCoords()) {
+        addTexCoord(_tri.getTexCoord(0));
+        addTexCoord(_tri.getTexCoord(1));
+        addTexCoord(_tri.getTexCoord(2));
     }
 
-    bool bTangents = false;
-    if (hasTangents() && getTangents().size() == m_vertices.size()) {
-        attribs.push_back({"tangent", 4, GL_FLOAT, false, 0});
-        bTangents = true;
-        nBits += 4;
-    }
-
-    VertexLayout* vertexLayout = new VertexLayout(attribs);
-    Vbo* tmpMesh = new Vbo(vertexLayout);
-    tmpMesh->setDrawMode(getDrawMode());
-
-    std::vector<GLfloat> data;
-    for (unsigned int i = 0; i < m_vertices.size(); i++) {
-        data.push_back(m_vertices[i].x);
-        data.push_back(m_vertices[i].y);
-        data.push_back(m_vertices[i].z);
-        if (bColor) {
-            data.push_back(m_colors[i].r);
-            data.push_back(m_colors[i].g);
-            data.push_back(m_colors[i].b);
-            data.push_back(m_colors[i].a);
-        }
-        if (bNormals) {
-            data.push_back(m_normals[i].x);
-            data.push_back(m_normals[i].y);
-            data.push_back(m_normals[i].z);
-        }
-        if (bTexCoords) {
-            data.push_back(m_texCoords[i].x);
-            data.push_back(m_texCoords[i].y);
-        }
-        if (bTangents) {
-            data.push_back(m_tangents[i].x);
-            data.push_back(m_tangents[i].y);
-            data.push_back(m_tangents[i].z);
-            data.push_back(m_tangents[i].w);
-        }
-    }
-
-    tmpMesh->addVertices((GLbyte*)data.data(), m_vertices.size());
-    
-    if (!hasIndices()) {
-        if ( getDrawMode() == GL_LINES ) {
-            for (uint32_t i = 0; i < getVertices().size(); i++) {
-                addIndex(i);
-            }
-        }
-        else if ( getDrawMode() == GL_LINE_STRIP ) {
-            for (uint32_t i = 1; i < getVertices().size(); i++) {
-                addIndex(i-1);
-                addIndex(i);
-            }
-        }
-    }
-
-    tmpMesh->addIndices(m_indices.data(), m_indices.size());    
-
-    return tmpMesh;
+    addTriangleIndices(index, index+1, index+2);
 }
 
+void Mesh::addTriangles(const std::vector<Triangle>& _triangles) {
+    for (size_t i = 0; i < _triangles.size(); i++)
+        addTriangle(_triangles[i]);
+}
 
-// void Mesh::addTriangle(const Triangle& _tri) {
-//     INDEX_TYPE index = vertices.size();
+std::vector<Triangle> Mesh::getTriangles() const {
+    std::vector<glm::ivec3> triIndices = getTrianglesIndices();
+    std::vector<Triangle> triangles;
 
-//     addVertex(_tri[0]);
-//     addVertex(_tri[1]);
-//     addVertex(_tri[2]);
-
-//     if (_tri.haveColors()) {
-//         addColor(_tri.getColor(0));
-//         addColor(_tri.getColor(1));
-//         addColor(_tri.getColor(2));
-//     }
-
-//     if (_tri.haveNormals()) {
-//         addNormal(_tri.getNormal(0));
-//         addNormal(_tri.getNormal(1));
-//         addNormal(_tri.getNormal(2));
-//     }
-//     else {
-//         addNormal(_tri.getNormal());
-//         addNormal(_tri.getNormal());
-//         addNormal(_tri.getNormal());
-//     }
-
-//     if (_tri.haveTexCoords()) {
-//         addTexCoord(_tri.getTexCoord(0));
-//         addTexCoord(_tri.getTexCoord(1));
-//         addTexCoord(_tri.getTexCoord(2));
-//     }
-
-//     addTriangleIndices(index, index+1, index+2);
-// }
-
-// void Mesh::addTriangles(const Triangle* _array1D, int _n) {
-//     for (int i = 0; i < _n; i++)
-//         addTriangle(_array1D[i]);
-// }
-
-// std::vector<Triangle> Mesh::getTriangles() const {
-//     std::vector<glm::ivec3> triIndices = getTrianglesIndices();
-//     std::vector<Triangle> triangles;
-
-//     int t = 0;
-//     for (std::vector<glm::ivec3>::iterator it = triIndices.begin(); it != triIndices.end(); ++it) {
-//         Triangle tri = Triangle(vertices[it->x], vertices[it->y], vertices[it->z]);
-//         if (haveColors()) tri.setColors(colors[it->x], colors[it->y], colors[it->z]);
-//         if (haveNormals()) tri.setNormals(normals[it->x], normals[it->y], normals[it->z]);
-//         if (haveTexCoords()) tri.setTexCoords(texcoords[it->x], texcoords[it->y], texcoords[it->z]);
-//         if (haveTangents()) tri.setTangents(tangents[it->x], tangents[it->y], tangents[it->z]);
-//         if (haveMaterials()) tri.material = getMaterialForFaceIndex(it->x);
+    int t = 0;
+    for (std::vector<glm::ivec3>::iterator it = triIndices.begin(); it != triIndices.end(); ++it) {
+        Triangle tri = Triangle(m_vertices[it->x], m_vertices[it->y], m_vertices[it->z]);
+        if (haveColors()) tri.setColors(m_colors[it->x], m_colors[it->y], m_colors[it->z]);
+        if (haveNormals()) tri.setNormals(m_normals[it->x], m_normals[it->y], m_normals[it->z]);
+        if (haveTexCoords()) tri.setTexCoords(m_texCoords[it->x], m_texCoords[it->y], m_texCoords[it->z]);
+        if (haveTangents()) tri.setTangents(m_tangents[it->x], m_tangents[it->y], m_tangents[it->z]);
+        // if (haveMaterials()) tri.material = getMaterialForFaceIndex(it->x);
         
-//         triangles.push_back( tri );
-//         t++;
-//     }
+        triangles.push_back( tri );
+        t++;
+    }
 
-//     return triangles;
-// }
+    return triangles;
+}
 
 
 }

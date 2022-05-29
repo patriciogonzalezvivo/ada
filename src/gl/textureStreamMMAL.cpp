@@ -5,8 +5,8 @@
 #include <iostream>
 
 #include "ada/window.h"
-#include "ada/gl/meshes.h"
-#include "ada/tools/text.h"
+#include "ada/geom/meshes.h"
+#include "ada/string.h"
 
 #if defined(DRIVER_GBM)
 #include "libdrm/drm_fourcc.h"

@@ -15,8 +15,8 @@ extern "C" {
 }
 
 #include "ada/window.h"
-#include "ada/tools/text.h"
-#include "ada/tools/pixels.h"
+#include "ada/string.h"
+#include "ada/pixel.h"
 
 #define EPS 0.000025
 

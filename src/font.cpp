@@ -1,11 +1,11 @@
-#include "ada/tools/font.h"
+#include "ada/font.h"
 
 #define GLFONTSTASH_IMPLEMENTATION
 #include "glfontstash.h"
 
 #include "ada/window.h"
-#include "ada/tools/fs.h"
-#include "ada/tools/text.h"
+#include "ada/fs.h"
+#include "ada/string.h"
 
 #include "glm/gtc/type_ptr.hpp"
 

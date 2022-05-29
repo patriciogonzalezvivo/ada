@@ -25,6 +25,11 @@ Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) :
     setDrawMode(_drawMode);
 }
 
+Vbo::Vbo(const Mesh& _mesh) : 
+    m_drawType(GL_STATIC_DRAW) {
+    load(_mesh);
+}
+
 Vbo::~Vbo() {
     m_vertexData.clear();
     m_indices.clear();
@@ -34,6 +39,92 @@ Vbo::~Vbo() {
 
     glDeleteBuffers(1, &m_glVertexBuffer);
     glDeleteBuffers(1, &m_glIndexBuffer);
+}
+
+void Vbo::load(const Mesh& _mesh) {
+    // Create Vertex Layout
+    //
+    std::vector<VertexAttrib> attribs;
+    attribs.push_back({"position", 3, GL_FLOAT, false, 0});
+    int  nBits = 3;
+
+    bool bColor = false;
+    if (_mesh.haveColors() && _mesh.getColorsTotal()  == _mesh.getVerticesTotal()) {
+        attribs.push_back({"color", 4, GL_FLOAT, false, 0});
+        bColor = true;
+        nBits += 4;
+    }
+
+    bool bNormals = false;
+    if (_mesh.haveNormals() && _mesh.getNormalsTotal() == _mesh.getVerticesTotal()) {
+        attribs.push_back({"normal", 3, GL_FLOAT, false, 0});
+        bNormals = true;
+        nBits += 3;
+    }
+
+    bool bTexCoords = false;
+    if (_mesh.haveTexCoords()  && _mesh.getTexCoordsTotal() == _mesh.getVerticesTotal()) {
+        attribs.push_back({"texcoord", 2, GL_FLOAT, false, 0});
+        bTexCoords = true;
+        nBits += 2;
+    }
+
+    bool bTangents = false;
+    if (_mesh.haveTangents() && _mesh.getTangentsTotal() == _mesh.getVerticesTotal()) {
+        attribs.push_back({"tangent", 4, GL_FLOAT, false, 0});
+        bTangents = true;
+        nBits += 4;
+    }
+
+    VertexLayout* vertexLayout = new VertexLayout(attribs);
+    setVertexLayout( vertexLayout );
+    setDrawMode( _mesh.getDrawMode() );
+
+    std::vector<GLfloat> data;
+    for (unsigned int i = 0; i < _mesh.getVerticesTotal(); i++) {
+        data.push_back(_mesh.getVertex(i).x);
+        data.push_back(_mesh.getVertex(i).y);
+        data.push_back(_mesh.getVertex(i).z);
+        if (bColor) {
+            data.push_back(_mesh.getColor(i).r);
+            data.push_back(_mesh.getColor(i).g);
+            data.push_back(_mesh.getColor(i).b);
+            data.push_back(_mesh.getColor(i).a);
+        }
+        if (bNormals) {
+            data.push_back(_mesh.getNormal(i).x);
+            data.push_back(_mesh.getNormal(i).y);
+            data.push_back(_mesh.getNormal(i).z);
+        }
+        if (bTexCoords) {
+            data.push_back(_mesh.getTexCoord(i).x);
+            data.push_back(_mesh.getTexCoord(i).y);
+        }
+        if (bTangents) {
+            data.push_back(_mesh.getTangent(i).x);
+            data.push_back(_mesh.getTangent(i).y);
+            data.push_back(_mesh.getTangent(i).z);
+            data.push_back(_mesh.getTangent(i).w);
+        }
+    }
+
+    addVertices((GLbyte*)data.data(), _mesh.getVerticesTotal());
+    
+    if (!_mesh.haveIndices()) {
+        if ( _mesh.getDrawMode() == LINES ) {
+            for (size_t i = 0; i < _mesh.getVerticesTotal(); i++)
+                addIndex(i);
+        }
+        else if ( _mesh.getDrawMode() == LINE_STRIP ) {
+            for (size_t i = 1; i < _mesh.getVerticesTotal(); i++) {
+                addIndex(i-1);
+                addIndex(i);
+            }
+        }
+    }
+    else
+        addIndices((GLuint*)_mesh.getIndices().data(), _mesh.getIndicesTotal());
+
 }
 
 void Vbo::setVertexLayout(VertexLayout* _vertexLayout) {
@@ -73,6 +164,23 @@ void Vbo::setDrawMode(GLenum _drawMode) {
     }
 }
 
+void Vbo::setDrawMode(DrawMode _drawMode) {
+    if (_drawMode == POINTS)
+        m_drawMode = GL_POINTS;
+    else if (_drawMode == LINE_STRIP)
+        m_drawMode = GL_LINE_STRIP;
+    else if (_drawMode == LINES)
+        m_drawMode = GL_LINES;
+    else if (_drawMode == TRIANGLES)
+        m_drawMode = GL_TRIANGLES;
+    else if (_drawMode == TRIANGLE_STRIP)
+        m_drawMode = GL_TRIANGLE_STRIP;
+    else if (_drawMode == TRIANGLE_FAN)
+        m_drawMode = GL_TRIANGLE_FAN;
+    // else if (_drawMode == QUADS)
+    //     m_drawMode = GL_QUADS;
+}
+
 void Vbo::addVertex(GLbyte* _vertex) {
     addVertices(_vertex, 1);
 }
@@ -95,8 +203,8 @@ void Vbo::addVertices(GLbyte* _vertices, int _nVertices) {
     m_nVertices += _nVertices;
 }
 
-void Vbo::addIndex(INDEX_TYPE_GL* _index) {
-    addIndices(_index, 1);
+void Vbo::addIndex(INDEX_TYPE_GL _index) {
+    m_indices.push_back(_index);
 }
 
 void Vbo::addIndices(INDEX_TYPE_GL* _indices, int _nIndices) {

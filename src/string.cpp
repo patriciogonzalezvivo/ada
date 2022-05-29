@@ -1,4 +1,4 @@
-#include "ada/tools/text.h"
+#include "ada/string.h"
 
 #include <algorithm>
 #include <regex>

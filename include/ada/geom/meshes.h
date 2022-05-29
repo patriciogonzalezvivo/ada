@@ -2,7 +2,8 @@
 
 #include <vector>
 
-#include "ada/gl/mesh.h"
+#include "ada/geom/mesh.h"
+#include "ada/geom/boundingBox.h"
 
 namespace ada {
 
@@ -19,21 +20,22 @@ Mesh gridMesh(float _size, int _segments, float _y = 0.0);
 Mesh gridMesh(float _width, float _height, int _columns, int _rows, float _y = 0.0);
 
 Mesh floorMesh(float _area, int _subD, float _y = 0.0);
-Mesh planeMesh(float _width, float _height, int _columns, int _rows, GLenum _drawMode = GL_TRIANGLES);
+Mesh planeMesh(float _width, float _height, int _columns, int _rows, DrawMode _drawMode = TRIANGLES);
 
 Mesh boxMesh( float _width, float _height, float _depth, int _resX, int _resY, int _resZ );
 
 Mesh cubeMesh(float _size = 1.0f);
 Mesh cubeMesh( float _size, int _resolution );
 
-Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size);
+Mesh cubeCornersMesh(const BoundingBox& _bbox, float _size = 1.0f);
 Mesh cubeCornersMesh(const std::vector<glm::vec3> &_pts, float _size = 1.0);
+Mesh cubeCornersMesh(const glm::vec3 &_min_v, const glm::vec3 &_max_v, float _size = 1.0f);
 
-Mesh sphereMesh(int _resolution = 24, float _radius = 1.0f, GLenum _drawMode = GL_TRIANGLES);
+Mesh sphereMesh(int _resolution = 24, float _radius = 1.0f, DrawMode _drawMode = TRIANGLES);
 Mesh sphereHalfMesh(int _resolution = 24, float _radius = 1.0f);
 
 Mesh icosphereMesh( float _radius, size_t _iterations );
-Mesh cylinderMesh( float _radius, float _height, int _radiusSegments, int _heightSegments, int _numCapSegments, bool _bCapped, GLenum _drawMode = GL_TRIANGLES);
-Mesh coneMesh( float _radius, float _height, int _radiusSegments, int _heightSegments, int _capSegments, GLenum _drawMode = GL_TRIANGLES);
+Mesh cylinderMesh( float _radius, float _height, int _radiusSegments, int _heightSegments, int _numCapSegments, bool _bCapped, DrawMode _drawMode = TRIANGLES);
+Mesh coneMesh( float _radius, float _height, int _radiusSegments, int _heightSegments, int _capSegments, DrawMode _drawMode = TRIANGLES);
 
 }

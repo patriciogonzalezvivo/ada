@@ -17,7 +17,7 @@
 #include "ada/shaders/cubemap.h"
 #include "ada/shaders/draw.h"
 
-#include "ada/tools/text.h"
+#include "ada/string.h"
 
 namespace ada {
 

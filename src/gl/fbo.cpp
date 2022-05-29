@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 
 #include "glm/gtc/round.hpp"
-#include "ada/tools/text.h"
+#include "ada/string.h"
 #include "ada/window.h"
 
 namespace ada {

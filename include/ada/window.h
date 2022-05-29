@@ -80,8 +80,8 @@ void        setWindowVSync(bool _value);
 glm::ivec2  getScreenSize();
 float       getPixelDensity();
 
-glm::ivec4  getViewport();
-glm::mat4   getOrthoMatrix();
+const glm::ivec4& getViewport();
+const glm::mat4&  getOrthoMatrix();
 int         getWindowWidth();
 int         getWindowHeight();
 int         getWindowMSAA();
