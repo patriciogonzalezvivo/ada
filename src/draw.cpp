@@ -735,6 +735,9 @@ void model(Mesh* _mesh, Shader* _program) {
 
 void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }
 void texture(Texture* _texture, const std::string _name) {
+    if (shaderPtr == nullptr)
+        shaderPtr = getFillShader();
+    
     std::string name = _name;
     if (_name.size() == 0)
         name = "u_tex" + toString(shaderPtr->textureIndex);
