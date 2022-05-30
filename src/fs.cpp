@@ -67,7 +67,7 @@ std::string getAbsPath(const std::string& _path) {
     else return "";
 }
 
-std::string urlResolve(const std::string& _path, const std::string& _pwd, const stringList &_include_folders) {
+std::string urlResolve(const std::string& _path, const std::string& _pwd, const StringList &_include_folders) {
     std::string url = _pwd +'/'+ _path;
 
     // If the path is not in the same directory
@@ -98,7 +98,7 @@ bool extractDependency(const std::string &_line, std::string *_dependency) {
     return false;
 }
 
-bool alreadyInclude(const std::string &_path, stringList *_dependencies) {
+bool alreadyInclude(const std::string &_path, StringList *_dependencies) {
     for (unsigned int i = 0; i < _dependencies->size(); i++) {
         if ( _path == (*_dependencies)[i]) {
             return true;
@@ -109,11 +109,11 @@ bool alreadyInclude(const std::string &_path, stringList *_dependencies) {
 
 std::string loadGlslFrom(const std::string& _path) {
     const std::vector<std::string> folders;
-    stringList deps;
+    StringList deps;
     return loadGlslFrom(_path, folders, &deps);
 }
 
-std::string loadGlslFrom(const std::string &_path, const stringList& _include_folders, stringList *_dependencies) {
+std::string loadGlslFrom(const std::string &_path, const StringList& _include_folders, StringList *_dependencies) {
     std::string str = "";
     loadGlslFrom(_path, &str, _include_folders, _dependencies);
     return str;
@@ -121,13 +121,13 @@ std::string loadGlslFrom(const std::string &_path, const stringList& _include_fo
 
 bool loadGlslFrom(const std::string &_path, std::string *_into) {
     const std::vector<std::string> folders;
-    stringList deps;
+    StringList deps;
 
     _into->clear();
     return loadGlslFrom(_path, _into, folders, &deps);
 }
 
-bool loadGlslFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, stringList *_dependencies) {
+bool loadGlslFrom(const std::string &_path, std::string *_into, const std::vector<std::string> &_include_folders, StringList *_dependencies) {
     std::ifstream file;
     file.open(_path.c_str());
 

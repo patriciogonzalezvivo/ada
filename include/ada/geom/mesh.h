@@ -17,7 +17,7 @@ namespace ada {
 
 enum DrawMode {
     POINTS      = 0,
-    LINES,      LINE_STRIP,
+    LINES,      LINE_STRIP, LINE_LOOP,
     TRIANGLES,  TRIANGLE_STRIP, TRIANGLE_FAN
     // QUADS
 };

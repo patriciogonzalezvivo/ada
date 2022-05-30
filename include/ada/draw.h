@@ -56,7 +56,7 @@ void strokeWeight(float _weight);
 void resetMatrix();
 void applyMatrix(const glm::mat3& _mat );
 void applyMatrix(const glm::mat4& _mat );
-glm::mat4 getProjectionViewModelMatrix();
+glm::mat4 getProjectionViewWorldMatrix();
 glm::mat4 getProjectionViewMatrix();
 glm::mat4 getProjectionMatrix();
 glm::mat4 getViewMatrix();
@@ -165,11 +165,13 @@ void texture(Texture* _texture, const std::string _name = "");
 void perspective(float _fovy, float _aspect, float _near, float _far);
 void ortho(float _left, float _right, float _bottom, float _top,  float _near, float _far);
 // frustum()
-CameraPtr createCamera();
+Camera* createCamera();
 
 // p5.Camera
-void setCamera(Camera &_camera);
-CameraPtr getCamera();
+void setCamera(Camera& _camera);
+void setCamera(Camera* _camera);
+void resetCamera();
+Camera* getCamera();
 
 // Interaction
 // orbitControl()

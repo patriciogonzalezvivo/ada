@@ -174,7 +174,7 @@ static const char *eglGetErrorStr() {
 std::function<void(int,int)>            onViewportResize;
 std::function<void(int)>                onKeyPress;
 std::function<void(float, float)>       onMouseMove;
-std::function<void(float, float, int)>  onMouseDown;
+std::function<void(float, float, int)>  onMousePress;
 std::function<void(float, float, int)>  onMouseDrag;
 std::function<void(float, float, int)>  onMouseRelease;
 std::function<void(float)>              onScroll;
@@ -182,7 +182,7 @@ std::function<void(float)>              onScroll;
 void setViewportResizeCallback(std::function<void(int,int)> _callback) { onViewportResize = _callback; }
 void setKeyPressCallback(std::function<void(int)> _callback) { onKeyPress = _callback; }
 void setMouseMoveCallback(std::function<void(float, float)> _callback) { onMouseMove = _callback; }
-void setMouseDownCallback(std::function<void(float, float, int)> _callback) { onMouseDown = _callback; }
+void setMousePressCallback(std::function<void(float, float, int)> _callback) { onMousePress = _callback; }
 void setMouseDragCallback(std::function<void(float, float, int)> _callback) { onMouseDrag = _callback; }
 void setMouseReleaseCallback(std::function<void(float, float, int)> _callback) { onMouseRelease = _callback; }
 void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callback; }
@@ -340,7 +340,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         mouse.drag.y = mouse.y;
         mouse.entered = true;
         mouse.button = 0;
-        onMouseDown(mouse.x, mouse.y, mouse.button);
+        onMousePress(mouse.x, mouse.y, mouse.button);
 
     } else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP) {
         mouse.entered = false;
@@ -366,7 +366,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         // Lunch events
         if (mouse.button == 0 && button != mouse.button) {
             mouse.button = button;
-            onMouseDown(mouse.x, mouse.y, mouse.button);
+            onMousePress(mouse.x, mouse.y, mouse.button);
         }
         else {
             mouse.button = button;
@@ -396,7 +396,7 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
         mouse.drag.y = mouse.y;
         mouse.entered = true;
         mouse.button = 1;
-        onMouseDown(mouse.x, mouse.y, mouse.button);
+        onMousePress(mouse.x, mouse.y, mouse.button);
 
     } else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
         mouse.entered = false;
@@ -741,9 +741,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             mouse.button = _button;
             if (_action == GLFW_PRESS) {
                 #ifdef EVENTS_AS_CALLBACKS
-                if (onMouseDown)
+                if (onMousePress)
                 #endif 
-                onMouseDown(mouse.x, mouse.y, mouse.button);
+                onMousePress(mouse.x, mouse.y, mouse.button);
             }
             else {
                 #ifdef EVENTS_AS_CALLBACKS
@@ -801,9 +801,9 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             if (mouse.button == 0 && button != mouse.button) {
                 mouse.button = button;
                 #ifdef EVENTS_AS_CALLBACKS
-                if (onMouseDown)
+                if (onMousePress)
                 #endif 
-                onMouseDown(mouse.x, mouse.y, mouse.button);
+                onMousePress(mouse.x, mouse.y, mouse.button);
             }
             else {
                 mouse.button = button;
@@ -919,7 +919,7 @@ void updateGL() {
 
     #else
         #ifdef EVENTS_AS_CALLBACKS
-        if (onMouseDown || onMouseDrag || onMouseMove)
+        if (onMousePress || onMouseDrag || onMouseMove)
         #endif 
         {
             const int XSIGN = 1<<4, YSIGN = 1<<5;
@@ -971,9 +971,9 @@ void updateGL() {
                 if (mouse.button == 0 && button != mouse.button) {
                     mouse.button = button;
                     #ifdef EVENTS_AS_CALLBACKS
-                    if (onMouseDown)
+                    if (onMousePress)
                     #endif 
-                    onMouseDown(mouse.x, mouse.y, mouse.button);
+                    onMousePress(mouse.x, mouse.y, mouse.button);
                 }
                 else
                     mouse.button = button;

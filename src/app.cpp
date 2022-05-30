@@ -56,11 +56,11 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         mouseMoved();
     } );
     
-    setMouseDownCallback( [&](float _x, float _y, int _button) { 
+    setMousePressCallback( [&](float _x, float _y, int _button) { 
         mouseButton = _button;
         mouseIsPressed = true;
 
-        onMouseDown(_x, _y, _button); 
+        onMousePress(_x, _y, _button); 
         mousePressed();
         mouseClicked();
     } );
@@ -128,11 +128,11 @@ void App::background( const glm::vec4& _color ) {
 
 void App::orbitControl() {
     if (mouseIsPressed) {
-        CameraPtr camera = getCamera();
+        Camera* cam = getCamera();
 
-        if (camera) {
-            camera->setViewport(width, height);
-            float dist = camera->getDistance();
+        if (cam) {
+            cam->setViewport(width, height);
+            float dist = cam->getDistance();
 
             if (mouseButton == 1) {
 
@@ -140,8 +140,8 @@ void App::orbitControl() {
                 if (fabs(movedX) < 50.0 && fabs(movedY) < 50.0) {
                     cameraLat -= getMouseVelX();
                     cameraLon -= getMouseVelY() * 0.5;
-                    camera->orbit(cameraLat, cameraLon, dist);
-                    camera->lookAt(glm::vec3(0.0));
+                    cam->orbit(cameraLat, cameraLon, dist);
+                    cam->lookAt(glm::vec3(0.0));
                 }
             } 
             else if (mouseButton == 2) {
@@ -149,8 +149,8 @@ void App::orbitControl() {
                 // Right-button drag is used to zoom geometry.
                 dist += (-.008f * movedY);
                 if (dist > 0.0f) {
-                    camera->orbit(cameraLat, cameraLon, dist);
-                    camera->lookAt(glm::vec3(0.0));
+                    cam->orbit(cameraLat, cameraLon, dist);
+                    cam->lookAt(glm::vec3(0.0));
                 }
             }
         }

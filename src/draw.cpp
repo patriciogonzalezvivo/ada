@@ -32,13 +32,13 @@ ada::Font*  font;
 glm::mat4   matrix_world          = glm::mat4(1.0f);
 std::stack<glm::mat4> matrix_stack;
 
-CameraPtr   cameraPtr       = nullptr;
+Camera*     cameraPtr       = nullptr;
+Camera*     cameraCustomPtr = nullptr;
 LightPtrs   lights;
 
 void resetMatrix() { matrix_world = glm::mat4(1.0f); }
-
 void applyMatrix(const glm::mat3& _mat ) { matrix_world = _mat; }
-void applymatrix_world(const glm::mat4& _mat ) { matrix_world = glm::mat4(_mat); };
+void applyMatrix(const glm::mat4& _mat ) { matrix_world = glm::mat4(_mat); };
 
 void rotate(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
 void rotateX(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
@@ -60,19 +60,32 @@ void pop() {
     matrix_stack.pop();
 }
 
-void setCamera(Camera &_camera) { 
-    cameraPtr = CameraPtr(&_camera); 
+void setCamera(Camera& _camera) { setCamera(&_camera); }
+void setCamera(Camera* _camera) { 
+    cameraPtr = _camera; 
     glEnable(GL_DEPTH_TEST);
 };
 
-CameraPtr getCamera() {
+void resetCamera() {  
+    cameraPtr = nullptr;
+    glDisable(GL_DEPTH_TEST);
+};
+
+Camera* getCamera() {
     if (cameraPtr)
         return cameraPtr;
     return nullptr;
 }
 
+Camera *getCameraCustom() {
+    if (cameraCustomPtr == nullptr)
+        cameraCustomPtr = new Camera();
+    return cameraCustomPtr;
+}
+
 void perspective(float _fovy, float _aspect, float _near, float _far) {
-    cameraPtr = std::make_shared<Camera>();
+    cameraPtr = getCameraCustom();
+    cameraPtr->setProjection(ada::PERSPECTIVE);
     // cameraPtr->setProjection( glm::perspective(_fovy, _aspect, _near, _far) );
     cameraPtr->setAspect(_aspect);
     cameraPtr->setFOV(_fovy);
@@ -81,16 +94,16 @@ void perspective(float _fovy, float _aspect, float _near, float _far) {
 }
 
 void ortho(float _left, float _right, float _bottom, float _top,  float _near, float _far) {
-    cameraPtr = std::make_shared<Camera>();
+    cameraPtr = getCameraCustom();
     cameraPtr->setProjection( glm::ortho(  _left , _right, _bottom, _top, _near, _top) );
     glEnable(GL_DEPTH_TEST);
 }
 
-CameraPtr createCamera() {
-    cameraPtr = std::make_shared<Camera>();
+Camera* createCamera() {
+    cameraPtr = getCameraCustom();
     cameraPtr->setViewport(getWindowWidth(), getWindowHeight());
     glEnable(GL_DEPTH_TEST);
-    return getCamera();
+    return cameraPtr;
 }
 
 glm::mat4 getProjectionViewWorldMatrix() {

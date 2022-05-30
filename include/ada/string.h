@@ -88,10 +88,10 @@ std::string toString(const glm::mat4& _mat, char _sep = ' ', int _precision = 3)
 inline std::ostream& operator<<(std::ostream& os, const glm::vec3& vec);
 inline std::istream& operator>>(std::istream& is, glm::vec3& vec);
 
-typedef std::vector<std::string> stringList;
+typedef std::vector<std::string> StringList;
 
-stringList merge(const stringList &_A,const stringList &_B);
-void add(const std::string &_str, stringList &_list);
-void del(const std::string &_str, stringList &_list);
+StringList merge(const StringList &_A,const StringList &_B);
+void add(const std::string &_str, StringList &_list);
+void del(const std::string &_str, StringList &_list);
 
 }

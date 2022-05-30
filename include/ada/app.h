@@ -33,7 +33,7 @@ public:
     
     virtual void mouseClicked() {};
     virtual void mousePressed() {};
-    virtual void onMouseDown(float _x, float _y, int _button) {};
+    virtual void onMousePress(float _x, float _y, int _button) {};
 
     virtual void mouseReleased() {}
     virtual void onMouseRelease(float _x, float _y, int _button) {};

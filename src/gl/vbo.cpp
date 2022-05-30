@@ -26,7 +26,14 @@ Vbo::Vbo(VertexLayout* _vertexLayout, GLenum _drawMode) :
 }
 
 Vbo::Vbo(const Mesh& _mesh) : 
-    m_drawType(GL_STATIC_DRAW) {
+    m_vertexLayout(NULL),
+    m_glVertexBuffer(0),
+    m_nVertices(0),
+    m_glIndexBuffer(0),
+    m_nIndices(0),
+    m_drawType(GL_STATIC_DRAW),
+    m_drawMode(GL_TRIANGLES),
+    m_isUploaded(false) {
     load(_mesh);
 }
 
@@ -119,11 +126,13 @@ void Vbo::load(const Mesh& _mesh) {
             for (size_t i = 0; i < _mesh.getVerticesTotal(); i++)
                 addIndex(i);
         }
-        else if ( _mesh.getDrawMode() == LINE_STRIP ) {
+        else if ( _mesh.getDrawMode() == LINE_STRIP || _mesh.getDrawMode() == LINE_LOOP ) {
             for (size_t i = 1; i < _mesh.getVerticesTotal(); i++) {
                 addIndex(i-1);
                 addIndex(i);
             }
+            if (_mesh.getDrawMode() == LINE_LOOP)
+                addIndex(0);
         }
     }
     else
@@ -172,6 +181,8 @@ void Vbo::setDrawMode(DrawMode _drawMode) {
         m_drawMode = GL_POINTS;
     else if (_drawMode == LINE_STRIP)
         m_drawMode = GL_LINE_STRIP;
+    else if (_drawMode == LINE_LOOP)
+        m_drawMode = GL_LINE_LOOP;
     else if (_drawMode == LINES)
         m_drawMode = GL_LINES;
     else if (_drawMode == TRIANGLES)

@@ -74,15 +74,17 @@ bool Model::loadGeom(const Mesh& _mesh) {
     if (_mesh.haveTangents())
         addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
 
-    if (_mesh.getDrawMode() == GL_POINTS)
+    if (_mesh.getDrawMode() == POINTS)
         addDefine("MODEL_PRIMITIVE_POINTS");
-    else if (_mesh.getDrawMode() == GL_LINES)
+    else if (_mesh.getDrawMode() == LINES)
         addDefine("MODEL_PRIMITIVE_LINES");
-    else if (_mesh.getDrawMode() == GL_LINE_STRIP)
+    else if (_mesh.getDrawMode() == LINE_LOOP)
+        addDefine("MODEL_PRIMITIVE_LINE_LOOP");
+    else if (_mesh.getDrawMode() == LINE_STRIP)
         addDefine("MODEL_PRIMITIVE_LINE_STRIP");
-    else if (_mesh.getDrawMode() == GL_TRIANGLES)
+    else if (_mesh.getDrawMode() == TRIANGLES)
         addDefine("MODEL_PRIMITIVE_TRIANGLES");
-    else if (_mesh.getDrawMode() == GL_TRIANGLE_FAN)
+    else if (_mesh.getDrawMode() == TRIANGLE_FAN)
         addDefine("MODEL_PRIMITIVE_TRIANGLE_FAN");
 
     addDefine("LIGHT_SHADOWMAP", "u_lightShadowMap");
