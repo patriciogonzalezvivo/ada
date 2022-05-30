@@ -41,6 +41,10 @@ Vbo::~Vbo() {
     glDeleteBuffers(1, &m_glIndexBuffer);
 }
 
+void Vbo::operator = (const Mesh &_mesh ) {
+    load(_mesh);
+}
+
 void Vbo::load(const Mesh& _mesh) {
     // Create Vertex Layout
     //
