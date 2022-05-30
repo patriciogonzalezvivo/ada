@@ -12,7 +12,7 @@ public:
     Texture();
     virtual ~Texture();
 
-    virtual bool    load(const std::string& _filepath, bool _vFlip = true, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT);
+    virtual bool    load(const std::string& _filepath, bool _vFlip = false, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT);
     virtual bool    load(int _width, int _height, int _component, int _bits, const void* _data, TextureFilter _filter = LINEAR, TextureWrap _wrap = REPEAT);
     virtual bool    update(int _x, int _y, int _width, int _height, const void* _data);
 

@@ -67,8 +67,16 @@ void VertexLayout::enable(const Shader* _program) {
     }
 }
 
+bool VertexLayout::haveAttrib(const std::string& _attribute) {
+    for (size_t i = 0; i < m_attribs.size(); i++) {
+        if (m_attribs[i].name == _attribute)
+            return true;
+    }
+    return false;
+}
+
 void VertexLayout::printAttrib() {
-    for (unsigned int i = 0; i < m_attribs.size(); i++) {
+    for (size_t i = 0; i < m_attribs.size(); i++) {
         int size = m_attribs[i].size;
         if ( m_attribs[i].name == "position") {
             size = 4;

@@ -152,10 +152,41 @@ precision mediump float;
 #endif
 
 uniform mat4    u_modelViewProjectionMatrix;
+
 attribute vec4  a_position;
+varying vec4    v_position;
+
+#ifdef MODEL_VERTEX_COLOR
+attribute vec4  a_color;
+varying vec4    v_color;
+#endif
+
+#ifdef MODEL_VERTEX_NORMAL
+attribute vec3  a_normal;
+varying vec3    v_normal;
+#endif
+
+#ifdef MODEL_VERTEX_TEXCOORD
+attribute vec2  a_texcoord;
+varying vec2    v_texcoord;
+#endif
 
 void main(void) {
-    gl_Position = u_modelViewProjectionMatrix * a_position;
+    v_position = a_position;
+    
+#ifdef MODEL_VERTEX_COLOR
+    v_color = a_color;
+#endif
+    
+#ifdef MODEL_VERTEX_NORMAL
+    v_normal = a_normal;
+#endif
+    
+#ifdef MODEL_VERTEX_TEXCOORD
+    v_texcoord = a_texcoord;
+#endif
+    
+    gl_Position = u_modelViewProjectionMatrix * v_position;
 }
 )";
 
@@ -164,10 +195,36 @@ const std::string fill_frag = R"(
 precision mediump float;
 #endif
 
+#ifdef HAVE_TEXTURE
+uniform sampler2D u_tex0;
+#endif
+
 uniform vec4 u_color;
 
+#ifdef MODEL_VERTEX_COLOR
+varying vec4    v_color;
+#endif
+
+#ifdef MODEL_VERTEX_NORMAL
+varying vec3    v_normal;
+#endif
+
+#ifdef MODEL_VERTEX_TEXCOORD
+varying vec2    v_texcoord;
+#endif
+
 void main(void) {
-    gl_FragColor = u_color;
+    vec4 color = u_color;
+
+#ifdef MODEL_VERTEX_COLOR
+    color = v_color;
+#endif
+
+#if defined(HAVE_TEXTURE) && defined(MODEL_VERTEX_TEXCOORD)
+    color = texture2D(u_tex0, v_texcoord);
+#endif
+
+    gl_FragColor = color;
 }
 )";
 

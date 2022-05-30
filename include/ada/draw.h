@@ -138,8 +138,8 @@ void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
 // p5.Geometry
 
 // Material
-Shader loadShader(std::string& _fragFile, std::string& _vertFile);
-Shader createShader(std::string& _fragSrc, std::string& _vertSrc);
+Shader loadShader(const std::string& _fragFile, const std::string& _vertFile);
+Shader createShader(const std::string& _fragSrc = "", const std::string& _vertSrc = "");
 Shader createShader(DefaultShaders _frag, DefaultShaders _vert);
 void shader(Shader& _shader);
 void shader(Shader* _shader);

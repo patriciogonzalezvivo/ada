@@ -28,6 +28,8 @@ public:
 
     GLint       getStride() const { return m_stride; };
 
+    bool        haveAttrib(const std::string& _attribute);
+
     void        printAttrib();
 
 private:

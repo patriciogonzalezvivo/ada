@@ -13,6 +13,7 @@
 namespace ada {
 
 ShaderPtr   shaderPtr     = nullptr;
+bool        shaderChange  = true; 
 
 glm::vec4   fill_color      = glm::vec4(1.0f);
 ShaderPtr   fill_shader   = nullptr;
@@ -353,8 +354,10 @@ void text(const std::string& _text, float _x, float _y, Font* _font) {
 void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
 
-        if (shaderPtr == nullptr)
+        if (shaderPtr == nullptr) {
             shaderPtr = getFillShader();
+            shaderChange = true;
+        }
 
         shaderPtr->use();
         shaderPtr->setUniform("u_color", stroke_color);
@@ -402,15 +405,20 @@ void rect(float _x, float _y, float _w, float _h, Shader* _program) {
 void addLight(Light& _light, const std::string& _name) { lights[_name] = LightPtr(&_light);  }
 void addLight(Light* _light, const std::string& _name) { lights[_name] = LightPtr(_light);  }
 
-Shader loadShader(std::string& _fragFile, std::string& _vertFile) {
+Shader loadShader(const std::string& _fragFile, const std::string& _vertFile) {
     Shader s;
     s.load(loadGlslFrom(_fragFile), loadGlslFrom(_vertFile));
     return s;
 }
 
-Shader createShader(std::string& _fragSrc, std::string& _vertSrc) {
+Shader createShader(const std::string& _fragSrc, const std::string& _vertSrc) {
     Shader s;
-    s.load(_fragSrc, _vertSrc);
+    if (!_fragSrc.empty() && _vertSrc.empty())
+        s.load(_fragSrc, getDefaultSrc(VERT_DEFAULT_SCENE), false, false);
+    else if (_fragSrc.empty())
+        s.load(getDefaultSrc(FRAG_DEFAULT_SCENE), getDefaultSrc(VERT_DEFAULT_SCENE), false, false);
+    else
+        s.load(_fragSrc, _vertSrc, false, false);
     return s;
 }
 
@@ -422,17 +430,26 @@ Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
 
 void shader(Shader& _shader) { shader(&_shader); }
 void shader(Shader* _shader) {
-
-    if (shaderPtr == nullptr)
+    if (shaderPtr == nullptr) {
         shaderPtr = ShaderPtr(_shader); 
-    else if (shaderPtr.get() != _shader)
+        shaderChange = true;
+    }
+    else if (shaderPtr.get() != _shader) {
         shaderPtr = ShaderPtr(_shader);
+        shaderChange = true;
+    }
 
     shaderPtr->textureIndex = 0;
     shaderPtr->use();
 
+    shaderPtr->setUniform("u_date", getDate() );
+    shaderPtr->setUniform("u_resolution", (float)getWindowWidth(), (float)getWindowHeight() );
+    shaderPtr->setUniform("u_mouse", (float)getMouseX(), (float)getMouseY() );
+    shaderPtr->setUniform("u_time", (float)getTimeSec() );
+    shaderPtr->setUniform("u_delta", (float)getDelta() );
+
     if (cameraPtr) {
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix );
         shaderPtr->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
         shaderPtr->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
         shaderPtr->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
@@ -491,9 +508,36 @@ void resetShader() { shaderPtr = nullptr; }
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
     if (_program == nullptr) {
-        if (shaderPtr == nullptr)
+        if (shaderPtr == nullptr) {
             shaderPtr = getFillShader();
+            shaderChange = true;
+        }
         _program = shaderPtr.get();
+    }
+
+    if (shaderChange) {
+        VertexLayout* vl = _vbo->getVertexLayout();
+        if (vl->haveAttrib("color"))
+            _program->addDefine("MODEL_VERTEX_COLOR", "v_color");
+        // else
+            // _program->delDefine("MODEL_VERTEX_COLOR");
+
+        if (vl->haveAttrib("normal"))
+            _program->addDefine("MODEL_VERTEX_NORMAL", "v_normal");
+        // else
+            // _program->delDefine("MODEL_VERTEX_COLOR");
+
+        if (vl->haveAttrib("texcoord"))
+            _program->addDefine("MODEL_VERTEX_TEXCOORD", "v_texcoord");
+        // else
+            // _program->delDefine("MODEL_VERTEX_TEXCOORD");
+
+        if (vl->haveAttrib("tangent"))
+            _program->addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
+        // else
+            // _program->delDefine("MODEL_VERTEX_TEXCOORD");
+        
+        shaderChange = false;
     }
 
     shader(_program);
@@ -507,6 +551,7 @@ void texture(Texture* _texture, const std::string _name) {
     std::string name = _name;
     if (_name.size() == 0)
         name = "u_tex" + toString(shaderPtr->textureIndex);
+    shaderPtr->addDefine("USE_TEXTURE", name);
     shaderPtr->setUniformTexture(name, _texture, shaderPtr->textureIndex );
     shaderPtr->setUniform(name + "Resolution", (float)_texture->getWidth(), (float)_texture->getHeight());
     shaderPtr->textureIndex++;
