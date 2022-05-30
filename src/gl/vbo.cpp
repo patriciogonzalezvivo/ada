@@ -122,8 +122,9 @@ void Vbo::load(const Mesh& _mesh) {
             }
         }
     }
-    else
-        addIndices((GLuint*)_mesh.getIndices().data(), _mesh.getIndicesTotal());
+    else {
+        addIndices((INDEX_TYPE_GL*)_mesh.getIndices().data(), _mesh.getIndicesTotal());
+    }
 
 }
 
