@@ -30,6 +30,7 @@ public:
     virtual ~Vbo();
 
     void load(const Mesh& _mesh);
+    void operator = (const Mesh &_mesh );
 
     void setDrawType(GLenum _drawType = GL_STATIC_DRAW);
     void setDrawMode(GLenum _drawMode = GL_TRIANGLES);  // Set Draw mode for the Vbo object
@@ -71,6 +72,7 @@ public:
      * Renders the geometry in this mesh using the ShaderProgram _shader; if geometry has not already
      * been uploaded it will be uploaded at this point
      */
+    void render(Shader& _shader) { render(&_shader); }
     void render(Shader* _shader);
     void printInfo();
 

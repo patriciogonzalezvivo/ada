@@ -521,6 +521,10 @@ void shader(Shader* _shader) {
         shaderPtr->setUniform("u_cameraChange", cameraPtr->bChange);
         shaderPtr->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
     }
+    else
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_model );
+
+    shaderPtr->setUniform("u_color", fill_color );
 
     // Pass Light Uniforms
     if (lights.size() == 1) {
@@ -596,7 +600,6 @@ void model(Vbo* _vbo, Shader* _program) {
     }
 
     shader(_program);
-    _program->setUniform("u_color", fill_color);
 
     _vbo->render(_program);
 }
