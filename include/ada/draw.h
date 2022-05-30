@@ -56,11 +56,11 @@ void strokeWeight(float _weight);
 void resetMatrix();
 void applyMatrix(const glm::mat3& _mat );
 void applyMatrix(const glm::mat4& _mat );
-const glm::mat4& getProjectionViewModelMatrix();
-const glm::mat4& getProjectionViewMatrix();
-const glm::mat4& getProjectionMatrix();
-const glm::mat4& getViewMatrix();
-const glm::mat4& getWorldMatrix();
+glm::mat4 getProjectionViewModelMatrix();
+glm::mat4 getProjectionViewMatrix();
+glm::mat4 getProjectionMatrix();
+glm::mat4 getViewMatrix();
+glm::mat4 getWorldMatrix();
 
 void rotate(float _rad);
 void rotateX(float _rad);

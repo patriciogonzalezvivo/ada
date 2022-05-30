@@ -93,35 +93,35 @@ CameraPtr createCamera() {
     return getCamera();
 }
 
-const glm::mat4& getProjectionViewWorldMatrix() {
+glm::mat4 getProjectionViewWorldMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix() * matrix_world; 
     else
         return getOrthoMatrix() * matrix_world;
 }
 
-const glm::mat4& getProjectionViewMatrix() {
+glm::mat4 getProjectionViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-const glm::mat4& getProjectionMatrix() {
+glm::mat4 getProjectionMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-const glm::mat4& getViewMatrix() {
+glm::mat4 getViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getViewMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-const glm::mat4& getWorldMatrix() { 
+glm::mat4 getWorldMatrix() { 
     return matrix_world;
 }
 
@@ -522,7 +522,7 @@ void shader(Shader* _shader) {
         shaderPtr->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
     }
     else
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_model );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_world );
 
     shaderPtr->setUniform("u_color", fill_color );
 
