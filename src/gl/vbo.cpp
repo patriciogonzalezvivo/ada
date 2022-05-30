@@ -122,10 +122,8 @@ void Vbo::load(const Mesh& _mesh) {
             }
         }
     }
-    else {
+    else
         addIndices((INDEX_TYPE_GL*)_mesh.getIndices().data(), _mesh.getIndicesTotal());
-    }
-
 }
 
 void Vbo::setVertexLayout(VertexLayout* _vertexLayout) {

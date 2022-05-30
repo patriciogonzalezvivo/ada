@@ -15,6 +15,7 @@ namespace ada {
 ShaderPtr   shaderPtr     = nullptr;
 
 glm::vec4   fill_color      = glm::vec4(1.0f);
+ShaderPtr   fill_shader   = nullptr;
 bool        fill_enabled    = true;
 
 float       points_size     = 10.0f;
@@ -75,94 +76,6 @@ glm::mat4 getMatrix() {
         return getOrthoMatrix() * matrix;
 }
 
-void addLight(Light& _light, const std::string& _name) { lights[_name] = LightPtr(&_light);  }
-void addLight(Light* _light, const std::string& _name) { lights[_name] = LightPtr(_light);  }
-
-Shader loadShader(std::string& _fragFile, std::string& _vertFile) {
-    Shader s;
-    s.load(loadGlslFrom(_fragFile), loadGlslFrom(_vertFile));
-    return s;
-}
-
-Shader createShader(std::string& _fragSrc, std::string& _vertSrc) {
-    Shader s;
-    s.load(_fragSrc, _vertSrc);
-    return s;
-}
-
-Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
-    Shader s;
-    s.load(getDefaultSrc(_frag), getDefaultSrc(_vert));
-    return s;
-}
-
-void shader(Shader& _shader) { shader(&_shader); }
-void shader(Shader* _shader) {
-
-    if (shaderPtr == nullptr)
-        shaderPtr = ShaderPtr(_shader); 
-    else if (shaderPtr.get() != _shader)
-        shaderPtr = ShaderPtr(_shader);
-
-    _shader->use();
-
-    if (cameraPtr) {
-        _shader->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() );
-        _shader->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
-        _shader->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
-        _shader->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
-
-        _shader->setUniform("u_camera", -cameraPtr->getPosition() );
-        _shader->setUniform("u_cameraDistance", cameraPtr->getDistance());
-        _shader->setUniform("u_cameraNearClip", cameraPtr->getNearClip());
-        _shader->setUniform("u_cameraFarClip", cameraPtr->getFarClip());
-        _shader->setUniform("u_cameraEv100", cameraPtr->getEv100());
-        _shader->setUniform("u_cameraExposure", cameraPtr->getExposure());
-        _shader->setUniform("u_cameraAperture", cameraPtr->getAperture());
-        _shader->setUniform("u_cameraShutterSpeed", cameraPtr->getShutterSpeed());
-        _shader->setUniform("u_cameraSensitivity", cameraPtr->getSensitivity());
-        _shader->setUniform("u_cameraChange", cameraPtr->bChange);
-        _shader->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
-    }
-
-    // Pass Light Uniforms
-    if (lights.size() == 1) {
-        LightPtrs::iterator it = lights.begin();
-
-        _shader->setUniform("u_lightColor", it->second->color);
-        _shader->setUniform("u_lightIntensity", it->second->intensity);
-
-        if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-            _shader->setUniform("u_light", it->second->getPosition());
-        if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-            _shader->setUniform("u_lightDirection", it->second->direction);
-        if (it->second->falloff > 0)
-            _shader->setUniform("u_lightFalloff", it->second->falloff);
-
-        // _shader->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
-        // _shader->setUniformDepthTexture("u_lightShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
-    }
-    else {
-        for (LightPtrs::iterator it = lights.begin(); it != lights.end(); ++it) {
-            std::string name = "u_" + it->first;
-
-            _shader->setUniform(name + "Color", it->second->color);
-            _shader->setUniform(name + "Intensity", it->second->intensity);
-            if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-                _shader->setUniform(name, it->second->getPosition());
-            if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-                _shader->setUniform(name + "Direction", it->second->direction);
-            if (it->second->falloff > 0)
-                _shader->setUniform(name +"Falloff", it->second->falloff);
-
-            _shader->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
-            // _shader->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
-        }
-    } 
-}
-
-void resetShader() { shaderPtr = nullptr; }
-
 void clear() { clear( glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) ); }
 void clear( float _brightness ) { clear( glm::vec4(_brightness, _brightness, _brightness, 1.0f) ); }
 void clear( const glm::vec3& _color ) { clear( glm::vec4(_color, 1.0f) ); }
@@ -195,13 +108,30 @@ void strokeWeight( float _weight) { glLineWidth(_weight); }
 void pointSize( float _size ) { points_size = _size; }
 void pointShape( PointShape _shape) { points_shape = _shape; }
 
+ShaderPtr getPointShader() {
+    if (points_shader == nullptr) {
+        points_shader = std::make_shared<Shader>();
+        points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
+    }
+
+    return points_shader;
+}
+
+ShaderPtr getFillShader() {
+    if (fill_shader == nullptr) {
+        fill_shader = std::make_shared<Shader>();
+        fill_shader->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
+    }
+    
+    return fill_shader;
+}
+
+
+// POINTS
+//
 void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
-        if (points_shader == nullptr) {
-            points_shader = std::make_shared<Shader>();
-            points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
-        }
-
+        points_shader = getPointShader();
         points_shader->use();
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
@@ -226,11 +156,7 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
 void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
     if (_program == nullptr) {
-        if (points_shader == nullptr) {
-            points_shader = std::make_shared<Shader>();
-            points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
-        }
-
+        points_shader = getPointShader();
         points_shader->use();
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
@@ -254,6 +180,45 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
     }
 }
 
+void points(const Line& _line, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _line.getPoint(0) );
+    positions.push_back( _line.getPoint(1) );
+    points(positions, _program);
+}
+
+void points(const Triangle& _triangle, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _triangle.getVertex(0) );
+    positions.push_back( _triangle.getVertex(1) );
+    positions.push_back( _triangle.getVertex(2) );
+    points(positions, _program);
+}
+
+void points(const BoundingBox& _bbox, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _bbox.min );
+    positions.push_back( _bbox.max );
+    positions.push_back( glm::vec3(_bbox.min.x, _bbox.min.y, _bbox.max.z) );
+    positions.push_back( glm::vec3(_bbox.min.x, _bbox.max.y, _bbox.max.z) );
+    positions.push_back( glm::vec3(_bbox.max.x, _bbox.max.y, _bbox.min.z) );
+    positions.push_back( glm::vec3(_bbox.max.x, _bbox.min.y, _bbox.min.z) );
+    positions.push_back( glm::vec3(_bbox.min.x, _bbox.max.y, _bbox.min.z) );
+    positions.push_back( glm::vec3(_bbox.max.x, _bbox.min.y, _bbox.max.z) );
+    points(positions, _program);
+}
+
+void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program) {
+    std::vector<glm::vec2> positions;
+    positions.push_back( glm::vec2(_bbox.x, _bbox.y) );
+    positions.push_back( glm::vec2(_bbox.z, _bbox.y) );
+    positions.push_back( glm::vec2(_bbox.z, _bbox.w) );
+    positions.push_back( glm::vec2(_bbox.x, _bbox.w) );
+    points(positions, _program);
+}
+
+// LINES
+// 
 void line(float _x1, float _y1, float _x2, float _y2, Shader* _program) {
     std::vector<glm::vec2> pts = {glm::vec2(_x1,_y1), glm::vec2(_x2, _y2)};
     line(pts, _program);
@@ -271,16 +236,11 @@ void line(const glm::vec2& _a, const glm::vec2& _b, Shader* _program) {
 
 void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = std::make_shared<Shader>();
-            shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
-        }
-
-        shaderPtr->use();
-        shaderPtr->setUniform("u_color", stroke_color);
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-
-        _program = shaderPtr.get();
+        fill_shader = getFillShader();
+        fill_shader->use();
+        fill_shader->setUniform("u_color", stroke_color);
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+        _program = fill_shader.get();
     }
 
     const GLint location = _program->getAttribLocation("a_position");
@@ -298,18 +258,12 @@ void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program) {
 }
 
 void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
-
     if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = std::make_shared<Shader>();
-            shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
-        }
-
-        shaderPtr->use();
-        shaderPtr->setUniform("u_color", stroke_color);
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-
-        _program = shaderPtr.get();
+        fill_shader = getFillShader();
+        fill_shader->use();
+        fill_shader->setUniform("u_color", stroke_color);
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+        _program = fill_shader.get();
     }
 
     const GLint location = _program->getAttribLocation("a_position");
@@ -321,34 +275,31 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
     }
 };
 
-void points(Vbo* _vbo) {
-    if (points_shader == nullptr) {
-        points_shader = std::make_shared<Shader>();
-        points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
-    }
-
-    points_shader->use();
-    points_shader->setUniform("u_size", points_size);
-    points_shader->setUniform("u_shape", points_shape);
-    points_shader->setUniform("u_color", fill_color);
-    points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-
-#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-    glEnable(GL_POINT_SPRITE);
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
-
-    _vbo->render(points_shader.get());
+void line(const Line& _line, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _line.getPoint(0) );
+    positions.push_back( _line.getPoint(1) );
+    line(positions, _program);
 }
 
-void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program) {
-    std::vector<glm::vec2> positions;
-    positions.push_back( glm::vec2(_bbox.x, _bbox.y) );
-    positions.push_back( glm::vec2(_bbox.z, _bbox.y) );
-    positions.push_back( glm::vec2(_bbox.z, _bbox.w) );
-    positions.push_back( glm::vec2(_bbox.x, _bbox.w) );
-    
-    points(positions, _program);
+void line(const Triangle& _triangle, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _triangle.getVertex(0) );
+    positions.push_back( _triangle.getVertex(1) );
+    positions.push_back( _triangle.getVertex(2) );
+    positions.push_back( _triangle.getVertex(0) );
+    line(positions, _program);
+}
+
+void line(const BoundingBox& _bbox, Shader* _program) {
+    std::vector<glm::vec3> positions;
+    positions.push_back( _bbox.min );
+    positions.push_back( glm::vec3( _bbox.min.x, _bbox.min.y, _bbox.max.z ) );
+
+    // TODO:
+    //  - finsih this
+
+    line(positions, _program);
 }
 
 void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
@@ -362,6 +313,8 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
     line(positions, _program);
 }
 
+// TEXT
+//
 void textAlign(FontAlign _align, Font* _font) {
     if (_font == nullptr) {
         if (font == nullptr)
@@ -395,12 +348,13 @@ void text(const std::string& _text, float _x, float _y, Font* _font) {
     font->render(_text, _x, _y);
 }
 
+// SHAPES
+// 
 void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
     if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = std::make_shared<Shader>();
-            shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
-        }
+
+        if (shaderPtr == nullptr)
+            shaderPtr = getFillShader();
 
         shaderPtr->use();
         shaderPtr->setUniform("u_color", stroke_color);
@@ -423,7 +377,6 @@ void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program) {
 }
 
 void rect(float _x, float _y, float _w, float _h, Shader* _program) {
-
     // _x = _x * 2.0f - 1.0f;
     // _y = _y * 2.0f - 1.0f;
     // _w = _w * 2.0f;
@@ -446,13 +399,100 @@ void rect(float _x, float _y, float _w, float _h, Shader* _program) {
         triangles(tris, _program);
 }
 
+void addLight(Light& _light, const std::string& _name) { lights[_name] = LightPtr(&_light);  }
+void addLight(Light* _light, const std::string& _name) { lights[_name] = LightPtr(_light);  }
+
+Shader loadShader(std::string& _fragFile, std::string& _vertFile) {
+    Shader s;
+    s.load(loadGlslFrom(_fragFile), loadGlslFrom(_vertFile));
+    return s;
+}
+
+Shader createShader(std::string& _fragSrc, std::string& _vertSrc) {
+    Shader s;
+    s.load(_fragSrc, _vertSrc);
+    return s;
+}
+
+Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
+    Shader s;
+    s.load(getDefaultSrc(_frag), getDefaultSrc(_vert));
+    return s;
+}
+
+void shader(Shader& _shader) { shader(&_shader); }
+void shader(Shader* _shader) {
+
+    if (shaderPtr == nullptr)
+        shaderPtr = ShaderPtr(_shader); 
+    else if (shaderPtr.get() != _shader)
+        shaderPtr = ShaderPtr(_shader);
+
+    shaderPtr->textureIndex = 0;
+    shaderPtr->use();
+
+    if (cameraPtr) {
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() );
+        shaderPtr->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
+        shaderPtr->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
+        shaderPtr->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
+
+        shaderPtr->setUniform("u_camera", -cameraPtr->getPosition() );
+        shaderPtr->setUniform("u_cameraDistance", cameraPtr->getDistance());
+        shaderPtr->setUniform("u_cameraNearClip", cameraPtr->getNearClip());
+        shaderPtr->setUniform("u_cameraFarClip", cameraPtr->getFarClip());
+        shaderPtr->setUniform("u_cameraEv100", cameraPtr->getEv100());
+        shaderPtr->setUniform("u_cameraExposure", cameraPtr->getExposure());
+        shaderPtr->setUniform("u_cameraAperture", cameraPtr->getAperture());
+        shaderPtr->setUniform("u_cameraShutterSpeed", cameraPtr->getShutterSpeed());
+        shaderPtr->setUniform("u_cameraSensitivity", cameraPtr->getSensitivity());
+        shaderPtr->setUniform("u_cameraChange", cameraPtr->bChange);
+        shaderPtr->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
+    }
+
+    // Pass Light Uniforms
+    if (lights.size() == 1) {
+        LightPtrs::iterator it = lights.begin();
+
+        shaderPtr->setUniform("u_lightColor", it->second->color);
+        shaderPtr->setUniform("u_lightIntensity", it->second->intensity);
+
+        if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+            shaderPtr->setUniform("u_light", it->second->getPosition());
+        if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+            shaderPtr->setUniform("u_lightDirection", it->second->direction);
+        if (it->second->falloff > 0)
+            shaderPtr->setUniform("u_lightFalloff", it->second->falloff);
+
+        // shaderPtr->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
+        // shaderPtr->setUniformDepthTexture("u_lightShadowMap", it->second->getShadowMap(), shaderPtr->textureIndex++ );
+    }
+    else {
+        for (LightPtrs::iterator it = lights.begin(); it != lights.end(); ++it) {
+            std::string name = "u_" + it->first;
+
+            shaderPtr->setUniform(name + "Color", it->second->color);
+            shaderPtr->setUniform(name + "Intensity", it->second->intensity);
+            if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+                shaderPtr->setUniform(name, it->second->getPosition());
+            if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+                shaderPtr->setUniform(name + "Direction", it->second->direction);
+            if (it->second->falloff > 0)
+                shaderPtr->setUniform(name +"Falloff", it->second->falloff);
+
+            shaderPtr->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
+            // shaderPtr->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
+        }
+    } 
+}
+
+void resetShader() { shaderPtr = nullptr; }
+
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
     if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = std::make_shared<Shader>();
-            shaderPtr->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
-        }
+        if (shaderPtr == nullptr)
+            shaderPtr = getFillShader();
         _program = shaderPtr.get();
     }
 
@@ -462,5 +502,14 @@ void model(Vbo* _vbo, Shader* _program) {
     _vbo->render(_program);
 }
 
+void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }
+void texture(Texture* _texture, const std::string _name) {
+    std::string name = _name;
+    if (_name.size() == 0)
+        name = "u_tex" + toString(shaderPtr->textureIndex);
+    shaderPtr->setUniformTexture(name, _texture, shaderPtr->textureIndex );
+    shaderPtr->setUniform(name + "Resolution", (float)_texture->getWidth(), (float)_texture->getHeight());
+    shaderPtr->textureIndex++;
+}
 
 };

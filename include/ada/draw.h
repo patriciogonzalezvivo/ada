@@ -11,6 +11,9 @@
 #include "ada/scene/light.h"
 
 #include "ada/geom/mesh.h"
+#include "ada/geom/line.h"
+#include "ada/geom/triangle.h"
+#include "ada/geom/boundingBox.h"
 
 #include "ada/font.h"
 
@@ -77,27 +80,38 @@ void pop();
 // erase()
 // noErase()
 
+// POINTS
 void pointSize( float _size );
-void pointShape( PointShape _shape);
+void pointShape( PointShape _shape );
+void points(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
+void points(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
+void points(const Line& _line, Shader* _program = nullptr);
+void points(const Triangle& _triangle, Shader* _program = nullptr);
+void points(const BoundingBox& _bbox, Shader* _program = nullptr);
+void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 
-// 2D Shapes
-// -----------------------------------
 // arc()
 // ellipse()
 // circle()
 // quad()
 // square()
 // triangle()
-void triangles(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
-
-void rect(float _x, float _y, float _w, float _h, Shader* _program = nullptr);
-void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program = nullptr);
-
-void points(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
 
 void line(float _x1, float _y1, float _x2, float _y2, Shader* _program = nullptr);
 void line(const glm::vec2& _a, const glm::vec2& _b, Shader* _program = nullptr);
 void line(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
+void line(float _x1, float _y1, float _z1, float _x2, float _y2, float _z2, Shader* _program = nullptr);
+void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program = nullptr);
+void line(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
+void line(const Line& _line, Shader* _program = nullptr);
+void line(const Triangle& _triangle, Shader* _program = nullptr);
+void line(const BoundingBox& _bbox, Shader* _program = nullptr);
+void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
+
+void triangles(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
+
+void rect(float _x, float _y, float _w, float _h, Shader* _program = nullptr);
+void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program = nullptr);
 
 // 2D Text
 // -----------------------------------
@@ -113,18 +127,6 @@ void textAlign(FontAlign _align, Font* _font = nullptr);
 void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
-
-// 3D Shapes
-// ---------------------------------------------------
-void points(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
-void points(Vbo* _vbo);
-
-void line(float _x1, float _y1, float _z1, float _x2, float _y2, float _z2, Shader* _program = nullptr);
-void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program = nullptr);
-void line(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
-
-void pointsBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
-void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 
 // plane()
 // box()
@@ -143,7 +145,9 @@ void shader(Shader& _shader);
 void shader(Shader* _shader);
 void resetShader();
 
-// texture()
+void texture(Texture& _texture, const std::string _name = "");
+void texture(Texture* _texture, const std::string _name = "");
+
 // textureMode()
 // textureWrap()
 // normalMaterial()
