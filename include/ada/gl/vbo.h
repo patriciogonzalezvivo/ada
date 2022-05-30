@@ -34,6 +34,8 @@ public:
 
     void setDrawType(GLenum _drawType = GL_STATIC_DRAW);
     void setDrawMode(GLenum _drawMode = GL_TRIANGLES);  // Set Draw mode for the Vbo object
+    GLenum getDrawMode() { return m_drawMode; }
+    
     void setDrawMode(DrawMode _drawMode = TRIANGLES);
     void setVertexLayout(VertexLayout* _vertexLayout);  // Set Vertex Layout for the Vbo object
 

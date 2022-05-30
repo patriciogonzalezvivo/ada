@@ -199,7 +199,7 @@ precision mediump float;
 uniform sampler2D u_tex0;
 #endif
 
-uniform vec4 u_color;
+uniform vec4    u_color;
 
 #ifdef MODEL_VERTEX_COLOR
 varying vec4    v_color;

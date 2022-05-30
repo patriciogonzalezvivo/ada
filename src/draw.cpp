@@ -537,8 +537,6 @@ void shader(Shader* _shader) {
     else
         shaderPtr->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_world );
 
-    shaderPtr->setUniform("u_color", fill_color );
-
     // Pass Light Uniforms
     if (lights.size() == 1) {
         LightPtrs::iterator it = lights.begin();
@@ -587,7 +585,7 @@ void model(Vbo* _vbo, Shader* _program) {
         _program = shaderPtr;
     }
 
-    if (shaderChange) {
+    if (shaderChange && shaderPtr != fill_shader) {
         VertexLayout* vl = _vbo->getVertexLayout();
         if (vl->haveAttrib("color"))
             _program->addDefine("MODEL_VERTEX_COLOR", "v_color");
@@ -613,6 +611,22 @@ void model(Vbo* _vbo, Shader* _program) {
     }
 
     shader(_program);
+
+    if (_program == fill_shader) {
+        if (_vbo->getDrawMode() == GL_LINES || _vbo->getDrawMode() == GL_LINE_LOOP || _vbo->getDrawMode() == GL_LINE_STRIP)
+            _program->setUniform("u_color", stroke_color);
+        else 
+            _program->setUniform("u_color", fill_color);
+    }
+    else if (_program == points_shader) {
+        points_shader->setUniform("u_size", points_size);
+        points_shader->setUniform("u_shape", points_shape);
+        points_shader->setUniform("u_color", fill_color);
+        #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        glEnable(GL_POINT_SPRITE);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        #endif
+    }
 
     _vbo->render(_program);
 }
