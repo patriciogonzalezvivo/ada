@@ -401,6 +401,7 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
     } else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
         mouse.entered = false;
         mouse.button = 0;
+        onMouseRelease(mouse.x, mouse.y, mouse.button);
 
     } else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
         mouse.velX = x - mouse.drag.x;
@@ -419,6 +420,7 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
     } else if (eventType == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
         mouse.entered = false;
         mouse.button = 0;
+        onMouseRelease(mouse.x, mouse.y, mouse.button);
 
     } else {
         printf("eventType is invalid. (%d)\n", eventType);
@@ -733,6 +735,23 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         glfwSetCursorEnterCallback(window, [](GLFWwindow* _window, int entered) {
             mouse.entered = (bool)entered;
         });
+
+
+        glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int _button, int _action, int _mods) {
+            mouse.button = _button;
+            if (_action == GLFW_PRESS) {
+                #ifdef EVENTS_AS_CALLBACKS
+                if (onMouseDown)
+                #endif 
+                onMouseDown(mouse.x, mouse.y, mouse.button);
+            }
+            else {
+                #ifdef EVENTS_AS_CALLBACKS
+                if (onMouseRelease)
+                #endif
+                onMouseRelease(mouse.x, mouse.y, mouse.button);
+            }
+        });	
 
         // callback when the mouse cursor moves
         glfwSetCursorPosCallback(window, [](GLFWwindow* _window, double x, double y) {

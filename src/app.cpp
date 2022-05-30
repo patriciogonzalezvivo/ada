@@ -48,7 +48,7 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         pmouseX = _x - movedX;
         pmouseY = _y - movedY;
 
-        mouseIsPressed = false;
+        // mouseIsPressed = false;
 
         onMouseMove(_x, _y); 
         mouseMoved();
@@ -58,9 +58,9 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         mouseButton = _button;
         mouseIsPressed = true;
 
+        onMouseDown(_x, _y, _button); 
         mousePressed();
         mouseClicked();
-        onMouseDown(_x, _y, _button); 
     } );
 
     setMouseDragCallback( [&](float _x, float _y, int _button) { 
@@ -75,17 +75,18 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         pmouseX = _x - movedX;
         pmouseY = _y - movedY;
 
-        mouseIsPressed = true;
+        // mouseIsPressed = true;
 
-        onMouseDrag(_x, _y, _button); 
         mouseDragged();
+        onMouseDrag(_x, _y, _button); 
     } );
 
     setMouseReleaseCallback( [&](float _x, float _y, int _button) { 
-        mouseButton =_button;
+        mouseButton = 0;
         mouseIsPressed = false;
-        mouseReleased();
+
         onMouseRelease(_x, _y, _button);
+        mouseReleased();
     } );
 
 
@@ -125,13 +126,13 @@ void App::orbitControl() {
 
                 // Left-button drag is used to rotate geometry.
                 if (fabs(movedX) < 50.0 && fabs(movedY) < 50.0) {
-                    cameraLat -= movedX;
-                    cameraLon -= movedY * 0.5;
+                    cameraLat -= getMouseVelX();
+                    cameraLon -= getMouseVelY() * 0.5;
                     camera->orbit(cameraLat, cameraLon, dist);
                     camera->lookAt(glm::vec3(0.0));
                 }
             } 
-            else {
+            else if (mouseButton == 2) {
 
                 // Right-button drag is used to zoom geometry.
                 dist += (-.008f * movedY);
