@@ -29,34 +29,34 @@ bool        stroke_enabled  = true;
 
 ada::Font*  font;
 
-glm::mat4   matrix_model          = glm::mat4(1.0f);
+glm::mat4   matrix_world          = glm::mat4(1.0f);
 std::stack<glm::mat4> matrix_stack;
 
 CameraPtr   cameraPtr       = nullptr;
 LightPtrs   lights;
 
-void resetMatrix() { matrix_model = glm::mat4(1.0f); }
+void resetMatrix() { matrix_world = glm::mat4(1.0f); }
 
-void applyMatrix(const glm::mat3& _mat ) { matrix_model = _mat; }
-void applymatrix_model(const glm::mat4& _mat ) { matrix_model = glm::mat4(_mat); };
+void applyMatrix(const glm::mat3& _mat ) { matrix_world = _mat; }
+void applymatrix_world(const glm::mat4& _mat ) { matrix_world = glm::mat4(_mat); };
 
-void rotate(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
-void rotateX(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
-void rotateY(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 1.0f, 0.0f) ); }
-void rotateZ(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+void rotate(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+void rotateX(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
+void rotateY(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(0.0f, 1.0f, 0.0f) ); }
+void rotateZ(float _rad) { matrix_world = glm::rotate(matrix_world, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
 
-void scale(float _s) { matrix_model = glm::scale(matrix_model, glm::vec3(_s) ); }
-void scale(float _x, float _y, float _z) { matrix_model = glm::scale(matrix_model, glm::vec3(_x, _y, _z) ); }
-void scale(const glm::vec2& _s) { matrix_model = glm::scale(matrix_model, glm::vec3(_s, 1.0f) ) ; }
-void scale(const glm::vec3& _s) { matrix_model = glm::scale(matrix_model, _s) ; }
+void scale(float _s) { matrix_world = glm::scale(matrix_world, glm::vec3(_s) ); }
+void scale(float _x, float _y, float _z) { matrix_world = glm::scale(matrix_world, glm::vec3(_x, _y, _z) ); }
+void scale(const glm::vec2& _s) { matrix_world = glm::scale(matrix_world, glm::vec3(_s, 1.0f) ) ; }
+void scale(const glm::vec3& _s) { matrix_world = glm::scale(matrix_world, _s) ; }
 
-void translate(float _x, float _y, float _z) { matrix_model = glm::translate(matrix_model, glm::vec3(_x, _y, _z) ); }
-void translate(const glm::vec2& _t) { matrix_model = glm::translate(matrix_model, glm::vec3(_t, 0.0f) ); }
-void translate(const glm::vec3& _t) { matrix_model = glm::translate(matrix_model, _t ); }
+void translate(float _x, float _y, float _z) { matrix_world = glm::translate(matrix_world, glm::vec3(_x, _y, _z) ); }
+void translate(const glm::vec2& _t) { matrix_world = glm::translate(matrix_world, glm::vec3(_t, 0.0f) ); }
+void translate(const glm::vec3& _t) { matrix_world = glm::translate(matrix_world, _t ); }
 
-void push() { matrix_stack.push(matrix_model); }
+void push() { matrix_stack.push(matrix_world); }
 void pop() { 
-    matrix_model = matrix_stack.top(); 
+    matrix_world = matrix_stack.top(); 
     matrix_stack.pop();
 }
 
@@ -93,36 +93,36 @@ CameraPtr createCamera() {
     return getCamera();
 }
 
-glm::mat4 getMatrixModelProjectionView() {
+const glm::mat4& getProjectionViewWorldMatrix() {
     if (cameraPtr)
-        return cameraPtr->getProjectionViewMatrix() * matrix_model; 
+        return cameraPtr->getProjectionViewMatrix() * matrix_world; 
     else
-        return getOrthoMatrix() * matrix_model;
+        return getOrthoMatrix() * matrix_world;
 }
 
-glm::mat4 getMatrixProjectionView() {
+const glm::mat4& getProjectionViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-glm::mat4 getMatrixProjection() {
+const glm::mat4& getProjectionMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-glm::mat4 getMatrixView() {
+const glm::mat4& getViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getViewMatrix(); 
     else
         return getOrthoMatrix();
 }
 
-glm::mat4 getMatrixModel() { 
-    return matrix_model;
+const glm::mat4& getWorldMatrix() { 
+    return matrix_world;
 }
 
 
@@ -194,7 +194,7 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        points_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
         _program = points_shader;
     }
 
@@ -219,7 +219,7 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        points_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
 
         _program = points_shader;
     }
@@ -297,7 +297,7 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
         fill_shader = getFillShader();
         fill_shader->use();
         fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
         _program = fill_shader;
     }
 
@@ -320,7 +320,7 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
         fill_shader = getFillShader();
         fill_shader->use();
         fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
         _program = fill_shader;
     }
 
@@ -418,7 +418,7 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         shaderPtr->use();
         shaderPtr->setUniform("u_color", stroke_color);
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
 
         _program = shaderPtr;
     }
@@ -504,7 +504,7 @@ void shader(Shader* _shader) {
     shaderPtr->setUniform("u_delta", (float)getDelta() );
 
     if (cameraPtr) {
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_model );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_world );
         shaderPtr->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
         shaderPtr->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
         shaderPtr->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
