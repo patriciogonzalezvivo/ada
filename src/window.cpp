@@ -1073,6 +1073,7 @@ void updateViewport() {
 
     glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
                 width, height);
+                
     orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
                                 (float)viewport.y * fPixelDensity, height);
 

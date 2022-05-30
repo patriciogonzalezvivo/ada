@@ -43,6 +43,33 @@ VertexLayout::~VertexLayout() {
 }
 
 void VertexLayout::enable(const Shader* _program) {
+    bind(_program);
+    unbind(_program);
+    // GLuint glProgram = _program->getProgram();
+
+    // // Enable all attributes for this layout
+    // for (unsigned int i = 0; i < m_attribs.size(); i++) {
+    //     const GLint location = _program->getAttribLocation("a_"+m_attribs[i].name);
+    //     if (location != -1) {
+    //         glEnableVertexAttribArray(location);
+    //         glVertexAttribPointer(location, m_attribs[i].size, m_attribs[i].type, m_attribs[i].normalized, m_stride, m_attribs[i].offset);
+    //         s_enabledAttribs[location] = glProgram; // Track currently enabled attribs by the program to which they are bound
+    //     }
+    // }
+
+    // // Disable previously bound and now-unneeded attributes
+    // for (std::map<GLint, GLuint>::iterator it=s_enabledAttribs.begin(); it!=s_enabledAttribs.end(); ++it){
+    //     const GLint& location = it->first;
+    //     GLuint& boundProgram = it->second;
+
+    //     if (boundProgram != glProgram && boundProgram != 0) {
+    //         glDisableVertexAttribArray(location);
+    //         boundProgram = 0;
+    //     }
+    // }
+}
+
+void VertexLayout::bind(const Shader* _program) {
     GLuint glProgram = _program->getProgram();
 
     // Enable all attributes for this layout
@@ -54,6 +81,10 @@ void VertexLayout::enable(const Shader* _program) {
             s_enabledAttribs[location] = glProgram; // Track currently enabled attribs by the program to which they are bound
         }
     }
+}
+
+void VertexLayout::unbind(const Shader* _program) {
+    GLuint glProgram = _program->getProgram();
 
     // Disable previously bound and now-unneeded attributes
     for (std::map<GLint, GLuint>::iterator it=s_enabledAttribs.begin(); it!=s_enabledAttribs.end(); ++it){
@@ -64,7 +95,7 @@ void VertexLayout::enable(const Shader* _program) {
             glDisableVertexAttribArray(location);
             boundProgram = 0;
         }
-    }
+    }    
 }
 
 bool VertexLayout::haveAttrib(const std::string& _attribute) {

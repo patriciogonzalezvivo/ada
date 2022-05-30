@@ -31,8 +31,6 @@ enum PointShape {
 // GENERAL GL STATE
 // ---------------------------------
 
-// background()
-
 // colorMode()
 
 void clear();
@@ -58,7 +56,11 @@ void strokeWeight(float _weight);
 void resetMatrix();
 void applyMatrix(const glm::mat3& _mat );
 void applyMatrix(const glm::mat4& _mat );
-glm::mat4 getMatrix();
+glm::mat4 getMatrixModelProjectionView();
+glm::mat4 getMatrixProjectionView();
+glm::mat4 getMatrixProjection();
+glm::mat4 getMatrixView();
+glm::mat4 getMatrixModel();
 
 void rotate(float _rad);
 void rotateX(float _rad);
@@ -143,6 +145,7 @@ Shader createShader(const std::string& _fragSrc = "", const std::string& _vertSr
 Shader createShader(DefaultShaders _frag, DefaultShaders _vert);
 void shader(Shader& _shader);
 void shader(Shader* _shader);
+Shader* getShader();
 void resetShader();
 
 void texture(Texture& _texture, const std::string _name = "");
@@ -159,10 +162,11 @@ void texture(Texture* _texture, const std::string _name = "");
 
 // Camera
 // camera()
-// perspective()
-// ortho()
+void perspective(float _fovy, float _aspect, float _near, float _far);
+void ortho(float _left, float _right, float _bottom, float _top,  float _near, float _far);
 // frustum()
-// createCamera()
+CameraPtr createCamera();
+
 // p5.Camera
 void setCamera(Camera &_camera);
 CameraPtr getCamera();
@@ -189,7 +193,7 @@ void addLight(Light* _light, const std::string& _name = "default");
 void model(Vbo& _vbo, Shader* _program = nullptr);
 void model(Vbo* _vbo, Shader* _program = nullptr);
 
-// void model(Mesh& _mesh);
-// void model(Mesh* _mesh);
+void model(Mesh& _mesh, Shader* _program = nullptr);
+void model(Mesh* _mesh, Shader* _program = nullptr);
 
 };

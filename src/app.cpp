@@ -27,6 +27,8 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
     setup();
 
+    post_setup = true;
+
 #ifdef EVENTS_AS_CALLBACKS
     setViewportResizeCallback( [&](int _width, int _height) { 
         onViewportResize(_width, _height); 
@@ -114,6 +116,16 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
 }
 
+void App::background() { background(auto_background_color); }
+void App::background( float _brightness ) { background(glm::vec3(_brightness)); }
+void App::background( const glm::vec3& _color ) { background(glm::vec4(_color, 1.0f)); }
+void App::background( const glm::vec4& _color ) {
+    auto_background_color = _color;
+    if (!post_setup)
+        auto_background_enabled = true;
+    clear(auto_background_color);
+}
+
 void App::orbitControl() {
     if (mouseIsPressed) {
         CameraPtr camera = getCamera();
@@ -143,6 +155,8 @@ void App::orbitControl() {
             }
         }
     }
+
+    glEnable(GL_DEPTH_TEST);
 }
 
 
@@ -161,6 +175,9 @@ void App::loop() {
     // Update
     update();
     updateGL();
+
+    if (auto_background_enabled)
+        clear(auto_background_color);
 
     draw();
     renderGL();

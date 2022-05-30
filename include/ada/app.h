@@ -43,6 +43,10 @@ public:
 
     virtual void onScroll(float _yoffset) {};
 
+    virtual void background();
+    virtual void background( float _brightness );
+    virtual void background( const glm::vec3& _color );
+    virtual void background( const glm::vec4& _color );
     virtual void orbitControl();
 
     int     year()  const { return getDate().x; }
@@ -68,7 +72,13 @@ public:
     float   time, deltaTime;
     int     frameCount;
 
+
 protected:
+
+    glm::vec4   auto_background_color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    bool        auto_background_enabled = false;
+
+    bool        post_setup = false;
 
     #if defined(__EMSCRIPTEN__)
     EM_BOOL loop (double time, void* userData);

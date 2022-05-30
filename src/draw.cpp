@@ -7,55 +7,56 @@
 #include "ada/shaders/defaultShaders.h"
 
 #include "glm/gtc/matrix_transform.hpp"
+
 #include <stack>
 #include <memory>
 
 namespace ada {
 
-ShaderPtr   shaderPtr     = nullptr;
+Shader*     shaderPtr     = nullptr;
 bool        shaderChange  = true; 
 
 glm::vec4   fill_color      = glm::vec4(1.0f);
-ShaderPtr   fill_shader   = nullptr;
+Shader*     fill_shader   = nullptr;
 bool        fill_enabled    = true;
 
 float       points_size     = 10.0f;
 int         points_shape    = 0.0;
-ShaderPtr   points_shader   = nullptr;
+Shader*     points_shader   = nullptr;
 
 glm::vec4   stroke_color    = glm::vec4(1.0f);
 bool        stroke_enabled  = true;
 
 ada::Font*  font;
 
-glm::mat4   matrix          = glm::mat4(1.0f);
+glm::mat4   matrix_model          = glm::mat4(1.0f);
 std::stack<glm::mat4> matrix_stack;
 
 CameraPtr   cameraPtr       = nullptr;
 LightPtrs   lights;
 
-void resetMatrix() { matrix = glm::mat4(1.0f); }
+void resetMatrix() { matrix_model = glm::mat4(1.0f); }
 
-void applyMatrix(const glm::mat3& _mat ) { matrix = _mat; }
-void applyMatrix(const glm::mat4& _mat ) { matrix = glm::mat4(_mat); };
+void applyMatrix(const glm::mat3& _mat ) { matrix_model = _mat; }
+void applymatrix_model(const glm::mat4& _mat ) { matrix_model = glm::mat4(_mat); };
 
-void rotate(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
-void rotateX(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
-void rotateY(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 1.0f, 0.0f) ); }
-void rotateZ(float _rad) { matrix = glm::rotate(matrix, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+void rotate(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
+void rotateX(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(1.0f, 0.0f, 0.0f) ); }
+void rotateY(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 1.0f, 0.0f) ); }
+void rotateZ(float _rad) { matrix_model = glm::rotate(matrix_model, _rad, glm::vec3(0.0f, 0.0f, 1.0f) ); }
 
-void scale(float _s) { matrix = glm::scale(matrix, glm::vec3(_s) ); }
-void scale(float _x, float _y, float _z) { matrix = glm::scale(matrix, glm::vec3(_x, _y, _z) ); }
-void scale(const glm::vec2& _s) { matrix = glm::scale(matrix, glm::vec3(_s, 1.0f) ) ; }
-void scale(const glm::vec3& _s) { matrix = glm::scale(matrix, _s) ; }
+void scale(float _s) { matrix_model = glm::scale(matrix_model, glm::vec3(_s) ); }
+void scale(float _x, float _y, float _z) { matrix_model = glm::scale(matrix_model, glm::vec3(_x, _y, _z) ); }
+void scale(const glm::vec2& _s) { matrix_model = glm::scale(matrix_model, glm::vec3(_s, 1.0f) ) ; }
+void scale(const glm::vec3& _s) { matrix_model = glm::scale(matrix_model, _s) ; }
 
-void translate(float _x, float _y, float _z) { matrix = glm::translate(matrix, glm::vec3(_x, _y, _z) ); }
-void translate(const glm::vec2& _t) { matrix = glm::translate(matrix, glm::vec3(_t, 0.0f) ); }
-void translate(const glm::vec3& _t) { matrix = glm::translate(matrix, _t ); }
+void translate(float _x, float _y, float _z) { matrix_model = glm::translate(matrix_model, glm::vec3(_x, _y, _z) ); }
+void translate(const glm::vec2& _t) { matrix_model = glm::translate(matrix_model, glm::vec3(_t, 0.0f) ); }
+void translate(const glm::vec3& _t) { matrix_model = glm::translate(matrix_model, _t ); }
 
-void push() { matrix_stack.push(matrix); }
+void push() { matrix_stack.push(matrix_model); }
 void pop() { 
-    matrix = matrix_stack.top(); 
+    matrix_model = matrix_stack.top(); 
     matrix_stack.pop();
 }
 
@@ -70,11 +71,77 @@ CameraPtr getCamera() {
     return nullptr;
 }
 
-glm::mat4 getMatrix() { 
+void perspective(float _fovy, float _aspect, float _near, float _far) {
+    cameraPtr = std::make_shared<Camera>();
+    // cameraPtr->setProjection( glm::perspective(_fovy, _aspect, _near, _far) );
+    cameraPtr->setAspect(_aspect);
+    cameraPtr->setFOV(_fovy);
+    cameraPtr->setClipping(_near, _far);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void ortho(float _left, float _right, float _bottom, float _top,  float _near, float _far) {
+    cameraPtr = std::make_shared<Camera>();
+    cameraPtr->setProjection( glm::ortho(  _left , _right, _bottom, _top, _near, _top) );
+    glEnable(GL_DEPTH_TEST);
+}
+
+CameraPtr createCamera() {
+    cameraPtr = std::make_shared<Camera>();
+    cameraPtr->setViewport(getWindowWidth(), getWindowHeight());
+    glEnable(GL_DEPTH_TEST);
+    return getCamera();
+}
+
+glm::mat4 getMatrixModelProjectionView() {
     if (cameraPtr)
-        return cameraPtr->getProjectionViewMatrix() * matrix; 
+        return cameraPtr->getProjectionViewMatrix() * matrix_model; 
     else
-        return getOrthoMatrix() * matrix;
+        return getOrthoMatrix() * matrix_model;
+}
+
+glm::mat4 getMatrixProjectionView() {
+    if (cameraPtr)
+        return cameraPtr->getProjectionViewMatrix(); 
+    else
+        return getOrthoMatrix();
+}
+
+glm::mat4 getMatrixProjection() {
+    if (cameraPtr)
+        return cameraPtr->getProjectionMatrix(); 
+    else
+        return getOrthoMatrix();
+}
+
+glm::mat4 getMatrixView() {
+    if (cameraPtr)
+        return cameraPtr->getViewMatrix(); 
+    else
+        return getOrthoMatrix();
+}
+
+glm::mat4 getMatrixModel() { 
+    return matrix_model;
+}
+
+
+Shader* getPointShader() {
+    if (points_shader == nullptr) {
+        points_shader = new Shader();
+        points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
+    }
+
+    return points_shader;
+}
+
+Shader* getFillShader() {
+    if (fill_shader == nullptr) {
+        fill_shader = new Shader();
+        fill_shader->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
+    }
+    
+    return fill_shader;
 }
 
 void clear() { clear( glm::vec4(0.0f, 0.0f, 0.0f, 1.0f) ); }
@@ -93,6 +160,10 @@ void fill( const glm::vec3& _color ) { fill( glm::vec4( _color, fill_color.a ) )
 void fill( const glm::vec4& _color ) { 
     fill_color = _color;
     fill_enabled = true;
+
+    getFillShader();
+    if (shaderPtr == nullptr || shaderPtr != fill_shader)
+        shaderPtr = fill_shader;
 }
 
 void noStroke() { stroke_enabled = false;}
@@ -103,29 +174,15 @@ void stroke( const glm::vec3& _color ) { stroke( glm::vec4( _color, stroke_color
 void stroke( const glm::vec4& _color ) { 
     stroke_color = _color;
     stroke_enabled = true;
+
+    getFillShader();
+    if (shaderPtr == nullptr || shaderPtr != fill_shader)
+        shaderPtr = fill_shader;
 }
 void strokeWeight( float _weight) { glLineWidth(_weight); }
 
 void pointSize( float _size ) { points_size = _size; }
 void pointShape( PointShape _shape) { points_shape = _shape; }
-
-ShaderPtr getPointShader() {
-    if (points_shader == nullptr) {
-        points_shader = std::make_shared<Shader>();
-        points_shader->load( getDefaultSrc(FRAG_POINTS), getDefaultSrc(VERT_POINTS) );
-    }
-
-    return points_shader;
-}
-
-ShaderPtr getFillShader() {
-    if (fill_shader == nullptr) {
-        fill_shader = std::make_shared<Shader>();
-        fill_shader->load( getDefaultSrc(FRAG_FILL), getDefaultSrc(VERT_FILL) );
-    }
-    
-    return fill_shader;
-}
 
 
 // POINTS
@@ -137,8 +194,8 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-        _program = points_shader.get();
+        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        _program = points_shader;
     }
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
@@ -162,9 +219,9 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
         points_shader->setUniform("u_size", points_size);
         points_shader->setUniform("u_shape", points_shape);
         points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+        points_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
 
-        _program = points_shader.get();
+        _program = points_shader;
     }
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
@@ -240,8 +297,8 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
         fill_shader = getFillShader();
         fill_shader->use();
         fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-        _program = fill_shader.get();
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        _program = fill_shader;
     }
 
     const GLint location = _program->getAttribLocation("a_position");
@@ -263,8 +320,8 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
         fill_shader = getFillShader();
         fill_shader->use();
         fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrix() );
-        _program = fill_shader.get();
+        fill_shader->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
+        _program = fill_shader;
     }
 
     const GLint location = _program->getAttribLocation("a_position");
@@ -361,9 +418,9 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
         shaderPtr->use();
         shaderPtr->setUniform("u_color", stroke_color);
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getMatrix() );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", getMatrixModelProjectionView() );
 
-        _program = shaderPtr.get();
+        _program = shaderPtr;
     }
 
     const GLint location = _program->getAttribLocation("a_position");
@@ -428,14 +485,12 @@ Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
     return s;
 }
 
+Shader* getShader() { return shaderPtr; }
+
 void shader(Shader& _shader) { shader(&_shader); }
 void shader(Shader* _shader) {
-    if (shaderPtr == nullptr) {
-        shaderPtr = ShaderPtr(_shader); 
-        shaderChange = true;
-    }
-    else if (shaderPtr.get() != _shader) {
-        shaderPtr = ShaderPtr(_shader);
+    if (shaderPtr == nullptr || shaderPtr != _shader) {
+        shaderPtr = _shader; 
         shaderChange = true;
     }
 
@@ -449,7 +504,7 @@ void shader(Shader* _shader) {
     shaderPtr->setUniform("u_delta", (float)getDelta() );
 
     if (cameraPtr) {
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix );
+        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_model );
         shaderPtr->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
         shaderPtr->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
         shaderPtr->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
@@ -512,7 +567,7 @@ void model(Vbo* _vbo, Shader* _program) {
             shaderPtr = getFillShader();
             shaderChange = true;
         }
-        _program = shaderPtr.get();
+        _program = shaderPtr;
     }
 
     if (shaderChange) {
@@ -536,14 +591,146 @@ void model(Vbo* _vbo, Shader* _program) {
             _program->addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
         // else
             // _program->delDefine("MODEL_VERTEX_TEXCOORD");
-        
+
         shaderChange = false;
     }
 
     shader(_program);
-    _program->setUniform("u_color", stroke_color);
+    _program->setUniform("u_color", fill_color);
 
     _vbo->render(_program);
+}
+
+void model(Mesh& _mesh, Shader* _program) { model(&_mesh, _program); }
+void model(Mesh* _mesh, Shader* _program) {
+        if (_program == nullptr) {
+        if (shaderPtr == nullptr) {
+            shaderPtr = getFillShader();
+            shaderChange = true;
+        }
+        _program = shaderPtr;
+    }
+
+    bool bColor = (_mesh->haveColors() && _mesh->getColorsTotal()  == _mesh->getVerticesTotal());
+    bool bNormals = (_mesh->haveNormals() && _mesh->getNormalsTotal() == _mesh->getVerticesTotal());
+    bool bTexCoords = (_mesh->haveTexCoords()  && _mesh->getTexCoordsTotal() == _mesh->getVerticesTotal());
+    bool bTangents = (_mesh->haveTangents() && _mesh->getTangentsTotal() == _mesh->getVerticesTotal());
+
+    std::vector<GLfloat> data;
+    for (unsigned int i = 0; i < _mesh->getVerticesTotal(); i++) {
+        data.push_back(_mesh->getVertex(i).x);
+        data.push_back(_mesh->getVertex(i).y);
+        data.push_back(_mesh->getVertex(i).z);
+        if (bColor) {
+            data.push_back(_mesh->getColor(i).r);
+            data.push_back(_mesh->getColor(i).g);
+            data.push_back(_mesh->getColor(i).b);
+            data.push_back(_mesh->getColor(i).a);
+        }
+        if (bNormals) {
+            data.push_back(_mesh->getNormal(i).x);
+            data.push_back(_mesh->getNormal(i).y);
+            data.push_back(_mesh->getNormal(i).z);
+        }
+        if (bTexCoords) {
+            data.push_back(_mesh->getTexCoord(i).x);
+            data.push_back(_mesh->getTexCoord(i).y);
+        }
+        if (bTangents) {
+            data.push_back(_mesh->getTangent(i).x);
+            data.push_back(_mesh->getTangent(i).y);
+            data.push_back(_mesh->getTangent(i).z);
+            data.push_back(_mesh->getTangent(i).w);
+        }
+    }
+
+
+    // Create Vertex Layout
+    //
+    std::vector<VertexAttrib> attribs;
+    attribs.push_back({"position", 3, GL_FLOAT, false, &data[0]});
+    int  nBits = 3;
+
+    VertexLayout* vertexLayout = new VertexLayout(attribs);
+    if (bColor) {
+        _program->addDefine("MODEL_VERTEX_COLOR", "v_color");
+        attribs.push_back({"color", 4, GL_FLOAT, false, 0});
+        nBits += 4;
+    }
+
+    if (bNormals) {
+        _program->addDefine("MODEL_VERTEX_NORMAL", "v_normal");
+        attribs.push_back({"normal", 3, GL_FLOAT, false, 0});
+        nBits += 3;
+    }
+
+    if (bTexCoords) {
+        _program->addDefine("MODEL_VERTEX_TEXCOORD", "v_texcoord");
+        attribs.push_back({"texcoord", 2, GL_FLOAT, false, 0});
+        nBits += 2;
+    }
+
+    if (bTangents) {
+        _program->addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
+        attribs.push_back({"tangent", 4, GL_FLOAT, false, 0});
+        nBits += 4;
+    }
+
+    std::vector<INDEX_TYPE_GL> indices;
+    if (!_mesh->haveIndices()) {
+        if ( _mesh->getDrawMode() == LINES ) {
+            for (size_t i = 0; i < _mesh->getVerticesTotal(); i++)
+                indices.push_back(i);
+        }
+        else if ( _mesh->getDrawMode() == LINE_STRIP ) {
+            for (size_t i = 1; i < _mesh->getVerticesTotal(); i++) {
+                indices.push_back(i-1);
+                indices.push_back(i);
+            }
+        }
+    }
+    else
+        for (size_t i = 0; i < _mesh->getIndicesTotal(); i++)
+            indices.push_back((INDEX_TYPE_GL)_mesh->getIndex(i));
+
+    shader(_program);
+
+    _program->setUniform("u_color", stroke_color);
+
+    vertexLayout->bind(_program);
+
+    if (_mesh->getDrawMode() == POINTS) {
+#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        glEnable(GL_POINT_SPRITE);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#endif
+    }
+
+    GLenum mode = GL_POINTS;
+    if (_mesh->getDrawMode() == TRIANGLES)          mode = GL_TRIANGLES;
+    else if (_mesh->getDrawMode() == LINE_STRIP)    mode = GL_LINE_STRIP;
+    else if (_mesh->getDrawMode() == LINES)         mode = GL_LINES;
+    else if (_mesh->getDrawMode() == TRIANGLE_FAN)  mode = GL_TRIANGLE_FAN;
+    else if (_mesh->getDrawMode() == TRIANGLE_STRIP)mode = GL_TRIANGLE_STRIP;
+
+    // Draw as elements or arrays
+    if (!indices.empty() && mode != GL_POINTS) {
+        #if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
+        glDrawElements(mode, indices.size(), GL_UNSIGNED_SHORT, indices.data());
+        #else
+        glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, indices.data());
+        #endif
+    } else if (!data.empty())
+        glDrawArrays(mode, 0, data.size());
+
+    vertexLayout->unbind(_program);
+
+    if (_mesh->getDrawMode() == POINTS) {
+#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        glDisable(GL_POINT_SPRITE);
+        glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+#endif
+    }
 }
 
 void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }

@@ -25,6 +25,8 @@ public:
     virtual ~VertexLayout();
 
     void        enable(const Shader* _program);
+    void        bind(const Shader* _program);
+    void        unbind(const Shader* _program);
 
     GLint       getStride() const { return m_stride; };
 

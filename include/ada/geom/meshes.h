@@ -22,7 +22,7 @@ Mesh gridMesh(float _width, float _height, int _columns, int _rows, float _y = 0
 Mesh floorMesh(float _area, int _subD, float _y = 0.0);
 Mesh planeMesh(float _width, float _height, int _columns, int _rows, DrawMode _drawMode = TRIANGLES);
 
-Mesh boxMesh( float _width, float _height, float _depth, int _resX, int _resY, int _resZ );
+Mesh boxMesh( float _width, float _height, float _depth, int _resX = 1, int _resY = 1, int _resZ = 1);
 
 Mesh cubeMesh(float _size = 1.0f);
 Mesh cubeMesh( float _size, int _resolution );

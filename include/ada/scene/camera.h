@@ -21,6 +21,7 @@ public:
     virtual void        setProjection(const glm::mat4& _M );
 
     virtual void        setFOV(double _fov);
+    virtual void        setAspect(float _aspect) { m_aspect = _aspect; }
     virtual void        setViewport(int _width, int _height);
     virtual void        setClipping(double _near_clip_distance, double _far_clip_distance);
     virtual void        setDistance(float _distance);
