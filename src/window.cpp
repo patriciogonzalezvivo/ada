@@ -919,7 +919,7 @@ void updateGL() {
 
     #else
         #ifdef EVENTS_AS_CALLBACKS
-        if (onMousePress || onMouseDrag || onMouseMove)
+        if ( onMouseMove || onMousePress || onMouseDrag || onMouseRelease )
         #endif 
         {
             const int XSIGN = 1<<4, YSIGN = 1<<5;
@@ -974,6 +974,13 @@ void updateGL() {
                     if (onMousePress)
                     #endif 
                     onMousePress(mouse.x, mouse.y, mouse.button);
+                }
+                else if (mouse.button != 0 && button != mouse.button) {
+                    mouse.button = button;
+                    #ifdef EVENTS_AS_CALLBACKS
+                    if (onMouseRelease)
+                    #endif 
+                    onMouseRelease(mouse.x, mouse.y, mouse.button);
                 }
                 else
                     mouse.button = button;
