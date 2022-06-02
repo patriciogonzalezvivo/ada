@@ -146,6 +146,8 @@ Shader createShader(DefaultShaders _frag, DefaultShaders _vert);
 void shader(Shader& _shader);
 void shader(Shader* _shader);
 Shader* getShader();
+Shader* getFillShader();
+Shader* getPointShader();
 void resetShader();
 
 void texture(Texture& _texture, const std::string _name = "");

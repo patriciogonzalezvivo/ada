@@ -21,19 +21,25 @@ public:
     ConvolutionPyramid();
     virtual ~ConvolutionPyramid();
 
-    void    allocate(int _width, int _height);
-    void    process(const Fbo *_fbo);
-
+    void            allocate(int _width, int _height);
     bool            isAllocated() const {return m_depth != 0; }
     unsigned int    getDepth() const { return m_depth; }
-    const Fbo* getResult(unsigned int index = 0) const;
+    const Fbo*      getResult(unsigned int index = 0) const;
+    virtual int     getWidth() const { return m_width; };
+    virtual int     getHeight() const { return m_height; };
 
+    void            process(const Fbo *_fbo);
     std::function<void(Fbo*,const Fbo*,const Fbo*, int)> pass;
-private:
-    Fbo    m_downs[CONVOLUTION_PYRAMID_MAX_LAYERS];
-    Fbo    m_ups[CONVOLUTION_PYRAMID_MAX_LAYERS];
 
-    unsigned int m_depth;
+    bool            fixed;
+private:
+    Fbo             m_downs[CONVOLUTION_PYRAMID_MAX_LAYERS];
+    Fbo             m_ups[CONVOLUTION_PYRAMID_MAX_LAYERS];
+
+    int             m_width;
+    int             m_height;
+
+    unsigned int    m_depth;
 };
 
 }

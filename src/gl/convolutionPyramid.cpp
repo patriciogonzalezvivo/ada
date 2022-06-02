@@ -16,6 +16,9 @@ void ConvolutionPyramid::allocate(int _width, int _height) {
     m_depth = log2(std::min(_width, _height)) - 1;
     m_depth = std::min((unsigned int)CONVOLUTION_PYRAMID_MAX_LAYERS, m_depth);
 
+    m_width = _width;
+    m_height = _height;
+
     float w = _width;
     float h = _height;
 
