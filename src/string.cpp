@@ -290,11 +290,10 @@ void add(const std::string &_str, StringList &_list) {
 }
 
 void del(const std::string &_str, StringList &_list) {
-    for (unsigned int i = _list.size() - 1; i >= 0 ; i--) {
-        if ( _list[i] == _str ) {
+    for (size_t i = _list.size() - 1; i >= 0 ; i--)
+        if ( _list[i] == _str )
             _list.erase(_list.begin() + i);
-        }
-    }
+        
 }
 
 

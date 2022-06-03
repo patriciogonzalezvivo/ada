@@ -44,21 +44,21 @@ public:
     void    setUniform(const std::string& _name, int _x, int _y);
     void    setUniform(const std::string& _name, int _x, int _y, int _z);
     void    setUniform(const std::string& _name, int _x, int _y, int _z, int _w);
-    void    setUniform(const std::string& _name, const int *_array, unsigned int _size);
+    void    setUniform(const std::string& _name, const int *_array, size_t _size);
 
     void    setUniform(const std::string& _name, float _x);
     void    setUniform(const std::string& _name, float _x, float _y);
     void    setUniform(const std::string& _name, float _x, float _y, float _z);
     void    setUniform(const std::string& _name, float _x, float _y, float _z, float _w);
-    void    setUniform(const std::string& _name, const float *_array, unsigned int _size);
+    void    setUniform(const std::string& _name, const float *_array, size_t _size);
 
     void    setUniform(const std::string& _name, const glm::vec2& _value) { setUniform(_name,_value.x,_value.y); }
     void    setUniform(const std::string& _name, const glm::vec3& _value) { setUniform(_name,_value.x,_value.y,_value.z); }
     void    setUniform(const std::string& _name, const glm::vec4& _value) { setUniform(_name,_value.x,_value.y,_value.z,_value.w); }
 
-    void    setUniform(const std::string& _name, const glm::vec2 *_array, unsigned int _size);
-    void    setUniform(const std::string& _name, const glm::vec3 *_array, unsigned int _size);
-    void    setUniform(const std::string& _name, const glm::vec4 *_array, unsigned int _size);
+    void    setUniform(const std::string& _name, const glm::vec2 *_array, size_t _size);
+    void    setUniform(const std::string& _name, const glm::vec3 *_array, size_t _size);
+    void    setUniform(const std::string& _name, const glm::vec4 *_array, size_t _size);
 
     void    setUniform(const std::string& _name, const glm::mat2& _value, bool transpose = false);
     void    setUniform(const std::string& _name, const glm::mat3& _value, bool transpose = false);
@@ -69,15 +69,15 @@ public:
     void    setUniformDepthTexture(const std::string& _name, const Fbo* _fbo);
     void    setUniformTextureCube(const std::string& _name, const TextureCube* _tex);
 
-    void    setUniformTexture(const std::string& _name, GLuint _textureId, unsigned int _texLoc);
-    void    setUniformTexture(const std::string& _name, const Texture* _tex, unsigned int _texLoc);
-    void    setUniformTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc);
-    void    setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc);
-    void    setUniformTextureCube(const std::string& _name, const TextureCube* _tex, unsigned int _texLoc);
+    void    setUniformTexture(const std::string& _name, GLuint _textureId, size_t _texLoc);
+    void    setUniformTexture(const std::string& _name, const Texture* _tex, size_t _texLoc);
+    void    setUniformTexture(const std::string& _name, const Fbo* _fbo, size_t _texLoc);
+    void    setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, size_t _texLoc);
+    void    setUniformTextureCube(const std::string& _name, const TextureCube* _tex, size_t _texLoc);
 
     void    detach(GLenum type);
 
-    unsigned int    textureIndex;
+    size_t  textureIndex;
 
 private:
     GLuint      compileShader(const std::string& _src, GLenum _type, bool _verbose);

@@ -389,7 +389,7 @@ void Shader::setUniform(const std::string& _name, int _x, int _y, int _z, int _w
     }
 }
 
-void Shader::setUniform(const std::string& _name, const int *_array, unsigned int _size) {
+void Shader::setUniform(const std::string& _name, const int *_array, size_t _size) {
     GLint loc = getUniformLocation(_name);
     if (isInUse()) {
         if (_size == 1) {
@@ -439,7 +439,7 @@ void Shader::setUniform(const std::string& _name, float _x, float _y, float _z, 
     }
 }
 
-void Shader::setUniform(const std::string& _name, const float *_array, unsigned int _size) {
+void Shader::setUniform(const std::string& _name, const float *_array, size_t _size) {
     GLint loc = getUniformLocation(_name);
     if (isInUse()) {
         if (_size == 1) {
@@ -460,25 +460,25 @@ void Shader::setUniform(const std::string& _name, const float *_array, unsigned 
     }
 }
 
-void Shader::setUniform(const std::string& _name, const glm::vec2 *_array, unsigned int _size) {
+void Shader::setUniform(const std::string& _name, const glm::vec2 *_array, size_t _size) {
     if (isInUse()) {
         glUniform2fv(getUniformLocation(_name), _size, glm::value_ptr(_array[0]));
     }
 }
 
-void Shader::setUniform(const std::string& _name, const glm::vec3 *_array, unsigned int _size) {
+void Shader::setUniform(const std::string& _name, const glm::vec3 *_array, size_t _size) {
     if (isInUse()) {
         glUniform3fv(getUniformLocation(_name), _size, glm::value_ptr(_array[0]));
     }
 }
 
-void Shader::setUniform(const std::string& _name, const glm::vec4 *_array, unsigned int _size) {
+void Shader::setUniform(const std::string& _name, const glm::vec4 *_array, size_t _size) {
     if (isInUse()) {
         glUniform4fv(getUniformLocation(_name), _size, glm::value_ptr(_array[0]));
     }
 }
 
-void Shader::setUniformTexture(const std::string& _name, GLuint _textureId, unsigned int _texLoc) {
+void Shader::setUniformTexture(const std::string& _name, GLuint _textureId, size_t _texLoc) {
     if (isInUse()) {
         glActiveTexture(GL_TEXTURE0 + _texLoc);
         glBindTexture(GL_TEXTURE_2D, _textureId);
@@ -486,15 +486,15 @@ void Shader::setUniformTexture(const std::string& _name, GLuint _textureId, unsi
     }
 }
 
-void Shader::setUniformTexture(const std::string& _name, const Texture* _tex, unsigned int _texLoc) {
+void Shader::setUniformTexture(const std::string& _name, const Texture* _tex, size_t _texLoc) {
     setUniformTexture(_name, _tex->getTextureId(), _texLoc);
 }
 
-void Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
+void Shader::setUniformTexture(const std::string& _name, const Fbo* _fbo, size_t _texLoc) {
     setUniformTexture(_name, _fbo->getTextureId(), _texLoc);
 }
 
-void Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, unsigned int _texLoc) {
+void Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo, size_t _texLoc) {
     setUniformTexture(_name, _fbo->getDepthTextureId(), _texLoc);
 }
 
@@ -510,7 +510,7 @@ void  Shader::setUniformDepthTexture(const std::string& _name, const Fbo* _fbo) 
     setUniformTexture(_name, _fbo->getDepthTextureId(), textureIndex++);
 }
 
-void Shader::setUniformTextureCube(const std::string& _name, const TextureCube* _tex, unsigned int _texLoc) {
+void Shader::setUniformTextureCube(const std::string& _name, const TextureCube* _tex, size_t _texLoc) {
     if (isInUse()) {
         glActiveTexture(GL_TEXTURE0 + _texLoc);
         glBindTexture(GL_TEXTURE_CUBE_MAP, _tex->getTextureId());
