@@ -7,6 +7,13 @@
 
 namespace ada {
 
+enum TextureType {
+    JUST_TEXTURE = 0, BUMP_TEXTURE, 
+    CUBE_TEXTURE, 
+    STREAM_SEQUENCE_TEXTURE, STREAM_VIDEO_TEXTURE, 
+    STREAM_AUDIO_TEXTURE, 
+};
+
 class Texture {
 public:
     Texture();

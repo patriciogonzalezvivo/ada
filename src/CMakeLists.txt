@@ -34,6 +34,7 @@ set(ADA_SOURCES
     gl/textureStreamAV.cpp
     gl/textureStreamOMX.cpp
     gl/textureStreamMMAL.cpp
+    gl/textureStreamAudio.cpp 
     gl/textureStreamSequence.cpp
     gl/convolutionPyramid.cpp
     gl/vertexLayout.cpp 
@@ -252,6 +253,7 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/glob"
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
     "${PROJECT_SOURCE_DIR}/deps/fontstash"
+    "${PROJECT_SOURCE_DIR}/deps/miniaudio"
 )
 
 ## DEPS
