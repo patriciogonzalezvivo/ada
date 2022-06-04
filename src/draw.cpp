@@ -34,7 +34,12 @@ std::stack<glm::mat4> matrix_stack;
 
 Camera*     cameraPtr       = nullptr;
 Camera*     cameraCustomPtr = nullptr;
-LightPtrs   lights;
+LightPtrs   lightsList;
+
+std::vector<ada::Label> labelsList;
+
+void print(const std::string& _text) { std::cout << _text << std::endl; }
+void frameRate(int _fps) { ada::setFps(_fps); }
 
 void resetMatrix() { matrix_world = glm::mat4(1.0f); }
 void applyMatrix(const glm::mat3& _mat ) { matrix_world = _mat; }
@@ -201,15 +206,10 @@ void pointShape( PointShape _shape) { points_shape = _shape; }
 // POINTS
 //
 void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
-    if (_program == nullptr) {
-        points_shader = getPointShader();
-        points_shader->use();
-        points_shader->setUniform("u_size", points_size);
-        points_shader->setUniform("u_shape", points_shape);
-        points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
-        _program = points_shader;
-    }
+    if (_program == nullptr)
+        _program = getPointShader();
+    
+    shader(_program);
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     glEnable(GL_POINT_SPRITE);
@@ -226,16 +226,10 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
 }
 
 void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
-    if (_program == nullptr) {
-        points_shader = getPointShader();
-        points_shader->use();
-        points_shader->setUniform("u_size", points_size);
-        points_shader->setUniform("u_shape", points_shape);
-        points_shader->setUniform("u_color", fill_color);
-        points_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
-
-        _program = points_shader;
-    }
+    if (_program == nullptr) 
+        _program = getPointShader();
+    
+    shader(_program);
 
 #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     glEnable(GL_POINT_SPRITE);
@@ -306,13 +300,11 @@ void line(const glm::vec2& _a, const glm::vec2& _b, Shader* _program) {
 }
 
 void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
-    if (_program == nullptr) {
-        fill_shader = getFillShader();
-        fill_shader->use();
-        fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
-        _program = fill_shader;
-    }
+    if (_program == nullptr)
+        _program = getFillShader();
+   
+    shader(_program);
+    _program->setUniform("u_color", stroke_color);
 
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
@@ -329,13 +321,11 @@ void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program) {
 }
 
 void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
-    if (_program == nullptr) {
-        fill_shader = getFillShader();
-        fill_shader->use();
-        fill_shader->setUniform("u_color", stroke_color);
-        fill_shader->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
-        _program = fill_shader;
-    }
+    if (_program == nullptr)
+        _program = getFillShader();
+
+    shader(_program);
+    _program->setUniform("u_color", stroke_color);
 
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
@@ -386,35 +376,35 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
 
 // TEXT
 //
-void textAlign(FontAlign _align, Font* _font) {
-    if (_font == nullptr) {
-        if (font == nullptr)
-            font = new Font();
-
-        _font = font;
+Font* getDefaultFont() {
+    if (font == nullptr) {
+        font = new Font();
+        font->setAlign(ada::ALIGN_CENTER);
+        font->setSize(24.0f);
+        font->setColor(glm::vec4(1.0));
     }
+    return font;
+}
+
+void textAlign(FontAlign _align, Font* _font) {
+    if (_font == nullptr)
+        _font = getDefaultFont();
 
     font->setAlign( _align );
 }
 void textSize(float _size, Font* _font) { 
-    if (_font == nullptr) {
-        if (font == nullptr)
-            font = new Font();
-
-        _font = font;
-    }
+    if (_font == nullptr)
+        _font = getDefaultFont();
+    
     font->setSize(_size);
 }
 
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font) { text(_text, _pos.x, _pos.y, _font); }
 
 void text(const std::string& _text, float _x, float _y, Font* _font) {
-    if (_font == nullptr) {
-        if (font == nullptr)
-            font = new Font();
-
-        _font = font;
-    }
+    if (_font == nullptr)
+        _font = getDefaultFont();
+    
     font->setColor( fill_color );
     font->render(_text, _x, _y);
 }
@@ -422,24 +412,30 @@ void text(const std::string& _text, float _x, float _y, Font* _font) {
 // SHAPES
 // 
 void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
-    if (_program == nullptr) {
+    if (_program == nullptr)
+        _program = getFillShader();;
 
-        if (shaderPtr == nullptr) {
-            shaderPtr = getFillShader();
-            shaderChange = true;
-        }
-
-        shaderPtr->use();
-        shaderPtr->setUniform("u_color", stroke_color);
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getProjectionViewWorldMatrix() );
-
-        _program = shaderPtr;
-    }
+    shader(_program);
 
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
         glVertexAttribPointer(location, 2, GL_FLOAT, false, 0,  &_positions[0].x);
+        glDrawArrays(GL_TRIANGLES, 0, _positions.size());
+        glDisableVertexAttribArray(location);
+    }
+}
+
+void triangles(const std::vector<glm::vec3>& _positions, Shader* _program) {
+    if (_program == nullptr)
+        _program = getFillShader();;
+
+    shader(_program);
+
+    const GLint location = _program->getAttribLocation("a_position");
+    if (location != -1) {
+        glEnableVertexAttribArray(location);
+        glVertexAttribPointer(location, 3, GL_FLOAT, false, 0,  &_positions[0].x);
         glDrawArrays(GL_TRIANGLES, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
@@ -472,8 +468,13 @@ void rect(float _x, float _y, float _w, float _h, Shader* _program) {
         triangles(tris, _program);
 }
 
-void addLight(Light& _light, const std::string& _name) { lights[_name] = LightPtr(&_light);  }
-void addLight(Light* _light, const std::string& _name) { lights[_name] = LightPtr(_light);  }
+Light* createLight(const std::string& _name) {
+    Light* light = new Light();
+    addLight(light, _name);
+    return light;
+}
+void addLight(Light& _light, const std::string& _name) { lightsList[_name] = LightPtr(&_light); }
+void addLight(Light* _light, const std::string& _name) { lightsList[_name] = LightPtr(_light); }
 
 Shader loadShader(const std::string& _fragFile, const std::string& _vertFile) {
     Shader s;
@@ -500,75 +501,87 @@ Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
 
 Shader* getShader() { return shaderPtr; }
 
-void shader(Shader& _shader) { shader(&_shader); }
-void shader(Shader* _shader) {
-    if (shaderPtr == nullptr || shaderPtr != _shader) {
-        shaderPtr = _shader; 
+void shader(Shader& _program) { shader(&_program); }
+void shader(Shader* _program) {
+    if (shaderPtr != fill_shader || shaderPtr != points_shader) {
+        shaderPtr = _program; 
         shaderChange = true;
     }
 
-    shaderPtr->textureIndex = 0;
-    shaderPtr->use();
+    _program->textureIndex = 0;
+    _program->use();
 
-    shaderPtr->setUniform("u_date", getDate() );
-    shaderPtr->setUniform("u_resolution", (float)getWindowWidth(), (float)getWindowHeight() );
-    shaderPtr->setUniform("u_mouse", (float)getMouseX(), (float)getMouseY() );
-    shaderPtr->setUniform("u_time", (float)getTimeSec() );
-    shaderPtr->setUniform("u_delta", (float)getDelta() );
+    _program->setUniform("u_date", getDate() );
+    _program->setUniform("u_resolution", (float)getWindowWidth(), (float)getWindowHeight() );
+    _program->setUniform("u_mouse", (float)getMouseX(), (float)getMouseY() );
+    _program->setUniform("u_time", (float)getTimeSec() );
+    _program->setUniform("u_delta", (float)getDelta() );
+
+    if (_program == fill_shader)
+        _program->setUniform("u_color", fill_color);
+    else if (_program == points_shader) {
+        _program->setUniform("u_size", points_size);
+        _program->setUniform("u_shape", points_shape);
+        _program->setUniform("u_color", fill_color);
+        #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+        glEnable(GL_POINT_SPRITE);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        #endif
+    }
 
     if (cameraPtr) {
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_world );
-        shaderPtr->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
-        shaderPtr->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
-        shaderPtr->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
+        _program->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_world );
+        _program->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
+        _program->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
+        _program->setUniform("u_viewMatrix", cameraPtr->getViewMatrix() );
 
-        shaderPtr->setUniform("u_camera", -cameraPtr->getPosition() );
-        shaderPtr->setUniform("u_cameraDistance", cameraPtr->getDistance());
-        shaderPtr->setUniform("u_cameraNearClip", cameraPtr->getNearClip());
-        shaderPtr->setUniform("u_cameraFarClip", cameraPtr->getFarClip());
-        shaderPtr->setUniform("u_cameraEv100", cameraPtr->getEv100());
-        shaderPtr->setUniform("u_cameraExposure", cameraPtr->getExposure());
-        shaderPtr->setUniform("u_cameraAperture", cameraPtr->getAperture());
-        shaderPtr->setUniform("u_cameraShutterSpeed", cameraPtr->getShutterSpeed());
-        shaderPtr->setUniform("u_cameraSensitivity", cameraPtr->getSensitivity());
-        shaderPtr->setUniform("u_cameraChange", cameraPtr->bChange);
-        shaderPtr->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
+        _program->setUniform("u_camera", -cameraPtr->getPosition() );
+        _program->setUniform("u_cameraDistance", cameraPtr->getDistance());
+        _program->setUniform("u_cameraNearClip", cameraPtr->getNearClip());
+        _program->setUniform("u_cameraFarClip", cameraPtr->getFarClip());
+        _program->setUniform("u_cameraEv100", cameraPtr->getEv100());
+        _program->setUniform("u_cameraExposure", cameraPtr->getExposure());
+        _program->setUniform("u_cameraAperture", cameraPtr->getAperture());
+        _program->setUniform("u_cameraShutterSpeed", cameraPtr->getShutterSpeed());
+        _program->setUniform("u_cameraSensitivity", cameraPtr->getSensitivity());
+        _program->setUniform("u_cameraChange", cameraPtr->bChange);
+        _program->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
     }
     else
-        shaderPtr->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_world );
+        _program->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_world );
 
     // Pass Light Uniforms
-    if (lights.size() == 1) {
-        LightPtrs::iterator it = lights.begin();
+    if (lightsList.size() == 1) {
+        LightPtrs::iterator it = lightsList.begin();
 
-        shaderPtr->setUniform("u_lightColor", it->second->color);
-        shaderPtr->setUniform("u_lightIntensity", it->second->intensity);
+        _program->setUniform("u_lightColor", it->second->color);
+        _program->setUniform("u_lightIntensity", it->second->intensity);
 
         if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-            shaderPtr->setUniform("u_light", it->second->getPosition());
+            _program->setUniform("u_light", it->second->getPosition());
         if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-            shaderPtr->setUniform("u_lightDirection", it->second->direction);
+            _program->setUniform("u_lightDirection", it->second->direction);
         if (it->second->falloff > 0)
-            shaderPtr->setUniform("u_lightFalloff", it->second->falloff);
+            _program->setUniform("u_lightFalloff", it->second->falloff);
 
-        // shaderPtr->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
-        // shaderPtr->setUniformDepthTexture("u_lightShadowMap", it->second->getShadowMap(), shaderPtr->textureIndex++ );
+        // _program->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
+        // _program->setUniformDepthTexture("u_lightSListhadowMap", it->second->getShadowMap(), _program->textureIndex++ );
     }
     else {
-        for (LightPtrs::iterator it = lights.begin(); it != lights.end(); ++it) {
+        for (LightPtrs::iterator it = lightsList.begin(); it != lightsList.end(); ++it) {
             std::string name = "u_" + it->first;
 
-            shaderPtr->setUniform(name + "Color", it->second->color);
-            shaderPtr->setUniform(name + "Intensity", it->second->intensity);
+            _program->setUniform(name + "Color", it->second->color);
+            _program->setUniform(name + "Intensity", it->second->intensity);
             if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-                shaderPtr->setUniform(name, it->second->getPosition());
+                _program->setUniform(name, it->second->getPosition());
             if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-                shaderPtr->setUniform(name + "Direction", it->second->direction);
+                _program->setUniform(name + "Direction", it->second->direction);
             if (it->second->falloff > 0)
-                shaderPtr->setUniform(name +"Falloff", it->second->falloff);
+                _program->setUniform(name +"Falloff", it->second->falloff);
 
-            shaderPtr->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
-            // shaderPtr->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
+            _program->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
+            // _program->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
         }
     } 
 }
@@ -577,15 +590,15 @@ void resetShader() { shaderPtr = nullptr; }
 
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
-    if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = getFillShader();
-            shaderChange = true;
-        }
-        _program = shaderPtr;
-    }
+    if (_program == nullptr)
+        if (shaderPtr != nullptr)
+            _program = shaderPtr;
+        else
+            _program = getFillShader();
 
-    if (shaderChange && shaderPtr != fill_shader) {
+    if (shaderChange && 
+        shaderPtr != fill_shader && 
+        shaderPtr != points_shader) {
         VertexLayout* vl = _vbo->getVertexLayout();
         if (vl->haveAttrib("color"))
             _program->addDefine("MODEL_VERTEX_COLOR", "v_color");
@@ -612,155 +625,10 @@ void model(Vbo* _vbo, Shader* _program) {
 
     shader(_program);
 
-    if (_program == fill_shader) {
-        if (_vbo->getDrawMode() == GL_LINES || _vbo->getDrawMode() == GL_LINE_LOOP || _vbo->getDrawMode() == GL_LINE_STRIP)
-            _program->setUniform("u_color", stroke_color);
-        else 
-            _program->setUniform("u_color", fill_color);
-    }
-    else if (_program == points_shader) {
-        points_shader->setUniform("u_size", points_size);
-        points_shader->setUniform("u_shape", points_shape);
-        points_shader->setUniform("u_color", fill_color);
-        #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-        glEnable(GL_POINT_SPRITE);
-        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-        #endif
-    }
+    if (_vbo->getDrawMode() == GL_LINES || _vbo->getDrawMode() == GL_LINE_LOOP || _vbo->getDrawMode() == GL_LINE_STRIP)
+        _program->setUniform("u_color", stroke_color);
 
     _vbo->render(_program);
-}
-
-void model(Mesh& _mesh, Shader* _program) { model(&_mesh, _program); }
-void model(Mesh* _mesh, Shader* _program) {
-        if (_program == nullptr) {
-        if (shaderPtr == nullptr) {
-            shaderPtr = getFillShader();
-            shaderChange = true;
-        }
-        _program = shaderPtr;
-    }
-
-    bool bColor = (_mesh->haveColors() && _mesh->getColorsTotal()  == _mesh->getVerticesTotal());
-    bool bNormals = (_mesh->haveNormals() && _mesh->getNormalsTotal() == _mesh->getVerticesTotal());
-    bool bTexCoords = (_mesh->haveTexCoords()  && _mesh->getTexCoordsTotal() == _mesh->getVerticesTotal());
-    bool bTangents = (_mesh->haveTangents() && _mesh->getTangentsTotal() == _mesh->getVerticesTotal());
-
-    std::vector<GLfloat> data;
-    for (unsigned int i = 0; i < _mesh->getVerticesTotal(); i++) {
-        data.push_back(_mesh->getVertex(i).x);
-        data.push_back(_mesh->getVertex(i).y);
-        data.push_back(_mesh->getVertex(i).z);
-        if (bColor) {
-            data.push_back(_mesh->getColor(i).r);
-            data.push_back(_mesh->getColor(i).g);
-            data.push_back(_mesh->getColor(i).b);
-            data.push_back(_mesh->getColor(i).a);
-        }
-        if (bNormals) {
-            data.push_back(_mesh->getNormal(i).x);
-            data.push_back(_mesh->getNormal(i).y);
-            data.push_back(_mesh->getNormal(i).z);
-        }
-        if (bTexCoords) {
-            data.push_back(_mesh->getTexCoord(i).x);
-            data.push_back(_mesh->getTexCoord(i).y);
-        }
-        if (bTangents) {
-            data.push_back(_mesh->getTangent(i).x);
-            data.push_back(_mesh->getTangent(i).y);
-            data.push_back(_mesh->getTangent(i).z);
-            data.push_back(_mesh->getTangent(i).w);
-        }
-    }
-
-
-    // Create Vertex Layout
-    //
-    std::vector<VertexAttrib> attribs;
-    attribs.push_back({"position", 3, GL_FLOAT, false, &data[0]});
-    int  nBits = 3;
-
-    VertexLayout* vertexLayout = new VertexLayout(attribs);
-    if (bColor) {
-        _program->addDefine("MODEL_VERTEX_COLOR", "v_color");
-        attribs.push_back({"color", 4, GL_FLOAT, false, 0});
-        nBits += 4;
-    }
-
-    if (bNormals) {
-        _program->addDefine("MODEL_VERTEX_NORMAL", "v_normal");
-        attribs.push_back({"normal", 3, GL_FLOAT, false, 0});
-        nBits += 3;
-    }
-
-    if (bTexCoords) {
-        _program->addDefine("MODEL_VERTEX_TEXCOORD", "v_texcoord");
-        attribs.push_back({"texcoord", 2, GL_FLOAT, false, 0});
-        nBits += 2;
-    }
-
-    if (bTangents) {
-        _program->addDefine("MODEL_VERTEX_TANGENT", "v_tangent");
-        attribs.push_back({"tangent", 4, GL_FLOAT, false, 0});
-        nBits += 4;
-    }
-
-    std::vector<INDEX_TYPE_GL> indices;
-    if (!_mesh->haveIndices()) {
-        if ( _mesh->getDrawMode() == LINES ) {
-            for (size_t i = 0; i < _mesh->getVerticesTotal(); i++)
-                indices.push_back(i);
-        }
-        else if ( _mesh->getDrawMode() == LINE_STRIP ) {
-            for (size_t i = 1; i < _mesh->getVerticesTotal(); i++) {
-                indices.push_back(i-1);
-                indices.push_back(i);
-            }
-        }
-    }
-    else
-        for (size_t i = 0; i < _mesh->getIndicesTotal(); i++)
-            indices.push_back((INDEX_TYPE_GL)_mesh->getIndex(i));
-
-    shader(_program);
-
-    _program->setUniform("u_color", stroke_color);
-
-    vertexLayout->bind(_program);
-
-    if (_mesh->getDrawMode() == POINTS) {
-#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-        glEnable(GL_POINT_SPRITE);
-        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
-    }
-
-    GLenum mode = GL_POINTS;
-    if (_mesh->getDrawMode() == TRIANGLES)          mode = GL_TRIANGLES;
-    else if (_mesh->getDrawMode() == LINE_STRIP)    mode = GL_LINE_STRIP;
-    else if (_mesh->getDrawMode() == LINES)         mode = GL_LINES;
-    else if (_mesh->getDrawMode() == TRIANGLE_FAN)  mode = GL_TRIANGLE_FAN;
-    else if (_mesh->getDrawMode() == TRIANGLE_STRIP)mode = GL_TRIANGLE_STRIP;
-
-    // Draw as elements or arrays
-    if (!indices.empty() && mode != GL_POINTS) {
-        #if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
-        glDrawElements(mode, indices.size(), GL_UNSIGNED_SHORT, indices.data());
-        #else
-        glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, indices.data());
-        #endif
-    } else if (!data.empty())
-        glDrawArrays(mode, 0, data.size());
-
-    vertexLayout->unbind(_program);
-
-    if (_mesh->getDrawMode() == POINTS) {
-#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
-        glDisable(GL_POINT_SPRITE);
-        glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
-    }
 }
 
 void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }
@@ -775,6 +643,25 @@ void texture(Texture* _texture, const std::string _name) {
     shaderPtr->setUniformTexture(name, _texture, shaderPtr->textureIndex );
     shaderPtr->setUniform(name + "Resolution", (float)_texture->getWidth(), (float)_texture->getHeight());
     shaderPtr->textureIndex++;
+}
+
+void addLablel(const std::string& _text, glm::vec3* _position) {
+    if (font == nullptr)
+        font = getDefaultFont();
+
+    labelsList.push_back( ada::Label(_text, _position) );
+}
+
+void labels() {
+    if (font != nullptr)
+        font = getDefaultFont();
+
+    font->setColor( fill_color );
+
+    for (size_t i = 0; i < labelsList.size(); i++) {
+        labelsList[i].update( getCamera() );
+        labelsList[i].render( font );
+    }
 }
 
 };

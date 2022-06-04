@@ -279,18 +279,15 @@ void Vbo::printInfo() {
 void Vbo::render(Shader* _shader) {
 
     // Ensure that geometry is buffered into GPU
-    if (!m_isUploaded) {
+    if (!m_isUploaded)
         upload();
-    }
 
     // Bind buffers for drawing
-    if (m_nVertices > 0) {
+    if (m_nVertices > 0)
         glBindBuffer(GL_ARRAY_BUFFER, m_glVertexBuffer);
-    }
 
-    if (m_nIndices > 0) {
+    if (m_nIndices > 0)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_glIndexBuffer);
-    }
 
     // Enable shader program
     _shader->use();
@@ -306,15 +303,16 @@ void Vbo::render(Shader* _shader) {
 #endif
 
     // Draw as elements or arrays
-    if (m_nIndices > 0) {
+    if (m_nIndices > 0)
         #if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
         glDrawElements(m_drawMode, m_nIndices, GL_UNSIGNED_SHORT, 0);
         #else
         glDrawElements(m_drawMode, m_nIndices, GL_UNSIGNED_INT, 0);
         #endif
-    } else if (m_nVertices > 0) {
+    else if (m_nVertices > 0)
         glDrawArrays(m_drawMode, 0, m_nVertices);
-    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 }

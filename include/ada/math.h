@@ -16,46 +16,45 @@ namespace ada {
 #define M_MIN(_a, _b) ((_a)<(_b)?(_a):(_b))
 #endif
 
-// #ifndef PI
-// #define PI 3.14159265358979323846
-// #endif 
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif 
 
-// #ifndef TWO_PI
-// #define TWO_PI   6.28318530717958647693
-// #endif
+#ifndef TWO_PI
+#define TWO_PI   6.28318530717958647693
+#endif
 
-// #ifndef FOUR_PI
-// #define FOUR_PI 12.56637061435917295385
-// #endif
+#ifndef FOUR_PI
+#define FOUR_PI 12.56637061435917295385
+#endif
 
-// #ifndef HALF_PI
-// #define HALF_PI  1.57079632679489661923
-// #endif
+#ifndef HALF_PI
+#define HALF_PI  1.57079632679489661923
+#endif
 
-// #ifndef QUARTER_PI
-// #define QUARTER_PI 0.785398163
-// #endif
+#ifndef QUARTER_PI
+#define QUARTER_PI 0.785398163
+#endif
 
-// #ifndef FLT_EPSILON
-// #define FLT_EPSILON 1.19209290E-07F
-// #endif
+#ifndef FLT_EPSILON
+#define FLT_EPSILON 1.19209290E-07F
+#endif
 
-// #ifndef MIN
-// #define MIN(x,y) (((x) < (y)) ? (x) : (y))
-// #endif
+#ifndef MIN
+#define MIN(x,y) (((x) < (y)) ? (x) : (y))
+#endif
 
-// #ifndef MAX
-// #define MAX(x,y) (((x) > (y)) ? (x) : (y))
-// #endif
+#ifndef MAX
+#define MAX(x,y) (((x) > (y)) ? (x) : (y))
+#endif
 
-// #ifndef CLAMP
-// #define CLAMP(val,min,max) ((val) < (min) ? (min) : ((val > max) ? (max) : (val)))
-// #endif
+#ifndef CLAMP
+#define CLAMP(val,min,max) ((val) < (min) ? (min) : ((val > max) ? (max) : (val)))
+#endif
 
-// #ifndef ABS
-// #define ABS(x) (((x) < 0) ? -(x) : (x))
-// #endif
-
+#ifndef ABS
+#define ABS(x) (((x) < 0) ? -(x) : (x))
+#endif
 
 static float angleBetween(float thetav, float phiv, float theta, float phi) {
     float cosGamma = sinf(thetav) * sinf(theta) * cosf(phi - phiv) + cosf(thetav) * cosf(theta);

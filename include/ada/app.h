@@ -67,6 +67,7 @@ public:
     float   pmouseX, pmouseY;
     int     mouseButton;
     bool    mouseIsPressed;
+    bool    focused;
 
     float   width, height;
     float   time, deltaTime;

@@ -170,6 +170,7 @@ void App::loop() {
     height = getWindowHeight();
     deltaTime = getDelta();
     time = getTime();
+    focused = getMouseEntered();
     frameCount++;
 
     // Update

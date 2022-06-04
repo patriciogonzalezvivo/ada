@@ -9,6 +9,7 @@
 
 #include "ada/scene/camera.h"
 #include "ada/scene/light.h"
+#include "ada/scene/label.h"
 
 #include "ada/geom/mesh.h"
 #include "ada/geom/line.h"
@@ -31,7 +32,11 @@ enum PointShape {
 // GENERAL GL STATE
 // ---------------------------------
 
-// colorMode()
+void print(const std::string& _text);
+void frameRate(int _fps);
+// cursor()
+// noCursor()
+// pixelDensity()
 
 void clear();
 void clear( float _brightness );
@@ -79,6 +84,7 @@ void translate(const glm::vec3& _t);
 void push();
 void pop();
 
+// colorMode()
 // erase()
 // noErase()
 
@@ -111,6 +117,7 @@ void line(const BoundingBox& _bbox, Shader* _program = nullptr);
 void lineBoundingBox(const glm::vec4& _bbox, Shader* _program = nullptr);
 
 void triangles(const std::vector<glm::vec2>& _positions, Shader* _program = nullptr);
+void triangles(const std::vector<glm::vec3>& _positions, Shader* _program = nullptr);
 
 void rect(float _x, float _y, float _w, float _h, Shader* _program = nullptr);
 void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program = nullptr);
@@ -129,6 +136,9 @@ void textAlign(FontAlign _align, Font* _font = nullptr);
 void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
+
+void addLablel(const std::string& _text, glm::vec3* _position);
+void labels();
 
 // plane()
 // box()
@@ -176,7 +186,7 @@ void resetCamera();
 Camera* getCamera();
 
 // Interaction
-// orbitControl()
+// --------------------------------
 // debugMode()
 // noDebugMode()
 
@@ -190,14 +200,12 @@ Camera* getCamera();
 // spotLight()
 // noLights()
 
+Light* createLight(const std::string& _name = "default");
 void addLight(Light& _light, const std::string& _name = "default");
 void addLight(Light* _light, const std::string& _name = "default");
 
 // void loadModel( const std::string& _filename );
 void model(Vbo& _vbo, Shader* _program = nullptr);
 void model(Vbo* _vbo, Shader* _program = nullptr);
-
-void model(Mesh& _mesh, Shader* _program = nullptr);
-void model(Mesh* _mesh, Shader* _program = nullptr);
 
 };

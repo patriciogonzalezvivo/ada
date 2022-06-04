@@ -42,6 +42,7 @@ set(ADA_SOURCES
     scene/node.cpp
     scene/model.cpp
     scene/light.cpp
+    scene/label.cpp
     scene/camera.cpp
     scene/material.cpp
     shaders/defaultShaders.cpp

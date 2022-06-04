@@ -30,8 +30,10 @@ public:
 
     virtual void        setExposure(float _aperture, float _shutterSpeed, float _sensitivity);
 
-    virtual glm::vec3   worldToCamera(glm::vec3 _WorldXYZ) const;
-    virtual glm::vec3   worldToScreen(glm::vec3 _WorldXYZ) const;
+    virtual glm::vec3   worldToCamera(const glm::vec3* _WorldXYZ) const;
+    virtual glm::vec3   worldToCamera(const glm::vec3& _WorldXYZ) const;
+    virtual glm::vec3   worldToScreen(const glm::vec3* _WorldXYZ) const;
+    virtual glm::vec3   worldToScreen(const glm::vec3& _WorldXYZ) const;
 
     //Getting Functions
     virtual const Projection&   getType() const { return m_type;};
