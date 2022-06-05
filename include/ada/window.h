@@ -77,6 +77,8 @@ void        setWindowSize(int _width, int _height);
 void        setWindowTitle(const char* _title);
 void        setWindowVSync(bool _value);
 
+bool        isFullscreen();
+void        setFullscreen(bool _fullscreen);
 glm::ivec2  getScreenSize();
 float       getPixelDensity();
 

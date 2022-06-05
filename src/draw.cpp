@@ -42,6 +42,9 @@ std::vector<Label>      labelsList;
 void print(const std::string& _text) { std::cout << _text << std::endl; }
 void frameRate(int _fps) { setFps(_fps); }
 
+bool fullscreen() { return isFullscreen(); }
+void fullscreen(bool _fullscreen) { setFullscreen(_fullscreen); }
+
 void resetMatrix() { matrix_world = glm::mat4(1.0f); }
 void applyMatrix(const glm::mat3& _mat ) { matrix_world = _mat; }
 void applyMatrix(const glm::mat4& _mat ) { matrix_world = glm::mat4(_mat); };

@@ -21,10 +21,12 @@
 // Common global variables
 //----------------------------------------------------
 static glm::ivec4               viewport;
+static glm::ivec4               viewport_last;
 static ada::WindowProperties    properties;
 struct timespec                 time_start;
 static glm::mat4                orthoMatrix;
 static glm::mat4                orthoFlippedMatrix;
+
 
 typedef struct {
     bool      entered;
@@ -316,12 +318,10 @@ void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callba
 #ifdef __EMSCRIPTEN__
 
 static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
-
     double width, height;
     emscripten_get_element_css_size("#canvas", &width, &height);
     if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w)
         setWindowSize(width, height);
-
     return EM_FALSE;
 }
 
@@ -841,18 +841,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
-
-        EmscriptenFullscreenStrategy strategy{};
-
-        strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;
-        strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
-        // strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_HIDEF;
-        strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
-
-        strategy.canvasResizedCallback = on_canvassize_changed;
-        strategy.canvasResizedCallbackUserData = NULL;
-
-        emscripten_enter_soft_fullscreen("#canvas", &strategy);
 #endif
         
     #endif
@@ -1121,6 +1109,56 @@ glm::ivec2 getScreenSize() {
     #endif
 
     return screen;
+}
+
+bool isFullscreen() {
+    #if defined(__EMSCRIPTEN__)
+    return properties.style == FULLSCREEN;
+    #elif defined(DRIVER_GLFW)
+    return glfwGetWindowMonitor( window ) != nullptr;
+    #else 
+    return properties.style == FULLSCREEN;
+    #endif
+}
+
+void setFullscreen(bool _fullscreen) {
+
+    #if defined(__EMSCRIPTEN__)
+    properties.style = FULLSCREEN;
+    EmscriptenFullscreenStrategy strategy{};
+    strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;
+    strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+    // strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_HIDEF;
+    strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+    strategy.canvasResizedCallback = on_canvassize_changed;
+    strategy.canvasResizedCallbackUserData = NULL;
+    emscripten_enter_soft_fullscreen("#canvas", &strategy);
+    #elif defined(DRIVER_GLFW)
+
+    if ( isFullscreen() == _fullscreen )
+        return;
+
+    if ( _fullscreen ) {
+        // backup window position and window size
+        glfwGetWindowPos( window, &viewport_last.x, &viewport_last.y );
+        glfwGetWindowSize( window, &viewport_last.z, &viewport_last.w );
+        
+        // get resolution of monitor
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode * mode = glfwGetVideoMode(monitor);
+
+        // switch to full screen
+        glfwSetWindowMonitor( window, monitor, 0, 0, mode->width, mode->height, 0 );
+        properties.style = FULLSCREEN;
+    }
+    else {
+        // restore last window size and position
+        glfwSetWindowMonitor( window, nullptr,  viewport_last.x, viewport_last.y, viewport_last.z, viewport_last.w, 0 );
+        properties.style = REGULAR;
+    }
+
+
+    #endif
 }
 
 float getPixelDensity() {

@@ -18,6 +18,13 @@
 
 #include "ada/font.h"
 
+#if defined(__EMSCRIPTEN__)
+#include <emscripten.h>
+#include <emscripten/html5.h>
+#define GL_GLEXT_PROTOTYPES
+#define EGL_EGLEXT_PROTOTYPES
+#endif
+
 namespace ada {
 
 enum PointShape {
@@ -31,6 +38,9 @@ enum PointShape {
 
 // GENERAL GL STATE
 // ---------------------------------
+
+bool fullscreen();
+void fullscreen(bool _fullscreen);
 
 void print(const std::string& _text);
 void frameRate(int _fps);
