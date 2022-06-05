@@ -35,6 +35,7 @@ std::stack<glm::mat4>   matrix_stack;
 Camera*     cameraPtr       = nullptr;
 Camera*     cameraCustomPtr = nullptr;
 LightPtrs   lightsList;
+bool        lights_enabled  = false;
 
 std::vector<Label>      labelsList;
 
@@ -211,10 +212,16 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
     
     shader(_program);
 
-#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_POINTS);
+    vbo.render(_program);
+#else
+
+    #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
     glEnable(GL_POINT_SPRITE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
+    #endif
 
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
@@ -223,6 +230,7 @@ void points(const std::vector<glm::vec2>& _positions, Shader* _program) {
         glDrawArrays(GL_POINTS, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+#endif
 }
 
 void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
@@ -231,11 +239,15 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
     
     shader(_program);
 
-#if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32) && !defined(__EMSCRIPTEN__)
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_POINTS);
+    vbo.render(_program);
+#else
+    #if !defined(PLATFORM_RPI) && !defined(DRIVER_GBM) && !defined(_WIN32)
     glEnable(GL_POINT_SPRITE);
     glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-#endif
-
+    #endif
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
@@ -243,6 +255,7 @@ void points(const std::vector<glm::vec3>& _positions, Shader* _program) {
         glDrawArrays(GL_POINTS, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+#endif
 }
 
 void points(const Line& _line, Shader* _program) {
@@ -306,6 +319,11 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
     shader(_program);
     _program->setUniform("u_color", stroke_color);
 
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_LINE_STRIP);
+    vbo.render(_program);
+#else
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
@@ -313,6 +331,7 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
         glDrawArrays(GL_LINE_STRIP, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+#endif
 };
 
 void line(const glm::vec3& _a, const glm::vec3& _b, Shader* _program) {
@@ -383,8 +402,9 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
 // TEXT
 //
 Font* getDefaultFont() {
-    if (fonts.find("default") != fonts.end() )
+    if (fonts.find("default") != fonts.end() ) {
         return fonts["default"];
+    }
     else {
         Font* defaultFont = new Font();
         defaultFont->setAlign( ALIGN_CENTER );
@@ -464,6 +484,11 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
 
     shader(_program);
 
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_TRIANGLES);
+    vbo.render(_program);
+#else
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
@@ -471,6 +496,7 @@ void triangles(const std::vector<glm::vec2>& _positions, Shader* _program) {
         glDrawArrays(GL_TRIANGLES, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+#endif
 }
 
 void triangles(const std::vector<glm::vec3>& _positions, Shader* _program) {
@@ -479,6 +505,11 @@ void triangles(const std::vector<glm::vec3>& _positions, Shader* _program) {
 
     shader(_program);
 
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_TRIANGLES);
+    vbo.render(_program);
+#else
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
@@ -486,6 +517,7 @@ void triangles(const std::vector<glm::vec3>& _positions, Shader* _program) {
         glDrawArrays(GL_TRIANGLES, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+#endif
 }
 
 void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program) {
@@ -515,14 +547,6 @@ void rect(float _x, float _y, float _w, float _h, Shader* _program) {
         triangles(tris, _program);
 }
 
-Light* createLight(const std::string& _name) {
-    Light* light = new Light();
-    addLight(light, _name);
-    return light;
-}
-void addLight(Light& _light, const std::string& _name) { lightsList[_name] = &_light; }
-void addLight(Light* _light, const std::string& _name) { lightsList[_name] = _light; }
-
 Shader loadShader(const std::string& _fragFile, const std::string& _vertFile) {
     Shader s;
     s.load(loadGlslFrom(_fragFile), loadGlslFrom(_vertFile));
@@ -547,7 +571,7 @@ Shader createShader(DefaultShaders _frag, DefaultShaders _vert) {
 }
 
 Shader* getShader() { return shaderPtr; }
-
+void resetShader() { shaderPtr = nullptr; }
 void shader(Shader& _program) { shader(&_program); }
 void shader(Shader* _program) {
     if (shaderPtr != fill_shader || shaderPtr != points_shader) {
@@ -597,43 +621,54 @@ void shader(Shader* _program) {
     else
         _program->setUniform("u_modelViewProjectionMatrix", getFlippedOrthoMatrix() * matrix_world );
 
-    // Pass Light Uniforms
-    if (lightsList.size() == 1) {
-        LightPtrs::iterator it = lightsList.begin();
+    if (lights_enabled) {
+        // Pass Light Uniforms
+        if (lightsList.size() == 1) {
+            LightPtrs::iterator it = lightsList.begin();
 
-        _program->setUniform("u_lightColor", it->second->color);
-        _program->setUniform("u_lightIntensity", it->second->intensity);
+            _program->setUniform("u_lightColor", it->second->color);
+            _program->setUniform("u_lightIntensity", it->second->intensity);
 
-        if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-            _program->setUniform("u_light", it->second->getPosition());
-        if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-            _program->setUniform("u_lightDirection", it->second->direction);
-        if (it->second->falloff > 0)
-            _program->setUniform("u_lightFalloff", it->second->falloff);
-
-        // _program->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
-        // _program->setUniformDepthTexture("u_lightSListhadowMap", it->second->getShadowMap(), _program->textureIndex++ );
-    }
-    else {
-        for (LightPtrs::iterator it = lightsList.begin(); it != lightsList.end(); ++it) {
-            std::string name = "u_" + it->first;
-
-            _program->setUniform(name + "Color", it->second->color);
-            _program->setUniform(name + "Intensity", it->second->intensity);
             if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
-                _program->setUniform(name, it->second->getPosition());
+                _program->setUniform("u_light", it->second->getPosition());
             if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
-                _program->setUniform(name + "Direction", it->second->direction);
+                _program->setUniform("u_lightDirection", it->second->direction);
             if (it->second->falloff > 0)
-                _program->setUniform(name +"Falloff", it->second->falloff);
+                _program->setUniform("u_lightFalloff", it->second->falloff);
 
-            _program->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
-            // _program->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
+            // _program->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
+            // _program->setUniformDepthTexture("u_lightSListhadowMap", it->second->getShadowMap(), _program->textureIndex++ );
         }
-    } 
+        else {
+            for (LightPtrs::iterator it = lightsList.begin(); it != lightsList.end(); ++it) {
+                std::string name = "u_" + it->first;
+
+                _program->setUniform(name + "Color", it->second->color);
+                _program->setUniform(name + "Intensity", it->second->intensity);
+                if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+                    _program->setUniform(name, it->second->getPosition());
+                if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+                    _program->setUniform(name + "Direction", it->second->direction);
+                if (it->second->falloff > 0)
+                    _program->setUniform(name +"Falloff", it->second->falloff);
+
+                _program->setUniform(name + "Matrix", it->second->getBiasMVPMatrix() );
+                // _program->setUniformDepthTexture(name + "ShadowMap", it->second->getShadowMap(), _shader->textureIndex++ );
+            }
+        } 
+    }
 }
 
-void resetShader() { shaderPtr = nullptr; }
+void lights() { lights_enabled = true; }
+void noLights() { lights_enabled = false; }
+Light* createLight(const std::string& _name) {
+    Light* light = new Light();
+    addLight(light, _name);
+    return light;
+}
+void addLight(Light& _light, const std::string& _name) { lightsList[_name] = &_light; }
+void addLight(Light* _light, const std::string& _name) { lightsList[_name] = _light; }
+
 
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
@@ -701,11 +736,10 @@ void addLablel(const std::string& _text, glm::vec3* _position) {
 }
 
 void labels() {
-    if (font != nullptr)
+    if (font == nullptr)
         font = getDefaultFont();
 
     font->setColor( fill_color );
-
     for (size_t i = 0; i < labelsList.size(); i++) {
         labelsList[i].update( getCamera(), font );
         labelsList[i].render( font );

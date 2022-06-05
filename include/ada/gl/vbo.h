@@ -26,13 +26,17 @@ public:
 
     Vbo();
     Vbo(const Mesh& _mesh);
+    Vbo(const std::vector<glm::vec2> &_vertices);
     Vbo(const std::vector<glm::vec3> &_vertices);
     Vbo(VertexLayout* _vertexlayout, GLenum _drawMode = GL_TRIANGLES);
     virtual ~Vbo();
 
     void load(const Mesh& _mesh);
+    void load(const std::vector<glm::vec2> &_vertices);
     void load(const std::vector<glm::vec3> &_vertices);
+    
     void operator = (const Mesh &_mesh );
+    void operator = (const std::vector<glm::vec2> &_vertices );
     void operator = (const std::vector<glm::vec3> &_vertices );
 
     void setDrawType(GLenum _drawType = GL_STATIC_DRAW);

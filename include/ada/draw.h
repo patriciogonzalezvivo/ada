@@ -197,11 +197,11 @@ Camera* getCamera();
 // specularColor()
 // directionalLight()
 // pointLight()
-// lights()
 // lightFalloff()
 // spotLight()
-// noLights()
 
+void lights();
+void noLights();
 Light* createLight(const std::string& _name = "default");
 void addLight(Light& _light, const std::string& _name = "default");
 void addLight(Light* _light, const std::string& _name = "default");

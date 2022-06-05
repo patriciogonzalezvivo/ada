@@ -37,6 +37,18 @@ Vbo::Vbo(const Mesh& _mesh) :
     load(_mesh);
 }
 
+Vbo::Vbo(const std::vector<glm::vec2> &_vertices) : 
+    m_vertexLayout(NULL),
+    m_glVertexBuffer(0),
+    m_nVertices(0),
+    m_glIndexBuffer(0),
+    m_nIndices(0),
+    m_drawType(GL_STATIC_DRAW),
+    m_drawMode(GL_TRIANGLES),
+    m_isUploaded(false) {
+    load(_vertices);
+}
+
 Vbo::Vbo(const std::vector<glm::vec3>& _vertices) : 
     m_vertexLayout(NULL),
     m_glVertexBuffer(0),
@@ -61,23 +73,25 @@ Vbo::~Vbo() {
 }
 
 void Vbo::operator = (const Mesh &_mesh ) { load(_mesh); }
+void Vbo::operator = (const std::vector<glm::vec2> &_vertices ) { load(_vertices); }
 void Vbo::operator = (const std::vector<glm::vec3> &_vertices ) { load(_vertices); }
-void Vbo::load(const std::vector<glm::vec3> &_vertices) {
-    std::vector<VertexAttrib> attribs;
-    attribs.push_back({"position", 3, GL_FLOAT, false, 0});
-    int  nBits = 3;
 
+void Vbo::load(const std::vector<glm::vec2> &_vertices) {
+    std::vector<VertexAttrib> attribs;
+    attribs.push_back({"position", 2, GL_FLOAT, false, 0});
     VertexLayout* vertexLayout = new VertexLayout(attribs);
     setVertexLayout( vertexLayout );
 
     addVertices((GLbyte*)_vertices.data(), _vertices.size());
+}
 
-    // std::vector<GLfloat> data = ;
-    // for (size_t i = 0; i < _vertices.size(); i++) {
-    //     data.push_back(_vertices[i].x);
-    //     data.push_back(_vertices[i].y);
-    //     data.push_back(_vertices[i].z);
-    // }
+void Vbo::load(const std::vector<glm::vec3> &_vertices) {
+    std::vector<VertexAttrib> attribs;
+    attribs.push_back({"position", 3, GL_FLOAT, false, 0});
+    VertexLayout* vertexLayout = new VertexLayout(attribs);
+    setVertexLayout( vertexLayout );
+
+    addVertices((GLbyte*)_vertices.data(), _vertices.size());
 }
 
 void Vbo::load(const Mesh& _mesh) {

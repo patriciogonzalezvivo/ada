@@ -28,6 +28,7 @@
 
 #include "fontstash.h"
 #include "shaders.h"
+#include "ada/gl/shader.h"
 
 typedef unsigned int fsuint;
 
@@ -260,17 +261,21 @@ void glfons__disableVertexLayout(GLFONScontext* gl) {
     }
 }
 
+ada::Shader glfons__shader;
+
 void glfons__initShaders(GLFONScontext* gl) {
-    GLuint program = glCreateProgram();
-    GLuint vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
-    GLuint fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
+    glfons__shader.load(glfs::sdfFragShaderSrc, glfs::vertexShaderSrc);
 
-    GLFONS_GL_CHECK(glAttachShader(program, vertex));
-    GLFONS_GL_CHECK(glAttachShader(program, fragment));
-    GLFONS_GL_CHECK(glLinkProgram(program));
+    GLuint program = glfons__shader.getProgram();
+    // GLuint vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
+    // GLuint fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
 
-    glDeleteShader(vertex);
-    glDeleteShader(fragment);
+    // GLFONS_GL_CHECK(glAttachShader(program, vertex));
+    // GLFONS_GL_CHECK(glAttachShader(program, fragment));
+    // GLFONS_GL_CHECK(glLinkProgram(program));
+
+    // glDeleteShader(vertex);
+    // glDeleteShader(fragment);
     gl->program = program;
 
     GLuint boundProgram;
