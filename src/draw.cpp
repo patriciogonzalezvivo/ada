@@ -26,11 +26,10 @@ Shader*     points_shader   = nullptr;
 glm::vec4   stroke_color    = glm::vec4(1.0f);
 bool        stroke_enabled  = true;
 
-Font*               font;
-// FontHorizontalAlign font_hAlign = ALIGN_CENTER;
-// FontVerticalAlign   font_vAlign = ALIGN_MIDDLE;
+Font*       font;
+std::map<std::string, Font*>    fonts;
 
-glm::mat4   matrix_world          = glm::mat4(1.0f);
+glm::mat4   matrix_world    = glm::mat4(1.0f);
 std::stack<glm::mat4>   matrix_stack;
 
 Camera*     cameraPtr       = nullptr;
@@ -384,14 +383,17 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
 // TEXT
 //
 Font* getDefaultFont() {
-    if (font == nullptr) {
-        font = new Font();
-        font->setAlign( ALIGN_CENTER );
-        font->setAlign( ALIGN_BOTTOM );
-        font->setSize(24.0f);
-        font->setColor(glm::vec4(1.0));
+    if (fonts.find("default") != fonts.end() )
+        return fonts["default"];
+    else {
+        Font* defaultFont = new Font();
+        defaultFont->setAlign( ALIGN_CENTER );
+        defaultFont->setAlign( ALIGN_BOTTOM );
+        defaultFont->setSize(24.0f);
+        defaultFont->setColor(glm::vec4(1.0));
+        fonts["default"] = defaultFont;
+        return defaultFont;
     }
-    return font;
 }
 
 Font* getFont() {
@@ -400,43 +402,56 @@ Font* getFont() {
     return font;
 }
 
+Font* loadFont(const std::string& _file, const std::string& _name) {
+    if (fonts.find(_name) != fonts.end() ) 
+        return fonts[_name];
+    else {
+        Font* newFont = new Font();
+        newFont->load(_file);
+        fonts[_name] = newFont;
+        return newFont;
+    }
+}
+
+Font* textFont(const std::string& _name) { 
+    if (_name == "default")
+        font = getDefaultFont();
+    if (fonts.find(_name) != fonts.end() ) 
+        font = fonts[_name];
+    else {
+        font = getDefaultFont();
+        fonts[_name] = font;
+    }
+    
+    return font; 
+}
+
 void textAlign(FontHorizontalAlign _align, Font* _font) {
     if (_font == nullptr)
-        _font = getDefaultFont();
+        _font = getFont();
 
-    // if (_font = font)
-    //     font_hAlign = _align;
-
-    font->setAlign( _align );
+    _font->setAlign( _align );
 }
 
 void textAlign(FontVerticalAlign _align, Font* _font) {
     if (_font == nullptr)
-        _font = getDefaultFont();
+        _font = getFont();
 
-    // if (_font = font)
-    //     font_vAlign = _align;
-    
-    font->setAlign( _align );
+    _font->setAlign( _align );
 }
 
 void textSize(float _size, Font* _font) { 
     if (_font == nullptr)
-        _font = getDefaultFont();
+        _font = getFont();
     
-    font->setSize(_size);
+    _font->setSize(_size);
 }
 
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font) { text(_text, _pos.x, _pos.y, _font); }
 void text(const std::string& _text, float _x, float _y, Font* _font) {
     if (_font == nullptr)
-        _font = getDefaultFont();
+        _font = getFont();
     
-    // if (_font = font) {
-    //     _font->setAlign(font_vAlign);
-    //     _font->setAlign(font_hAlign);
-    // }
-
     _font->setColor( fill_color );
     _font->render(_text, _x, _y);
 }
