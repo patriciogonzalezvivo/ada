@@ -172,16 +172,7 @@ glm::vec4 Font::getBoundingBox(const std::string &_text, float _x, float _y) {
 
     fonsSetFont(fs, m_id);
     fonsSetSize(fs, m_size);
-    fonsSetAlign(fs, m_align);
-
-    // glfonsBufferCreate(fs, &buffer);
-    // glfonsBindBuffer(fs, buffer);
-    // glfonsGenText(fs, 1, &textID);
-    // glfonsRasterize(fs, textID, _text.c_str());
-    // glfonsGetBBox(fs, textID, &bbox[0], &bbox[1], &bbox[2], &bbox[3]);
-    // glfonsBufferDelete(fs, buffer);
-    // return bbox;
-
+    fonsSetAlign(fs, m_hAlign | m_vAlign);
 	fonsTextBounds(fs, _x, _y, _text.c_str(), NULL, glm::value_ptr( bbox ) );
     return bbox;
 }
@@ -193,7 +184,7 @@ void Font::render(const std::string &_text, float _x, float _y) {
     fonsSetFont(fs, m_id);
     fonsSetSize(fs, m_size * ada::getPixelDensity() );
     fonsSetColor(fs, m_color);
-    fonsSetAlign(fs, m_align);
+    fonsSetAlign(fs, m_hAlign | m_vAlign);
 
     glfonsScreenSize(fs, ada::getWindowWidth(), ada::getWindowHeight());
 

@@ -82,6 +82,8 @@ float       getPixelDensity();
 
 const glm::ivec4& getViewport();
 const glm::mat4&  getOrthoMatrix();
+const glm::mat4&  getFlippedOrthoMatrix();
+
 int         getWindowWidth();
 int         getWindowHeight();
 int         getWindowMSAA();

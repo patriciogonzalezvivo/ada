@@ -37,15 +37,15 @@ enum FONSflags {
 
 enum FONSalign {
     // Horizontal align
-    FONS_ALIGN_LEFT 	= 1<<0,	// Default
-    FONS_ALIGN_CENTER 	= 1<<1,
-    FONS_ALIGN_RIGHT 	= 1<<2,
+    FONS_ALIGN_LEFT     = 1<<0, // Default
+    FONS_ALIGN_CENTER   = 1<<1,
+    FONS_ALIGN_RIGHT    = 1<<2,
 
     // Vertical align
-    FONS_ALIGN_TOP 		= 1<<3,
-    FONS_ALIGN_MIDDLE	= 1<<4,
-    FONS_ALIGN_BOTTOM	= 1<<5,
-    FONS_ALIGN_BASELINE	= 1<<6, // Default
+    FONS_ALIGN_TOP      = 1<<3,
+    FONS_ALIGN_MIDDLE   = 1<<4,
+    FONS_ALIGN_BOTTOM   = 1<<5,
+    FONS_ALIGN_BASELINE = 1<<6, // Default
 };
 
 enum FONSeffectType {
@@ -290,7 +290,7 @@ void fons__tt_renderGlyphBitmap(FONSttFontImpl *font, unsigned char *output, int
     FONS_NOTUSED(outHeight);
     FONS_NOTUSED(scaleX);
     FONS_NOTUSED(scaleY);
-    FONS_NOTUSED(glyph);	// glyph has already been loaded by fons__tt_buildGlyphBitmap
+    FONS_NOTUSED(glyph);    // glyph has already been loaded by fons__tt_buildGlyphBitmap
 
     for ( y = 0; y < ftGlyph->bitmap.rows; y++ ) {
         for ( x = 0; x < ftGlyph->bitmap.width; x++ ) {
@@ -1203,8 +1203,8 @@ static void fons__blur(FONScontext* stash, unsigned char* dst, int w, int h, int
     fons__blurCols(dst, w, h, dstStride, alpha);
     fons__blurRows(dst, w, h, dstStride, alpha);
     fons__blurCols(dst, w, h, dstStride, alpha);
-    //	fons__blurrows(dst, w, h, dstStride, alpha);
-    //	fons__blurcols(dst, w, h, dstStride, alpha);
+    //  fons__blurrows(dst, w, h, dstStride, alpha);
+    //  fons__blurcols(dst, w, h, dstStride, alpha);
 }
 
 static FONSglyph* fons__getGlyph(FONScontext* stash, FONSfont* font, unsigned int codepoint,

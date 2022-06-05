@@ -6,10 +6,17 @@
 
 namespace ada {
 
-enum FontAlign {
+enum FontHorizontalAlign {
     ALIGN_LEFT 	    = 1<<0,	// Default
     ALIGN_CENTER 	= 1<<1,
     ALIGN_RIGHT 	= 1<<2
+};
+
+enum FontVerticalAlign {
+    ALIGN_TOP 	    = 1<<3,
+    ALIGN_MIDDLE 	= 1<<4,
+    ALIGN_BOTTOM 	= 1<<5,
+    ALIGN_BASELINE  = 1<<6
 };
 
 class Font {
@@ -25,7 +32,8 @@ public:
 
     virtual void setSize(float _size) { m_size = _size; }
 
-    virtual void setAlign(FontAlign _align) { m_align = _align; }
+    virtual void setAlign(FontHorizontalAlign _align) { m_hAlign = _align; }
+    virtual void setAlign(FontVerticalAlign _align) { m_vAlign = _align; }
 
     virtual void setColor(float _brightness) { setColor(glm::vec4(glm::vec3(_brightness), 1.0f) ); }
     virtual void setColor(float _r, float _g, float _b) { setColor(glm::vec4(glm::vec3(_r, _g, _b), 1.0f) ); }
@@ -35,13 +43,16 @@ public:
 
     // virtual GLint getAtlasTexture();
     virtual glm::vec4 getBoundingBox(const std::string &_text, float _x = 0, float _y = 0);
+    virtual glm::vec4 getBoundingBox(const std::string &_text, const glm::vec2 &_pos) { return getBoundingBox(_text, _pos.x, _pos.y); }
 
     virtual void render(const std::string &_text, float _x, float _y);
     virtual void render(const std::string &_text, const glm::vec2 &_pos) { render(_text, _pos.x, _pos.y); }
 
 private:
 
-    FontAlign   m_align;
+    FontHorizontalAlign m_hAlign;
+    FontVerticalAlign   m_vAlign;
+
     float       m_size;
     int         m_color;
     int         m_id;

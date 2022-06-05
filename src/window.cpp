@@ -24,6 +24,7 @@ static glm::ivec4               viewport;
 static ada::WindowProperties    properties;
 struct timespec                 time_start;
 static glm::mat4                orthoMatrix;
+static glm::mat4                orthoFlippedMatrix;
 
 typedef struct {
     bool      entered;
@@ -1084,6 +1085,9 @@ void updateViewport() {
     orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
                                 (float)viewport.y * fPixelDensity, height);
 
+    orthoFlippedMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
+                                        height, (float)viewport.y * fPixelDensity);
+
 #ifdef EVENTS_AS_CALLBACKS
     if (onViewportResize)
 #endif 
@@ -1137,6 +1141,7 @@ float getPixelDensity() {
 
 const glm::ivec4& getViewport() { return viewport; }
 const glm::mat4& getOrthoMatrix() { return orthoMatrix; }
+const glm::mat4& getFlippedOrthoMatrix() { return orthoFlippedMatrix; }
 int         getWindowWidth() { return viewport.z * fPixelDensity; }
 int         getWindowHeight() { return viewport.w * fPixelDensity; }
 int         getWindowMSAA() { return properties.msaa; }

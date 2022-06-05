@@ -132,7 +132,9 @@ void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program = null
 // textWrap()
 // loadFont()
 // textFont()
-void textAlign(FontAlign _align, Font* _font = nullptr);
+Font* getFont();
+void textAlign(FontHorizontalAlign _align, Font* _font = nullptr);
+void textAlign(FontVerticalAlign _align, Font* _font = nullptr);
 void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);

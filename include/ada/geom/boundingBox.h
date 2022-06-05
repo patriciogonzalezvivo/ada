@@ -14,6 +14,9 @@ public:
     glm::vec3 max;
     
     BoundingBox(): min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min()) {}
+    
+    void        set(const glm::vec4& _bbox) { min.x = _bbox.x; min.y = _bbox.y; max.x = _bbox.z; max.y = _bbox.w; }
+    void        operator = (const glm::vec4& _bbox) { set(_bbox); }
 
     float       getWidth() const { return fabs(max.x - min.x); }
     float       getHeight() const { return fabs(max.y - min.y); }
@@ -21,6 +24,7 @@ public:
     
     glm::vec3   getCenter() const { return (min + max) * 0.5f; }
     glm::vec3   getDiagonal() const { return max - min; }
+    glm::vec4   get2DBoundingBox() const { return glm::vec4(min.x, min.y, max.x, max.y); }
     
     bool        containsX(float _x) const { return _x >= min.x && _x <= max.x; }
     bool        containsY(float _y) const { return _y >= min.y && _y <= max.y; }

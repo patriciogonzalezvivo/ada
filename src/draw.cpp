@@ -17,7 +17,7 @@ Shader*     shaderPtr     = nullptr;
 bool        shaderChange  = true; 
 
 glm::vec4   fill_color      = glm::vec4(1.0f);
-Shader*     fill_shader   = nullptr;
+Shader*     fill_shader     = nullptr;
 bool        fill_enabled    = true;
 
 float       points_size     = 10.0f;
@@ -27,19 +27,21 @@ Shader*     points_shader   = nullptr;
 glm::vec4   stroke_color    = glm::vec4(1.0f);
 bool        stroke_enabled  = true;
 
-ada::Font*  font;
+Font*               font;
+// FontHorizontalAlign font_hAlign = ALIGN_CENTER;
+// FontVerticalAlign   font_vAlign = ALIGN_MIDDLE;
 
 glm::mat4   matrix_world          = glm::mat4(1.0f);
-std::stack<glm::mat4> matrix_stack;
+std::stack<glm::mat4>   matrix_stack;
 
 Camera*     cameraPtr       = nullptr;
 Camera*     cameraCustomPtr = nullptr;
 LightPtrs   lightsList;
 
-std::vector<ada::Label> labelsList;
+std::vector<Label>      labelsList;
 
 void print(const std::string& _text) { std::cout << _text << std::endl; }
-void frameRate(int _fps) { ada::setFps(_fps); }
+void frameRate(int _fps) { setFps(_fps); }
 
 void resetMatrix() { matrix_world = glm::mat4(1.0f); }
 void applyMatrix(const glm::mat3& _mat ) { matrix_world = _mat; }
@@ -90,7 +92,7 @@ Camera *getCameraCustom() {
 
 void perspective(float _fovy, float _aspect, float _near, float _far) {
     cameraPtr = getCameraCustom();
-    cameraPtr->setProjection(ada::PERSPECTIVE);
+    cameraPtr->setProjection( PERSPECTIVE );
     // cameraPtr->setProjection( glm::perspective(_fovy, _aspect, _near, _far) );
     cameraPtr->setAspect(_aspect);
     cameraPtr->setFOV(_fovy);
@@ -115,28 +117,28 @@ glm::mat4 getProjectionViewWorldMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix() * matrix_world; 
     else
-        return getOrthoMatrix() * matrix_world;
+        return getFlippedOrthoMatrix() * matrix_world;
 }
 
 glm::mat4 getProjectionViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix(); 
     else
-        return getOrthoMatrix();
+        return getFlippedOrthoMatrix();
 }
 
 glm::mat4 getProjectionMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionMatrix(); 
     else
-        return getOrthoMatrix();
+        return getFlippedOrthoMatrix();
 }
 
 glm::mat4 getViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getViewMatrix(); 
     else
-        return getOrthoMatrix();
+        return getFlippedOrthoMatrix();
 }
 
 glm::mat4 getWorldMatrix() { 
@@ -309,7 +311,7 @@ void line(const std::vector<glm::vec2>& _positions, Shader* _program) {
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
-        glVertexAttribPointer(location, 2, GL_FLOAT, false, 0,  &_positions[0].x);
+        glVertexAttribPointer(location, 2, GL_FLOAT, false, 0,  _positions.data());
         glDrawArrays(GL_LINE_STRIP, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
@@ -370,7 +372,6 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
     positions.push_back( glm::vec2(_bbox.z, _bbox.w) );
     positions.push_back( glm::vec2(_bbox.x, _bbox.w) );
     positions.push_back( glm::vec2(_bbox.x, _bbox.y) );
-    
     line(positions, _program);
 }
 
@@ -379,19 +380,40 @@ void lineBoundingBox(const glm::vec4& _bbox, Shader* _program) {
 Font* getDefaultFont() {
     if (font == nullptr) {
         font = new Font();
-        font->setAlign(ada::ALIGN_CENTER);
+        font->setAlign( ALIGN_CENTER );
+        font->setAlign( ALIGN_BOTTOM );
         font->setSize(24.0f);
         font->setColor(glm::vec4(1.0));
     }
     return font;
 }
 
-void textAlign(FontAlign _align, Font* _font) {
+Font* getFont() {
+    if (font == nullptr)
+        return getDefaultFont();
+    return font;
+}
+
+void textAlign(FontHorizontalAlign _align, Font* _font) {
     if (_font == nullptr)
         _font = getDefaultFont();
 
+    // if (_font = font)
+    //     font_hAlign = _align;
+
     font->setAlign( _align );
 }
+
+void textAlign(FontVerticalAlign _align, Font* _font) {
+    if (_font == nullptr)
+        _font = getDefaultFont();
+
+    // if (_font = font)
+    //     font_vAlign = _align;
+    
+    font->setAlign( _align );
+}
+
 void textSize(float _size, Font* _font) { 
     if (_font == nullptr)
         _font = getDefaultFont();
@@ -400,13 +422,17 @@ void textSize(float _size, Font* _font) {
 }
 
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font) { text(_text, _pos.x, _pos.y, _font); }
-
 void text(const std::string& _text, float _x, float _y, Font* _font) {
     if (_font == nullptr)
         _font = getDefaultFont();
     
-    font->setColor( fill_color );
-    font->render(_text, _x, _y);
+    // if (_font = font) {
+    //     _font->setAlign(font_vAlign);
+    //     _font->setAlign(font_hAlign);
+    // }
+
+    _font->setColor( fill_color );
+    _font->render(_text, _x, _y);
 }
 
 // SHAPES
@@ -548,7 +574,7 @@ void shader(Shader* _program) {
         _program->setUniform("u_iblLuminance", 30000.0f * cameraPtr->getExposure());
     }
     else
-        _program->setUniform("u_modelViewProjectionMatrix", getOrthoMatrix() * matrix_world );
+        _program->setUniform("u_modelViewProjectionMatrix", getFlippedOrthoMatrix() * matrix_world );
 
     // Pass Light Uniforms
     if (lightsList.size() == 1) {
@@ -659,7 +685,7 @@ void labels() {
     font->setColor( fill_color );
 
     for (size_t i = 0; i < labelsList.size(); i++) {
-        labelsList[i].update( getCamera() );
+        labelsList[i].update( getCamera(), font );
         labelsList[i].render( font );
     }
 }

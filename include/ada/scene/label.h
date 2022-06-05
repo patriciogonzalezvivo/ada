@@ -15,9 +15,9 @@ public:
 
     void setText(const std::string& _text);
     void linkTo(glm::vec3* _position);
-    void update(Camera* _cam);
+    void update(Camera* _cam = nullptr, Font *_font = nullptr);
 
-    void render(Font *_font);
+    void render(Font *_font = nullptr);
 
 private:
     std::string m_text;
