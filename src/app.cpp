@@ -4,10 +4,41 @@
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
 // #define GLFW_INCLUDE_ES3
 #endif
 
 namespace ada {
+
+
+#if defined(__EMSCRIPTEN__)
+EM_BOOL App::loop (double _time, void* _userData) {
+    App* _app = (App*)_userData;
+#else
+void App::loop(double _time, App* _app) {
+#endif
+
+    _app->time = _time;
+    _app->width = getWindowWidth();
+    _app->height = getWindowHeight();
+    _app->focused = getMouseEntered();
+    _app->deltaTime = getDelta();
+    _app->frameCount++;
+
+    // Update
+    _app->update();
+    updateGL();
+
+    if (_app->auto_background_enabled)
+        clear(_app->auto_background_color);
+
+    _app->draw();
+    renderGL();
+
+    #if defined(__EMSCRIPTEN__)
+    return true;
+    #endif
+}
 
 void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
     initGL(_viewport, _properties);
@@ -97,9 +128,8 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
 #ifdef __EMSCRIPTEN__
         // Run the loop 
-    emscripten_request_animation_frame_loop(loop, 0);
+    emscripten_request_animation_frame_loop(loop, (void*)this);
 
-    double width,  height;
     emscripten_get_element_css_size("#canvas", &width, &height);
     setWindowSize(width, height);
     
@@ -107,7 +137,7 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
     
     // Render Loop
     while ( isGL() )
-        loop();
+        loop(getTime(), this);
 
     closeGL();
         close();
@@ -127,13 +157,21 @@ void App::background( const glm::vec4& _color ) {
 }
 
 void App::orbitControl() {
+    Camera* cam = getCamera();
+
+    if (cam) {
+        double aspect = width/height;
+        if (cam->getAspect() != aspect)
+            cam->setViewport(width, height);
+    }
+
     if (mouseIsPressed) {
-        Camera* cam = getCamera();
 
         if (cam) {
-            cam->setViewport(width, height);
             float dist = cam->getDistance();
 
+            
+            
             if (mouseButton == 1) {
 
                 // Left-button drag is used to rotate geometry.
@@ -157,35 +195,6 @@ void App::orbitControl() {
     }
 
     glEnable(GL_DEPTH_TEST);
-}
-
-
-#if defined(__EMSCRIPTEN__)
-EM_BOOL App::loop (double time, void* userData) {
-#else
-void App::loop() {
-#endif
-
-    width = getWindowWidth();
-    height = getWindowHeight();
-    deltaTime = getDelta();
-    time = getTime();
-    focused = getMouseEntered();
-    frameCount++;
-
-    // Update
-    update();
-    updateGL();
-
-    if (auto_background_enabled)
-        clear(auto_background_color);
-
-    draw();
-    renderGL();
-
-    #if defined(__EMSCRIPTEN__)
-    return true;
-    #endif
 }
 
 }

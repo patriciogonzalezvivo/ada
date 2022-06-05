@@ -9,7 +9,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 #include <stack>
-#include <memory>
 
 namespace ada {
 
@@ -329,13 +328,20 @@ void line(const std::vector<glm::vec3>& _positions, Shader* _program) {
     shader(_program);
     _program->setUniform("u_color", stroke_color);
 
+#if defined(__EMSCRIPTEN__)
+    Vbo vbo = _positions;
+    vbo.setDrawMode(GL_LINE_STRIP);
+    vbo.render(_program);
+#else
     const GLint location = _program->getAttribLocation("a_position");
     if (location != -1) {
         glEnableVertexAttribArray(location);
-        glVertexAttribPointer(location, 3, GL_FLOAT, false, 0,  &_positions[0].x);
+        glVertexAttribPointer(location, 3, GL_FLOAT, GL_FALSE, 0, (const void*)_positions.data());
         glDrawArrays(GL_LINE_STRIP, 0, _positions.size());
         glDisableVertexAttribArray(location);
     }
+
+#endif
 };
 
 void line(const Line& _line, Shader* _program) {
@@ -499,8 +505,8 @@ Light* createLight(const std::string& _name) {
     addLight(light, _name);
     return light;
 }
-void addLight(Light& _light, const std::string& _name) { lightsList[_name] = LightPtr(&_light); }
-void addLight(Light* _light, const std::string& _name) { lightsList[_name] = LightPtr(_light); }
+void addLight(Light& _light, const std::string& _name) { lightsList[_name] = &_light; }
+void addLight(Light* _light, const std::string& _name) { lightsList[_name] = _light; }
 
 Shader loadShader(const std::string& _fragFile, const std::string& _vertFile) {
     Shader s;
@@ -616,11 +622,12 @@ void resetShader() { shaderPtr = nullptr; }
 
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
 void model(Vbo* _vbo, Shader* _program) {
-    if (_program == nullptr)
+    if (_program == nullptr) {
         if (shaderPtr != nullptr)
             _program = shaderPtr;
         else
             _program = getFillShader();
+    }
 
     if (shaderChange && 
         shaderPtr != fill_shader && 

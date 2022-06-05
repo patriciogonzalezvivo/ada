@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include "node.h"
 
 namespace ada {
@@ -88,8 +87,5 @@ private:
 
     Projection  m_type;
 };
-
-typedef std::shared_ptr<Camera> CameraPtr;
-typedef std::unique_ptr<Camera> CameraUnPtr;
 
 }

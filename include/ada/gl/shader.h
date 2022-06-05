@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <string>
 
 #include "gl.h"
@@ -90,8 +89,5 @@ private:
     GLuint      m_fragmentShader;
     GLuint      m_vertexShader;
 };
-
-typedef std::shared_ptr<Shader> ShaderPtr;
-typedef std::unique_ptr<Shader> ShaderUnPtr;
 
 }

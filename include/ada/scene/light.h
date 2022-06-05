@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <memory>
 
 #include "node.h"
 #include "ada/gl/fbo.h"
@@ -50,10 +49,7 @@ protected:
     GLint               m_viewport[4];
 };
 
-typedef std::shared_ptr<Light> LightPtr;
-typedef std::unique_ptr<Light> LightUnPtr;
-typedef std::shared_ptr<Light const> LightConstPtr;
 typedef std::map<std::string,Light> Lights;
-typedef std::map<std::string,LightPtr> LightPtrs;
+typedef std::map<std::string,Light*> LightPtrs;
 
 }

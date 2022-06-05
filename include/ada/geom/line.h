@@ -1,6 +1,5 @@
 #pragma once 
 
-#include <memory>
 #include <vector>
 #include "glm/glm.hpp"
 
@@ -42,8 +41,5 @@ private:
     glm::vec3               m_points[2];
     glm::vec3               m_direction;
 };
-
-typedef std::shared_ptr<Line> LinePtr;
-typedef std::shared_ptr<Line const> LineConstPtr;
 
 }

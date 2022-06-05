@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
 #include "glm/glm.hpp"
 
@@ -78,7 +77,5 @@ private:
     
 };
 
-typedef std::shared_ptr<Triangle> TrianglePtr;
-typedef std::shared_ptr<Triangle const> TriangleConstPtr;
 
 }

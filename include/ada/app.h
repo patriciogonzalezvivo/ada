@@ -62,6 +62,8 @@ public:
     float   cameraLat = 180.0f;
     float   cameraLon = 0.0f;
 
+    double  width, height;
+
     float   mouseX, mouseY;
     float   movedX, movedY;
     float   pmouseX, pmouseY;
@@ -69,8 +71,7 @@ public:
     bool    mouseIsPressed;
     bool    focused;
 
-    float   width, height;
-    float   time, deltaTime;
+    double  time, deltaTime;
     int     frameCount;
 
 
@@ -82,9 +83,9 @@ protected:
     bool        post_setup = false;
 
     #if defined(__EMSCRIPTEN__)
-    EM_BOOL loop (double time, void* userData);
+    static EM_BOOL loop (double time, void* userData);
     #else
-    void loop();
+    static void loop(double _time, App* _app);
     #endif
 
 };
