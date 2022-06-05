@@ -130,9 +130,9 @@ void rect(const glm::vec2& _pos, const glm::vec2& _size, Shader* _program = null
 // textAscent()
 // textDescent()
 // textWrap()
-// loadFont()
-// textFont()
 Font* getFont();
+Font* loadFont(const std::string& _file, const std::string& _name = "default");
+Font* textFont(const std::string& _name);
 void textAlign(FontHorizontalAlign _align, Font* _font = nullptr);
 void textAlign(FontVerticalAlign _align, Font* _font = nullptr);
 void textSize(float _size, Font* _font = nullptr);

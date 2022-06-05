@@ -19,6 +19,13 @@ enum FontVerticalAlign {
     ALIGN_BASELINE  = 1<<6
 };
 
+enum FontEffect {
+    EFFECT_NONE = 0,
+    EFFECT_BLUR,
+    EFFECT_GROW,
+    EFFECT_DISTANCE_FIELD
+};
+
 class Font {
 public:
     Font();
@@ -34,6 +41,9 @@ public:
 
     virtual void setAlign(FontHorizontalAlign _align) { m_hAlign = _align; }
     virtual void setAlign(FontVerticalAlign _align) { m_vAlign = _align; }
+
+    virtual void setEffect(FontEffect _effect) { m_effect = _effect; }
+    virtual void setBlurAmount(float _blur) { m_effect = EFFECT_BLUR; m_blur = _blur; }
 
     virtual void setColor(float _brightness) { setColor(glm::vec4(glm::vec3(_brightness), 1.0f) ); }
     virtual void setColor(float _r, float _g, float _b) { setColor(glm::vec4(glm::vec3(_r, _g, _b), 1.0f) ); }
@@ -52,6 +62,9 @@ private:
 
     FontHorizontalAlign m_hAlign;
     FontVerticalAlign   m_vAlign;
+
+    FontEffect          m_effect;
+    float               m_blur;
 
     float       m_size;
     int         m_color;
