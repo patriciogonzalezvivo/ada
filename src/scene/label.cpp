@@ -1,6 +1,7 @@
 #include "ada/scene/label.h"
 #include "ada/window.h"
 #include "ada/draw.h"
+#include "ada/math.h"
 
 #include <iostream>
 
@@ -92,9 +93,9 @@ void Label::render(Font *_font) {
 
     if (m_bbox) {
         if (m_type == LABEL_LEFT)
-            _font->setAngle(M_PI_2);
+            _font->setAngle(HALF_PI);
         else if (m_type == LABEL_RIGHT)
-            _font->setAngle(-M_PI_2);
+            _font->setAngle(-HALF_PI);
     }
 
     if (m_worldPos != nullptr)

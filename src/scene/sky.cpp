@@ -14,9 +14,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <algorithm>
-#ifndef M_PI_2
-#define M_PI_2 1.57079632679489661923
-#endif
 #endif
 
 // #define USE_BILINEAR_INTERPOLATION
@@ -569,7 +566,7 @@ float* skyEquirectangular(SkyData* _sky, int _width, int _height) {
     // https://github.com/google/filament/blob/master/tools/skygen/src/main.cpp
     //
     float solarElevation = _sky->elevation;
-    float sunTheta = float(M_PI_2 - solarElevation);
+    float sunTheta = float(HALF_PI - solarElevation);
     float sunPhi = 0.0f;
     bool normalize = true;
 
@@ -590,7 +587,7 @@ float* skyEquirectangular(SkyData* _sky, int _width, int _height) {
         float v = (y + 0.5f) / _height;
         float theta = float(M_PI * v);
 
-        if (theta > M_PI_2) 
+        if (theta > HALF_PI) 
             continue;
             
         for (int x = 0; x < _width; x++) {
