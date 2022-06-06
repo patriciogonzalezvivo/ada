@@ -538,17 +538,17 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
                 dispman_display = vc_dispmanx_display_open(0); // LCD
             }
 
-            VC_DISPMANX_ALPHA_T alpha = { 
-                DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS, 
-                0, //255, 
-                0 
-            };
+            // VC_DISPMANX_ALPHA_T alpha = { 
+            //     DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS, 
+            //     0, //255, 
+            //     0 
+            // };
 
             dispman_update = vc_dispmanx_update_start(0);
             dispman_element = vc_dispmanx_element_add(  dispman_update, dispman_display,
                                                         0/*layer*/, &dst_rect, 0/*src*/,
                                                         &src_rect, DISPMANX_PROTECTION_NONE,
-                                                        &alpha , 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
+                                                        0 /*&alpha*/ , 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
             nativeviewport.element = dispman_element;
             nativeviewport.width = _viewport.z;
