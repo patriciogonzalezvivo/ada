@@ -2,6 +2,8 @@
 
 #include "ada/window.h"
 
+#include <iostream>
+
 #include "glm/gtc/matrix_inverse.hpp"
 
 // static const float MIN_APERTURE = 0.5f;
@@ -91,6 +93,7 @@ void Camera::setVirtualOffset(float scale, int currentViewIndex, int totalViews,
 
     projectionMatrix[2][0] += offset / (scale * aspect);
 
+    m_position_offset = -glm::vec3(glm::inverse(m_viewMatrix)[3]);
     m_projectionMatrix = projectionMatrix;
     m_projectionViewMatrix = projectionMatrix * m_viewMatrix;
     m_normalMatrix = glm::transpose(glm::inverse(glm::mat3(m_viewMatrix)));
@@ -106,9 +109,9 @@ const glm::mat4& Camera::getViewMatrix() const {
         return getTransformMatrix(); 
 }
 
-const glm::vec3 Camera::getPosition() const {
+const glm::vec3& Camera::getPosition() const {
     if (m_type == Projection::PERSPECTIVE_VIRTUAL_OFFSET )
-        return -glm::vec3(glm::inverse(m_viewMatrix)[3]);
+        return m_position_offset;
     else 
         return m_position;
 }
@@ -191,38 +194,40 @@ void Camera::updateProjectionViewMatrix() {
     bChange = true;
 }
 
-glm::vec3 Camera::worldToCamera(const glm::vec3& _WorldXYZ) const { return worldToCamera(&_WorldXYZ); }
-glm::vec3 Camera::worldToCamera(const glm::vec3* _WorldXYZ) const {
-    // glm::mat4 MVPmatrix = m_projectionViewMatrix;
-    // MVPmatrix = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, -1.0f, 1.0f)) * MVPmatrix;
-    // glm::vec4 camera = MVPmatrix * glm::vec4(*_WorldXYZ, 1.0f);
-    glm::vec4 camera = m_projectionViewMatrix * glm::vec4(*_WorldXYZ, 1.0f);
+glm::vec3 Camera::worldToCamera(const glm::vec3& _world, glm::mat4* _model) const { return worldToCamera(&_world, _model); }
+glm::vec3 Camera::worldToCamera(const glm::vec3* _world, glm::mat4* _model) const {
+    glm::vec4 pos = glm::vec4(*_world, 1.0f);
+    if (_model != nullptr)
+        pos = (*_model) * pos;
+    glm::vec4 camera = m_projectionViewMatrix * pos;
     return glm::vec3(camera) / camera.w;
 }
 
-glm::vec3 Camera::worldToScreen(const glm::vec3& _WorldXYZ) const { return worldToScreen(&_WorldXYZ); }
-glm::vec3 Camera::worldToScreen(const glm::vec3* _WorldXYZ) const {
-    glm::vec3 CameraXYZ = worldToCamera(_WorldXYZ);
+glm::vec3 Camera::worldToScreen(const glm::vec3& _world, glm::mat4* _model) const { return worldToScreen(&_world, _model); }
+glm::vec3 Camera::worldToScreen(const glm::vec3* _world, glm::mat4* _model) const { 
+    glm::vec3 screen = worldToCamera(_world, _model);
+    screen.x = (screen.x + 1.0f) * 0.5f;
+    screen.y = (1.0f - screen.y) * 0.5f;
+    // screen.x *= ada::getWindowWidth();
+    // screen.y *= ada::getWindowHeight();
+    return screen;
+}
 
-    glm::vec3 ScreenXYZ = glm::vec3(0.0f);
-    ScreenXYZ.x = (CameraXYZ.x + 1.0f) * 0.5f;// * viewport.width + viewport.x;
-    ScreenXYZ.y = (1.0f - CameraXYZ.y) * 0.5f;// * viewport.height + viewport.y;
-    ScreenXYZ.z = CameraXYZ.z;
-    return ScreenXYZ;
+BoundingBox Camera::worldToScreen(const BoundingBox& _bbox, glm::mat4* _model) const {
+    BoundingBox bbox;
+    bbox.expand( worldToScreen(_bbox.min, _model) );
+    bbox.expand( worldToScreen(glm::vec3( _bbox.min.x, _bbox.min.y, _bbox.max.z ) , _model) );
+    bbox.expand( worldToScreen(glm::vec3( _bbox.min.x, _bbox.max.y, _bbox.max.z ) , _model) );
+    bbox.expand( worldToScreen(glm::vec3( _bbox.max.x, _bbox.max.y, _bbox.min.z ) , _model) );
+    bbox.expand( worldToScreen(glm::vec3( _bbox.max.x, _bbox.min.y, _bbox.min.z ) , _model) );
+    bbox.expand( worldToScreen(_bbox.max, _model) );
+    return bbox;
 }
 
 // ---------------------------------------------------------- Events
 
-void Camera::onPositionChanged() {
-    updateProjectionViewMatrix();
-}
-
-void Camera::onOrientationChanged() {
-    updateProjectionViewMatrix();
-}
-
-void Camera::onScaleChanged() {
-    updateProjectionViewMatrix();
-}
+void Camera::onPositionChanged() { updateProjectionViewMatrix(); }
+void Camera::onOrientationChanged() { updateProjectionViewMatrix(); }
+void Camera::onScaleChanged() { updateProjectionViewMatrix(); }
 
 }

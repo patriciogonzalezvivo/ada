@@ -51,6 +51,8 @@ public:
     virtual void setColor(const glm::vec3 &_color) { setColor(glm::vec4(_color, 1.0f) ); }
     virtual void setColor(const glm::vec4 &_color);
 
+    virtual void setAngle(float _angle) { m_angle = _angle; }
+
     // virtual GLint getAtlasTexture();
     virtual glm::vec4 getBoundingBox(const std::string &_text, float _x = 0, float _y = 0);
     virtual glm::vec4 getBoundingBox(const std::string &_text, const glm::vec2 &_pos) { return getBoundingBox(_text, _pos.x, _pos.y); }
@@ -66,9 +68,10 @@ private:
     FontEffect          m_effect;
     float               m_blur;
 
-    float       m_size;
-    int         m_color;
-    int         m_id;
+    float               m_angle;
+    float               m_size;
+    int                 m_color;
+    int                 m_id;
 };
 
 }

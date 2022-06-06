@@ -1,6 +1,7 @@
 #pragma once
 
 #include "node.h"
+#include "ada/geom/boundingBox.h"
 
 namespace ada {
 
@@ -29,10 +30,11 @@ public:
 
     virtual void        setExposure(float _aperture, float _shutterSpeed, float _sensitivity);
 
-    virtual glm::vec3   worldToCamera(const glm::vec3* _WorldXYZ) const;
-    virtual glm::vec3   worldToCamera(const glm::vec3& _WorldXYZ) const;
-    virtual glm::vec3   worldToScreen(const glm::vec3* _WorldXYZ) const;
-    virtual glm::vec3   worldToScreen(const glm::vec3& _WorldXYZ) const;
+    virtual glm::vec3   worldToCamera(const glm::vec3* _world, glm::mat4* _model = nullptr) const;
+    virtual glm::vec3   worldToCamera(const glm::vec3& _world, glm::mat4* _model = nullptr) const;
+    virtual glm::vec3   worldToScreen(const glm::vec3* _world, glm::mat4* _model = nullptr) const;
+    virtual glm::vec3   worldToScreen(const glm::vec3& _world, glm::mat4* _model = nullptr) const;
+    virtual BoundingBox worldToScreen(const BoundingBox& _bbox, glm::mat4* _model = nullptr) const;
 
     //Getting Functions
     virtual const Projection&   getType() const { return m_type;};
@@ -50,7 +52,7 @@ public:
     virtual const float         getSensitivity() const { return m_sensitivity; }    //! returns this camera's sensitivity in ISO
     virtual const glm::vec3&    getTarget() const { return m_target; }
     
-    virtual const glm::vec3     getPosition() const;
+    virtual const glm::vec3&    getPosition() const;
     virtual const glm::mat4&    getViewMatrix() const;
     virtual const glm::mat3&    getNormalMatrix() const { return m_normalMatrix; }
     virtual const glm::mat4&    getProjectionMatrix() const { return m_projectionMatrix; }
@@ -73,6 +75,7 @@ private:
     glm::mat3   m_normalMatrix;
 
     glm::vec3   m_target;
+    glm::vec3   m_position_offset;
 
     double      m_aspect;
     double      m_fov;

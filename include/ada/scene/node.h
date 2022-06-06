@@ -29,8 +29,7 @@ public:
 
     // GET 
     virtual const glm::vec3&    getScale() const { return m_scale; };
-
-    virtual const glm::vec3     getPosition() const { return m_position; };
+    virtual const glm::vec3&    getPosition() const { return m_position; };
 
     virtual const glm::vec3&    getXAxis() const { return m_axis[0]; }
     virtual const glm::vec3&    getYAxis() const { return m_axis[1]; };
@@ -88,6 +87,8 @@ protected:
     glm::vec3           m_position;
     glm::quat           m_orientation;
     glm::vec3           m_scale;
+
+    friend class        Label;
 };
 
 }

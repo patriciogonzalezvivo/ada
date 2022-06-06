@@ -27,7 +27,7 @@ public:
     void        clear();
 
     void        setName(const std::string& _str);
-    std::string getName() { return m_name; }
+    const std::string& getName() const { return m_name; }
 
     void        addDefine(const std::string& _define, const std::string& _value = "");
     void        delDefine(const std::string& _define);
@@ -35,7 +35,7 @@ public:
     void        printVboInfo();
 
     float       getArea() const { return m_area; }
-    BoundingBox getBoundingBox() const { return m_bbox; }
+    const BoundingBox& getBoundingBox() const { return m_bbox; }
 
     Shader*     getShader() { return &m_shader; }
     
@@ -56,6 +56,8 @@ protected:
 
     std::string m_name;
     float       m_area;
+
+    friend class    Label;
 };
 
 typedef std::vector<Model*>  Models;

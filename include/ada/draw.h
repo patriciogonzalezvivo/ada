@@ -72,10 +72,11 @@ void resetMatrix();
 void applyMatrix(const glm::mat3& _mat );
 void applyMatrix(const glm::mat4& _mat );
 glm::mat4 getProjectionViewWorldMatrix();
-glm::mat4 getProjectionViewMatrix();
-glm::mat4 getProjectionMatrix();
-glm::mat4 getViewMatrix();
-glm::mat4 getWorldMatrix();
+const glm::mat4& getProjectionViewMatrix();
+const glm::mat4& getProjectionMatrix();
+const glm::mat4& getViewMatrix();
+const glm::mat4& getWorldMatrix();
+glm::mat4* getWorldMatrixPtr();
 
 void rotate(float _rad);
 void rotateX(float _rad);
@@ -145,11 +146,15 @@ Font* loadFont(const std::string& _file, const std::string& _name = "default");
 Font* textFont(const std::string& _name);
 void textAlign(FontHorizontalAlign _align, Font* _font = nullptr);
 void textAlign(FontVerticalAlign _align, Font* _font = nullptr);
+void textAngle(float _angle, Font* _font = nullptr);
 void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
 
-void addLablel(const std::string& _text, glm::vec3* _position);
+void addLablel(Label _label);
+void addLablel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER);
+void addLablel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER);
+void addLablel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER);
 void labels();
 
 // plane()

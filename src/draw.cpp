@@ -122,30 +122,29 @@ glm::mat4 getProjectionViewWorldMatrix() {
         return getFlippedOrthoMatrix() * matrix_world;
 }
 
-glm::mat4 getProjectionViewMatrix() {
+const glm::mat4& getProjectionViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionViewMatrix(); 
     else
         return getFlippedOrthoMatrix();
 }
 
-glm::mat4 getProjectionMatrix() {
+const glm::mat4& getProjectionMatrix() {
     if (cameraPtr)
         return cameraPtr->getProjectionMatrix(); 
     else
         return getFlippedOrthoMatrix();
 }
 
-glm::mat4 getViewMatrix() {
+const glm::mat4& getViewMatrix() {
     if (cameraPtr)
         return cameraPtr->getViewMatrix(); 
     else
         return getFlippedOrthoMatrix();
 }
 
-glm::mat4 getWorldMatrix() { 
-    return matrix_world;
-}
+const glm::mat4& getWorldMatrix() { return matrix_world; }
+glm::mat4* getWorldMatrixPtr() { return &matrix_world; }
 
 
 Shader* getPointShader() {
@@ -463,6 +462,13 @@ void textAlign(FontVerticalAlign _align, Font* _font) {
     _font->setAlign( _align );
 }
 
+void textAngle(float _angle, Font* _font) {
+    if (_font == nullptr)
+        _font = getFont();
+
+    _font->setAngle( _angle );
+}
+
 void textSize(float _size, Font* _font) { 
     if (_font == nullptr)
         _font = getFont();
@@ -731,22 +737,51 @@ void texture(Texture* _texture, const std::string _name) {
     shaderPtr->textureIndex++;
 }
 
-void addLablel(const std::string& _text, glm::vec3* _position) {
+void addLablel(Label _label) {
     if (font == nullptr)
         font = getDefaultFont();
 
-    labelsList.push_back( ada::Label(_text, _position) );
+    labelsList.push_back( _label );
+}
+
+void addLablel(const std::string& _text, glm::vec3* _position, LabelType _type) {
+    if (font == nullptr)
+        font = getDefaultFont();
+
+    labelsList.push_back( ada::Label(_text, _position, _type) );
+}
+
+void addLablel(const std::string& _text, Node* _node, LabelType _type) {
+    if (font == nullptr)
+        font = getDefaultFont();
+
+    labelsList.push_back( ada::Label(_text, _node, _type) );
+}
+
+void addLablel(const std::string& _text, Model* _node, LabelType _type) {
+    if (font == nullptr)
+        font = getDefaultFont();
+
+    labelsList.push_back( ada::Label(_text, _node, _type) );
 }
 
 void labels() {
     if (font == nullptr)
         font = getDefaultFont();
 
-    font->setColor( fill_color );
-    for (size_t i = 0; i < labelsList.size(); i++) {
+    for (size_t i = 0; i < labelsList.size(); i++)
         labelsList[i].update( getCamera(), font );
+
+    // font->setColor( glm::vec4(0.0f,0.0f,0.0f,1.0f) );
+    // font->setBlurAmount( 10.0f );
+    // font->setEffect( EFFECT_GROW );
+    // for (size_t i = 0; i < labelsList.size(); i++)
+    //     labelsList[i].render( font );
+    
+    font->setEffect( EFFECT_NONE );
+    font->setColor( fill_color );
+    for (size_t i = 0; i < labelsList.size(); i++)
         labelsList[i].render( font );
-    }
 }
 
 };
