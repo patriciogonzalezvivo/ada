@@ -264,18 +264,22 @@ void glfons__disableVertexLayout(GLFONScontext* gl) {
 ada::Shader glfons__shader;
 
 void glfons__initShaders(GLFONScontext* gl) {
+
+#if 1 //defined(__EMSCRIPTEN__)
     glfons__shader.load(glfs::sdfFragShaderSrc, glfs::vertexShaderSrc);
-
     GLuint program = glfons__shader.getProgram();
-    // GLuint vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
-    // GLuint fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
+#else
+    GLuint program = glCreateProgram();
+    GLuint vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
+    GLuint fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
 
-    // GLFONS_GL_CHECK(glAttachShader(program, vertex));
-    // GLFONS_GL_CHECK(glAttachShader(program, fragment));
-    // GLFONS_GL_CHECK(glLinkProgram(program));
+    GLFONS_GL_CHECK(glAttachShader(program, vertex));
+    GLFONS_GL_CHECK(glAttachShader(program, fragment));
+    GLFONS_GL_CHECK(glLinkProgram(program));
 
-    // glDeleteShader(vertex);
-    // glDeleteShader(fragment);
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
+#endif
     gl->program = program;
 
     GLuint boundProgram;
