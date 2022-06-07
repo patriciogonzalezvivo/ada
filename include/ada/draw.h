@@ -151,10 +151,11 @@ void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
 
-void addLablel(Label _label);
-void addLablel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER);
-void addLablel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER);
-void addLablel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER);
+void addLabel(Label& _label);
+void addLabel(Label* _label);
+void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER);
+void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER);
+void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER);
 void labels();
 
 // plane()

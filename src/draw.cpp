@@ -37,7 +37,7 @@ Camera*     cameraCustomPtr = nullptr;
 LightPtrs   lightsList;
 bool        lights_enabled  = false;
 
-std::vector<Label>      labelsList;
+std::vector<Label*>     labelsList;
 
 void print(const std::string& _text) { std::cout << _text << std::endl; }
 void frameRate(int _fps) { setFps(_fps); }
@@ -737,32 +737,33 @@ void texture(Texture* _texture, const std::string _name) {
     shaderPtr->textureIndex++;
 }
 
-void addLablel(Label _label) {
+void addLabel(Label& _label) { addLabel(&_label); }
+void addLabel(Label* _label) {
     if (font == nullptr)
         font = getDefaultFont();
 
     labelsList.push_back( _label );
 }
 
-void addLablel(const std::string& _text, glm::vec3* _position, LabelType _type) {
+void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type) {
     if (font == nullptr)
         font = getDefaultFont();
 
-    labelsList.push_back( ada::Label(_text, _position, _type) );
+    labelsList.push_back( new ada::Label(_text, _position, _type) );
 }
 
-void addLablel(const std::string& _text, Node* _node, LabelType _type) {
+void addLabel(const std::string& _text, Node* _node, LabelType _type) {
     if (font == nullptr)
         font = getDefaultFont();
 
-    labelsList.push_back( ada::Label(_text, _node, _type) );
+    labelsList.push_back( new ada::Label(_text, _node, _type) );
 }
 
-void addLablel(const std::string& _text, Model* _node, LabelType _type) {
+void addLabel(const std::string& _text, Model* _node, LabelType _type) {
     if (font == nullptr)
         font = getDefaultFont();
 
-    labelsList.push_back( ada::Label(_text, _node, _type) );
+    labelsList.push_back( new ada::Label(_text, _node, _type) );
 }
 
 void labels() {
@@ -770,7 +771,7 @@ void labels() {
         font = getDefaultFont();
 
     for (size_t i = 0; i < labelsList.size(); i++)
-        labelsList[i].update( getCamera(), font );
+        labelsList[i]->update( getCamera(), font );
 
     // font->setColor( glm::vec4(0.0f,0.0f,0.0f,1.0f) );
     // font->setBlurAmount( 10.0f );
@@ -781,7 +782,7 @@ void labels() {
     font->setEffect( EFFECT_NONE );
     font->setColor( fill_color );
     for (size_t i = 0; i < labelsList.size(); i++)
-        labelsList[i].render( font );
+        labelsList[i]->render( font );
 }
 
 };
