@@ -156,6 +156,9 @@ void addLabel(Label* _label);
 void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER);
 void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER);
 void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER);
+void addLabel(std::function<std::string(Label*)> _func, glm::vec3* _position, LabelType _type = LABEL_CENTER);
+void addLabel(std::function<std::string(Label*)> _func, Node* _node, LabelType _type = LABEL_CENTER);
+void addLabel(std::function<std::string(Label*)> _func, Model* _model, LabelType _type = LABEL_CENTER);
 void labels();
 
 // plane()

@@ -746,24 +746,25 @@ void addLabel(Label* _label) {
 }
 
 void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type) {
-    if (font == nullptr)
-        font = getDefaultFont();
-
-    labelsList.push_back( new ada::Label(_text, _position, _type) );
+    addLabel( new ada::Label(_text, _position, _type) );
 }
 
 void addLabel(const std::string& _text, Node* _node, LabelType _type) {
-    if (font == nullptr)
-        font = getDefaultFont();
-
-    labelsList.push_back( new ada::Label(_text, _node, _type) );
+    addLabel( new ada::Label(_text, _node, _type) );
 }
 
-void addLabel(const std::string& _text, Model* _node, LabelType _type) {
-    if (font == nullptr)
-        font = getDefaultFont();
+void addLabel(const std::string& _text, Model* _model, LabelType _type) {
+    addLabel( new ada::Label(_text, _model, _type) );
+}
 
-    labelsList.push_back( new ada::Label(_text, _node, _type) );
+void addLabel(std::function<std::string(Label*)> _func, glm::vec3* _position, LabelType _type) {
+    addLabel( new ada::Label(_func, _position, _type) );
+}
+void addLabel(std::function<std::string(Label*)> _func, Node* _node, LabelType _type) {
+    addLabel( new ada::Label(_func, _node, _type) );
+}
+void addLabel(std::function<std::string(Label*)> _func, Model* _model, LabelType _type) {
+    addLabel( new ada::Label(_func, _model, _type) );
 }
 
 void labels() {

@@ -29,7 +29,23 @@ Label::Label(const std::string& _text, Model* _model, LabelType _type) {
     linkTo(_model);
 }
 
-void Label::setText(const std::string& _text) { m_text = _text; }
+Label::Label(std::function<std::string(Label*)> _func, glm::vec3* _position, LabelType _type) : m_bbox(nullptr){ 
+    setType(_type);
+    setText(_func);
+    linkTo(_position);
+}
+
+Label::Label(std::function<std::string(Label*)> _func, Node* _node, LabelType _type) : m_bbox(nullptr) { 
+    setType(_type);
+    setText(_func);
+    linkTo(_node);
+}
+
+Label::Label(std::function<std::string(Label*)> _func, Model* _model, LabelType _type) { 
+    setType(_type);
+    setText(_func);
+    linkTo(_model);
+}
 
 void Label::linkTo(glm::vec3* _position) { m_worldPos = _position; }
 void Label::linkTo(Node* _node) { m_worldPos = &(_node->m_position); }
@@ -69,6 +85,9 @@ void Label::update(Camera* _cam, Font *_font) {
 
     if (_font == nullptr)
         _font = getFont();
+
+    if (m_func)
+        m_text = m_func(this);
 
     set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
     max.z = min.z = m_screenPos.z;
