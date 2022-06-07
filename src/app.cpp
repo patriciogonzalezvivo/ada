@@ -128,11 +128,7 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
 
 #ifdef __EMSCRIPTEN__
         // Run the loop 
-    emscripten_request_animation_frame_loop(loop, (void*)this);
-
-    emscripten_get_element_css_size("#canvas", &width, &height);
-    setWindowSize(width, height);
-    
+    emscripten_request_animation_frame_loop(loop, (void*)this);    
 #else
     
     // Render Loop

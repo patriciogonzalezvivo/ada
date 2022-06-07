@@ -317,17 +317,27 @@ void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callba
 
 #ifdef __EMSCRIPTEN__
 
-static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
+static void update_canvas_size() {
     double width, height;
     emscripten_get_element_css_size("#canvas", &width, &height);
-    if ((int)width != (int)viewport.z  || (int)height != (int)viewport.w)
-        setWindowSize(width, height);
+    width *= emscripten_get_device_pixel_ratio();
+    height *= emscripten_get_device_pixel_ratio();
+    setWindowSize(width, height);
+} 
+
+static EM_BOOL on_canvassize_changed(int eventType, const void *reserved, void *userData) {
+    update_canvas_size();
     return EM_FALSE;
 }
 
 bool enable_extension(const char* name) {
     auto ctx = emscripten_webgl_get_current_context();
     return emscripten_webgl_enable_extension(ctx, name);
+}
+
+static EM_BOOL resize_callback(int eventType, const EmscriptenUiEvent *e, void* userData) {
+    update_canvas_size();
+    return EM_TRUE;
 }
 
 static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void* userData) {
@@ -383,7 +393,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         return false;
     }
 
-    return true;
+    return EM_TRUE;
 }
 
 static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void *userData) {
@@ -428,7 +438,7 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
         return false;
     }
 
-    return true;
+    return EM_TRUE;
 }
 #endif
 
@@ -832,6 +842,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         enable_extension("OES_standard_derivatives");
         enable_extension("OES_texture_float_linear");
         enable_extension("OES_texture_half_float_linear");
+
+        emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, resize_callback);
         
         emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
         emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
@@ -841,11 +853,16 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         emscripten_set_touchend_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchmove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
         emscripten_set_touchcancel_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, touch_callback);
+
 #endif
         
     #endif
 
     setViewport(_viewport.z, _viewport.w);
+
+    #if defined(__EMSCRIPTEN__)
+    update_canvas_size();
+    #endif
 
     return 0;
 }
@@ -900,6 +917,17 @@ void updateGL() {
         frame_count = 0;
         lastTime -= 1.;
     }
+
+// #ifdef __EMSCRIPTEN__
+//     {
+//         double width, height;
+//         emscripten_get_element_css_size("#canvas", &width, &height);
+//         width *= emscripten_get_device_pixel_ratio();
+//         height *= emscripten_get_device_pixel_ratio();
+//         if (width != viewport.z || height != viewport.w)
+//             setWindowSize(width, height);
+//     }
+// #endif
 
     // EVENTS
     // --------------------------------------------------------------------
@@ -1041,6 +1069,7 @@ void setWindowSize(int _width, int _height) {
     #if defined(DRIVER_GLFW) 
     glfwSetWindowSize(window, _width / getPixelDensity(), _height / getPixelDensity());
     #endif
+
     setViewport((float)_width / getPixelDensity(), (float)_height / getPixelDensity());
 }
 
@@ -1122,21 +1151,27 @@ bool isFullscreen() {
 }
 
 void setFullscreen(bool _fullscreen) {
-
-    #if defined(__EMSCRIPTEN__)
-    properties.style = FULLSCREEN;
-    EmscriptenFullscreenStrategy strategy{};
-    strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;
-    strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
-    // strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_HIDEF;
-    strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
-    strategy.canvasResizedCallback = on_canvassize_changed;
-    strategy.canvasResizedCallbackUserData = NULL;
-    emscripten_enter_soft_fullscreen("#canvas", &strategy);
-    #elif defined(DRIVER_GLFW)
-
     if ( isFullscreen() == _fullscreen )
         return;
+
+    #if defined(__EMSCRIPTEN__)
+    if ( _fullscreen ) {
+        properties.style = FULLSCREEN;
+
+        EmscriptenFullscreenStrategy strategy{};
+
+        strategy.scaleMode = EMSCRIPTEN_FULLSCREEN_SCALE_STRETCH;    
+        strategy.filteringMode = EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT;
+        strategy.canvasResolutionScaleMode = EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_STDDEF;
+        strategy.canvasResizedCallback = on_canvassize_changed;
+        strategy.canvasResizedCallbackUserData = NULL;
+        emscripten_enter_soft_fullscreen("#canvas", &strategy);
+    }
+    else {
+        properties.style = FULLSCREEN;
+    }
+    
+    #elif defined(DRIVER_GLFW)
 
     if ( _fullscreen ) {
         // backup window position and window size
@@ -1162,27 +1197,24 @@ void setFullscreen(bool _fullscreen) {
 }
 
 float getPixelDensity() {
-#if defined(DRIVER_GLFW)
-    #if defined(__EMSCRIPTEN__)
-        return 1.0;
-        // return emscripten_get_device_pixel_ratio();
-    #else
-        int window_width, window_height, framebuffer_width, framebuffer_height;
-        glfwGetWindowSize(window, &window_width, &window_height);
-        glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
-        return float(framebuffer_width)/float(window_width);
-    #endif
+#if defined(__EMSCRIPTEN__)
+    return 1.0;///emscripten_get_device_pixel_ratio();
+#elif defined(DRIVER_GLFW)
+    int window_width, window_height, framebuffer_width, framebuffer_height;
+    glfwGetWindowSize(window, &window_width, &window_height);
+    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+    return float(framebuffer_width)/float(window_width);
 #else
-        return 1.0f;
+    return 1.0f;
 #endif
 }
 
 const glm::ivec4& getViewport() { return viewport; }
 const glm::mat4& getOrthoMatrix() { return orthoMatrix; }
 const glm::mat4& getFlippedOrthoMatrix() { return orthoFlippedMatrix; }
-int         getWindowWidth() { return viewport.z * fPixelDensity; }
-int         getWindowHeight() { return viewport.w * fPixelDensity; }
-int         getWindowMSAA() { return properties.msaa; }
+int getWindowWidth() { return viewport.z * fPixelDensity; }
+int getWindowHeight() { return viewport.w * fPixelDensity; }
+int getWindowMSAA() { return properties.msaa; }
 
 std::string getVendor() {
     if (properties.vendor == "") properties.vendor = std::string((const char*)glGetString(GL_VENDOR));
