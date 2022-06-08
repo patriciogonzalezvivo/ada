@@ -79,14 +79,12 @@ void sdfCoverageToDistanceField(unsigned char* out, int outstride,
 #define SDF_SQRT2 1.4142136f	// sqrt(2)
 #define SDF_BIG 1e+37f			// Big value used to initialize the distance field.
 
-static float sdf__clamp01(float x)
-{
+static float sdf__clamp01(float x) {
     return x < 0.0f ? 0.0f : (x > 1.0f ? 1.0f : x);
 }
 
 void sdfCoverageToDistanceField(unsigned char* out, int outstride,
-                                const unsigned char* img, int width, int height, int stride)
-{
+                                const unsigned char* img, int width, int height, int stride) {
     int x, y;
     
     // Zero out borders

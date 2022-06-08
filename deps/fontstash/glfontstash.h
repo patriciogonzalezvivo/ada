@@ -28,7 +28,12 @@
 
 #include "fontstash.h"
 #include "shaders.h"
+
+// #define USE_ADA_SHADER
+#if defined(USE_ADA_SHADER)
 #include "ada/gl/shader.h"
+#endif
+#include "ada/window.h"
 
 typedef unsigned int fsuint;
 
@@ -261,17 +266,37 @@ void glfons__disableVertexLayout(GLFONScontext* gl) {
     }
 }
 
+#if defined(USE_ADA_SHADER)
 ada::Shader glfons__shader;
+#endif
 
 void glfons__initShaders(GLFONScontext* gl) {
 
-#if 1 //defined(__EMSCRIPTEN__)
+#if defined(USE_ADA_SHADER)
+
+    #if defined(__EMSCRIPTEN__)
+    if (ada::getWebGLVersionNumber() == 2)
+        glfons__shader.load(glfs::sdfFragShaderSrc_300, glfs::vertexShaderSrc_300);
+    else 
+    #endif
     glfons__shader.load(glfs::sdfFragShaderSrc, glfs::vertexShaderSrc);
+
     GLuint program = glfons__shader.getProgram();
 #else
     GLuint program = glCreateProgram();
-    GLuint vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
-    GLuint fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
+    GLuint vertex, fragment;
+
+    #if defined(__EMSCRIPTEN__)
+    if (ada::getWebGLVersionNumber() == 2) {
+        vertex = glfons__compileShader(glfs::vertexShaderSrc_300, GL_VERTEX_SHADER);
+        fragment = glfons__compileShader(glfs::sdfFragShaderSrc_300, GL_FRAGMENT_SHADER);
+    }
+    else 
+    #endif
+    {
+        vertex = glfons__compileShader(glfs::vertexShaderSrc, GL_VERTEX_SHADER);
+        fragment = glfons__compileShader(glfs::sdfFragShaderSrc, GL_FRAGMENT_SHADER);
+    }
 
     GLFONS_GL_CHECK(glAttachShader(program, vertex));
     GLFONS_GL_CHECK(glAttachShader(program, fragment));
