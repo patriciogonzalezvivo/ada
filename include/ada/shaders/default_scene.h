@@ -1921,7 +1921,7 @@ void lightWithShadow(vec3 _diffuseColor, vec3 _specularColor, vec3 _N, vec3 _V, 
 
     float shadows = 1.0;
 
-#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE) && !defined(PLATFORM_WEBGL)
+#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE) // && !defined(PLATFORM_WEBGL)
     shadows = shadow();
 #endif
 

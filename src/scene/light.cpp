@@ -86,6 +86,7 @@ void Light::bindShadowMap() {
         m_shadowMap.allocate(1024, 1024, COLOR_DEPTH_TEXTURES);
 
     m_shadowMap.bind();
+
     glEnable(GL_DEPTH_TEST);
     // glEnable(GL_CULL_FACE);
 }

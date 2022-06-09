@@ -6,7 +6,7 @@
 #include <fstream>
 #include <iostream>
 
-#ifdef _WIN32
+#if defined(_WIN32)
     #define NOMINMAX
     #include <windows.h>
 #else
@@ -79,7 +79,7 @@ namespace ada {
 static bool             left_mouse_button_down = false;
 static GLFWwindow*      window;
 
-    #ifdef PLATFORM_RPI
+    #if defined(PLATFORM_RPI)
     #include "GLFW/glfw3native.h"
     EGLDisplay getEGLDisplay() { return glfwGetEGLDisplay(); }
     EGLContext getEGLContext() { return glfwGetEGLContext(window); }
@@ -315,7 +315,7 @@ void setScrollCallback(std::function<void(float)>_callback) { onScroll = _callba
     }
 #endif
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 
 static void update_canvas_size() {
     double width, height;
@@ -344,6 +344,9 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
     float x = (float)e->targetX;
     float y = viewport.w - (float)e->targetY;
 
+    x *= getPixelDensity();
+    y *= getPixelDensity();
+
     if (eventType == EMSCRIPTEN_EVENT_MOUSEDOWN) {
         mouse.x = x;
         mouse.y = y;
@@ -352,13 +355,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
         mouse.entered = true;
         mouse.button = 0;
         onMousePress(mouse.x, mouse.y, mouse.button);
-
-    } else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP) {
+    } 
+    else if (eventType == EMSCRIPTEN_EVENT_MOUSEUP) {
         mouse.entered = false;
         mouse.button = 0;
         onMouseRelease(mouse.x, mouse.y, mouse.button);
-
-    } else if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE) {
+    } 
+    else if (eventType == EMSCRIPTEN_EVENT_MOUSEMOVE) {
         mouse.velX = x - mouse.drag.x;
         mouse.velY = y - mouse.drag.y;
         mouse.drag.x = x;
@@ -387,8 +390,8 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void
             if (button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
             else onMouseMove(mouse.x, mouse.y);
         }
-
-    } else {
+    } 
+    else {
         printf("eventType is invalid. (%d)\n", eventType);
         return false;
     }
@@ -408,13 +411,13 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
         mouse.entered = true;
         mouse.button = 1;
         onMousePress(mouse.x, mouse.y, mouse.button);
-
-    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
+    } 
+    else if (eventType == EMSCRIPTEN_EVENT_TOUCHEND) {
         mouse.entered = false;
         mouse.button = 0;
         onMouseRelease(mouse.x, mouse.y, mouse.button);
-
-    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
+    } 
+    else if (eventType == EMSCRIPTEN_EVENT_TOUCHMOVE) {
         mouse.velX = x - mouse.drag.x;
         mouse.velY = y - mouse.drag.y;
         mouse.drag.x = x;
@@ -427,13 +430,14 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
             if (mouse.button != 0) onMouseDrag(mouse.x, mouse.y, mouse.button);
             else onMouseMove(mouse.x, mouse.y);
         }
-
-    } else if (eventType == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
+    } 
+    else if (eventType == EMSCRIPTEN_EVENT_TOUCHCANCEL) {
         mouse.entered = false;
         mouse.button = 0;
         onMouseRelease(mouse.x, mouse.y, mouse.button);
 
-    } else {
+    } 
+    else {
         printf("eventType is invalid. (%d)\n", eventType);
         return false;
     }
@@ -442,7 +446,7 @@ static EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent *e, void
 }
 #endif
 
-#ifdef PLATFORM_WINDOWS
+#if defined(PLATFORM_WINDOWS)
 const int CLOCK_MONOTONIC = 0;
 int clock_gettime(int, struct timespec* spec)      //C-file part
 {
@@ -502,7 +506,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         if (eglChooseConfig(display, configAttribs, &config, 1, &numConfigs) == EGL_FALSE) {
             std::cerr << "Failed to get EGL configs! Error: " << eglGetErrorStr() << std::endl;
             eglTerminate(display);
-            #ifdef DRIVER_GBM
+            #if defined(DRIVER_GBM)
             gbmClean();
             #endif
             return EXIT_FAILURE;
@@ -513,13 +517,13 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         if (context == EGL_NO_CONTEXT) {
             std::cerr << "Failed to create EGL context! Error: " << eglGetErrorStr() << std::endl;
             eglTerminate(display);
-            #ifdef DRIVER_GBM
+            #if defined(DRIVER_GBM)
             gbmClean();
             #endif
             return EXIT_FAILURE;
         }
 
-        #ifdef DRIVER_BROADCOM
+        #if defined(DRIVER_BROADCOM)
             static EGL_DISPMANX_WINDOW_T nativeviewport;
 
             VC_RECT_T dst_rect;
@@ -680,11 +684,11 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         }
 
         glfwMakeContextCurrent(window);
-        #ifdef _WIN32
+        #if defined(_WIN32)
             glewInit();
         #endif
 
-        #ifdef EVENTS_AS_CALLBACKS
+        #if defined(EVENTS_AS_CALLBACKS)
         if (onKeyPress)
         #endif 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
@@ -724,7 +728,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             }
         });
 
-        #ifdef EVENTS_AS_CALLBACKS
+        #if defined(EVENTS_AS_CALLBACKS)
         if (onScroll)
         #endif 
         glfwSetScrollCallback(window, [](GLFWwindow* _window, double xoffset, double yoffset) {
@@ -751,13 +755,13 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int _button, int _action, int _mods) {
             mouse.button = _button;
             if (_action == GLFW_PRESS) {
-                #ifdef EVENTS_AS_CALLBACKS
+                #if defined(EVENTS_AS_CALLBACKS)
                 if (onMousePress)
                 #endif 
                 onMousePress(mouse.x, mouse.y, mouse.button);
             }
             else {
-                #ifdef EVENTS_AS_CALLBACKS
+                #if defined(EVENTS_AS_CALLBACKS)
                 if (onMouseRelease)
                 #endif
                 onMouseRelease(mouse.x, mouse.y, mouse.button);
@@ -811,7 +815,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             // Lunch events
             if (mouse.button == 0 && button != mouse.button) {
                 mouse.button = button;
-                #ifdef EVENTS_AS_CALLBACKS
+                #if defined(EVENTS_AS_CALLBACKS)
                 if (onMousePress)
                 #endif 
                 onMousePress(mouse.x, mouse.y, mouse.button);
@@ -822,13 +826,13 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
 
             if (mouse.velX != 0.0 || mouse.velY != 0.0) {
                 if (button != 0) {
-                    #ifdef EVENTS_AS_CALLBACKS
+                    #if defined(EVENTS_AS_CALLBACKS)
                     if (onMouseDrag)
                     #endif 
                     onMouseDrag(mouse.x, mouse.y, mouse.button);
                 }
                 else {
-                    #ifdef EVENTS_AS_CALLBACKS
+                    #if defined(EVENTS_AS_CALLBACKS)
                     if (onMouseMove)
                     #endif 
                     onMouseMove(mouse.x, mouse.y);
@@ -918,24 +922,13 @@ void updateGL() {
         lastTime -= 1.;
     }
 
-// #ifdef __EMSCRIPTEN__
-//     {
-//         double width, height;
-//         emscripten_get_element_css_size("#canvas", &width, &height);
-//         width *= emscripten_get_device_pixel_ratio();
-//         height *= emscripten_get_device_pixel_ratio();
-//         if (width != viewport.z || height != viewport.w)
-//             setWindowSize(width, height);
-//     }
-// #endif
-
     // EVENTS
     // --------------------------------------------------------------------
     #if defined(DRIVER_GLFW)
         glfwPollEvents();
 
     #else
-        #ifdef EVENTS_AS_CALLBACKS
+        #if defined(EVENTS_AS_CALLBACKS)
         if ( onMouseMove || onMousePress || onMouseDrag || onMouseRelease )
         #endif 
         {
@@ -987,14 +980,14 @@ void updateGL() {
                 // Lunch events
                 if (mouse.button == 0 && button != mouse.button) {
                     mouse.button = button;
-                    #ifdef EVENTS_AS_CALLBACKS
+                    #if defined(EVENTS_AS_CALLBACKS)
                     if (onMousePress)
                     #endif 
                     onMousePress(mouse.x, mouse.y, mouse.button);
                 }
                 else if (mouse.button != 0 && button != mouse.button) {
                     mouse.button = button;
-                    #ifdef EVENTS_AS_CALLBACKS
+                    #if defined(EVENTS_AS_CALLBACKS)
                     if (onMouseRelease)
                     #endif 
                     onMouseRelease(mouse.x, mouse.y, mouse.button);
@@ -1004,13 +997,13 @@ void updateGL() {
 
                 if (mouse.velX != 0.0 || mouse.velY != 0.0) {
                     if (button != 0) {
-                        #ifdef EVENTS_AS_CALLBACKS
+                        #if defined(EVENTS_AS_CALLBACKS)
                         if (onMouseDrag)
                         #endif 
                         onMouseDrag(mouse.x, mouse.y, mouse.button);
                     }
                     else {
-                        #ifdef EVENTS_AS_CALLBACKS
+                        #if defined(EVENTS_AS_CALLBACKS)
                         if (onMouseMove)
                         #endif 
                         onMouseMove(mouse.x, mouse.y);
@@ -1066,7 +1059,12 @@ void closeGL(){
 
 //-------------------------------------------------------------
 void setWindowSize(int _width, int _height) {
-    #if defined(DRIVER_GLFW) 
+    #if defined(__EMSCRIPTEN__)
+    setViewport((float)_width, (float)_height);
+    glfwSetWindowSize(window, _width * getPixelDensity(), _height * getPixelDensity());
+    return;
+
+    #elif defined(DRIVER_GLFW) 
     glfwSetWindowSize(window, _width / getPixelDensity(), _height / getPixelDensity());
     #endif
 
@@ -1092,20 +1090,21 @@ void setViewport(float _width, float _height) {
 }
 
 void updateViewport() {
+   
     fPixelDensity = getPixelDensity();
     float width = getWindowWidth();
     float height = getWindowHeight();
 
     glViewport( (float)viewport.x * fPixelDensity, (float)viewport.y * fPixelDensity,
                 width, height);
-                
+
     orthoMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
                                 (float)viewport.y * fPixelDensity, height);
 
     orthoFlippedMatrix = glm::ortho(   (float)viewport.x * fPixelDensity, width, 
                                         height, (float)viewport.y * fPixelDensity);
 
-#ifdef EVENTS_AS_CALLBACKS
+#if defined(EVENTS_AS_CALLBACKS)
     if (onViewportResize)
 #endif 
     onViewportResize(width, height);
@@ -1198,7 +1197,7 @@ void setFullscreen(bool _fullscreen) {
 
 float getPixelDensity() {
 #if defined(__EMSCRIPTEN__)
-    return 1.0;///emscripten_get_device_pixel_ratio();
+    return emscripten_get_device_pixel_ratio();
 #elif defined(DRIVER_GLFW)
     int window_width, window_height, framebuffer_width, framebuffer_height;
     glfwGetWindowSize(window, &window_width, &window_height);
@@ -1254,7 +1253,7 @@ size_t getWebGLVersionNumber() {
 #endif
 
 glm::vec4 getDate() {
-    #ifdef _MSC_VER
+    #if defined(_MSC_VER)
         time_t tv = time(NULL);
 
         struct tm tm_struct;

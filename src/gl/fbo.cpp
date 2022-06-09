@@ -166,11 +166,9 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
     #if GL_OES_depth32
         if ( haveExtension("GL_OES_depth32") )
             depth_format = GL_DEPTH_COMPONENT32_OES;
-
     #elif GL_OES_depth24
         if ( haveExtension("GL_OES_depth24") )
             depth_format = GL_DEPTH_COMPONENT24_OES;
-
     #endif
 
 #elif defined(__EMSCRIPTEN__)
@@ -193,8 +191,13 @@ void Fbo::allocate(const uint32_t _width, const uint32_t _height, FboType _type,
             glBindTexture(GL_TEXTURE_2D, m_depth_id);
             glTexImage2D(GL_TEXTURE_2D, 0, depth_format, m_width, m_height, 0, GL_DEPTH_COMPONENT, depth_type, 0);
 
+            #if defined(__EMSCRIPTEN__)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            #else
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            #endif
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -224,7 +227,8 @@ void Fbo::bind() {
 
         if (m_id != 0)
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_id, 0);
-        if (m_depth_id != 0)
+
+        if (m_depth_id != 0) 
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth_id, 0);
 
         #if !defined(__EMSCRIPTEN__)

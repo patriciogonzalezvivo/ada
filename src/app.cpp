@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
 // #define GLFW_INCLUDE_ES3
@@ -126,7 +126,7 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
     setScrollCallback( [&](float _yoffset) { onScroll(_yoffset); } );
 #endif
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
         // Run the loop 
     emscripten_request_animation_frame_loop(loop, (void*)this);    
 #else
@@ -139,7 +139,6 @@ void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
         close();
 
 #endif
-
 }
 
 void App::background() { background(auto_background_color); }
@@ -166,8 +165,6 @@ void App::orbitControl() {
         if (cam) {
             float dist = cam->getDistance();
 
-            
-            
             if (mouseButton == 1) {
 
                 // Left-button drag is used to rotate geometry.
