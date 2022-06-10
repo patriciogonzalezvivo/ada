@@ -88,11 +88,11 @@ void Light::bindShadowMap() {
     m_shadowMap.bind();
 
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 }
 
 void Light::unbindShadowMap() {
-    // glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     m_shadowMap.unbind();
     glViewport(m_viewport[0], m_viewport[1], m_viewport[2], m_viewport[3]);

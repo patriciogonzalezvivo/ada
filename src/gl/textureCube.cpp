@@ -22,11 +22,10 @@ TextureCube::~TextureCube() {
 bool TextureCube::load(const std::string &_path, bool _vFlip) {
     std::string ext = getExt(_path);
 
-    if (m_id != 0) {
-        // Init
+    if (m_id == 0)
         glGenTextures(1, &m_id);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
-    }
+        
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 
     int sh_samples = 0;
     if (ext == "png"    || ext == "PNG" ||
@@ -141,7 +140,7 @@ bool TextureCube::load(const std::string &_path, bool _vFlip) {
         SH[i] = SH[i] * (32.0f / (float)sh_samples);
     }
 
-#if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -165,11 +164,10 @@ bool TextureCube::load(const std::string &_path, bool _vFlip) {
 
 bool TextureCube::load(SkyData* _sky, int _width) {
 
-    if (m_id != 0) {
-        // Init
+    if (m_id == 0)
         glGenTextures(1, &m_id);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
-    }
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
 
     int sh_samples = 0;
 
@@ -199,7 +197,7 @@ bool TextureCube::load(SkyData* _sky, int _width) {
     for (int i = 0; i < 9; i++)
         SH[i] = SH[i] * (32.0f / (float)sh_samples);
 
-#if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
+#if defined(PLATFORM_RPI) || defined(DRIVER_GBM)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

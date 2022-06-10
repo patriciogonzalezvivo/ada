@@ -154,20 +154,26 @@ template <class T>
 void CubemapFace<T>::upload() {
     GLenum type = GL_FLOAT;
 
-    if (sizeof(T) == sizeof(char)) {
+    if (sizeof(T) == sizeof(char))
         type = GL_UNSIGNED_BYTE;
-    }
     
-#if defined(PLATFORM_RPI) || defined(DRIVER_GBM) || defined(__EMSCRIPTEN__)
-    GLenum InternalFormat = GL_RGB;
+    GLenum internalFormat = GL_RGB;
+    GLenum format = GL_RGB;
+
+#if defined(__EMSCRIPTEN__)
+    if (sizeof(T) == sizeof(float)) {
+        internalFormat = GL_RGB16F;
+        format = GL_RGB16F;
+    }
+
 #elif defined (_WIN32)
-    GLenum InternalFormat = GL_RGB16F;
+    internalFormat = GL_RGB16F;
 #else
-    GLenum InternalFormat = GL_RGB16F_ARB;
-    // GLenum InternalFormat = GL_RGB;
+    internalFormat = GL_RGB16F_ARB;
+    // internalFormat = GL_RGB;
 #endif
 
-    glTexImage2D(cubemapFaceId[id], 0, InternalFormat, width, height, 0, GL_RGB, type, data);
+    glTexImage2D(cubemapFaceId[id], 0, internalFormat, width, height, 0, format, type, data);
 }
 
 // By @andsz
