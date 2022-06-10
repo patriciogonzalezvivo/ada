@@ -26,6 +26,8 @@ public:
     glm::mat4           getBiasMVPMatrix();
 
     const Fbo*          getShadowMap() const { return &m_shadowMap; }
+    float               getShadowMapNear() const { return m_near; }
+    float               getShadowMapFar() const { return m_far; }
 
     void                bindShadowMap();
     void                unbindShadowMap();
@@ -43,6 +45,9 @@ protected:
     Fbo                 m_shadowMap;
     glm::mat4           m_mvp_biased;
     glm::mat4           m_mvp;
+
+    float               m_near;
+    float               m_far;
 
     LightType           m_type;
     

@@ -368,7 +368,7 @@ float sampleDepth(const sampler2D map, vec2 base, vec2 dudv, float depth, vec2 r
 float ShadowSample_Hard(const sampler2D map, const vec2 size, const vec3 position) {
     vec2 rpdb = computeReceiverPlaneDepthBias(position);
     float depth = samplingBias(position.z, rpdb, vec2(1.0) / size);
-    return step(v_lightCoord.z - 0.005, textureShadow(map, vec3(position.xy, depth)));
+    return step(v_lightCoord.z * 0.5 - 0.005, textureShadow(map, vec3(position.xy, depth)));
 }
 #endif
 
@@ -1921,7 +1921,7 @@ void lightWithShadow(vec3 _diffuseColor, vec3 _specularColor, vec3 _N, vec3 _V, 
 
     float shadows = 1.0;
 
-#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE) // && !defined(PLATFORM_WEBGL)
+#if defined(LIGHT_SHADOWMAP) && defined(LIGHT_SHADOWMAP_SIZE)
     shadows = shadow();
 #endif
 

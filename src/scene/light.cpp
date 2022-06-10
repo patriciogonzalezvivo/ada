@@ -53,10 +53,12 @@ glm::mat4 Light::getMVPMatrix( const glm::mat4 &_model, float _area) {
 
     if (bChange) {
         // From http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping
-        _area *= 2.0;
+        // _area *= 2.0;
+        m_near = -_area * 2.0;
+        m_far = _area * 4.0;
 
         // Compute the MVP matrix from the light's point of view
-        glm::mat4 depthProjectionMatrix = glm::ortho<float>(-_area, _area, -_area, _area, -_area * 2.0, _area * 2.0);
+        glm::mat4 depthProjectionMatrix = glm::ortho<float>(-_area, _area, -_area, _area, m_near, m_far);
         glm::mat4 depthViewMatrix = glm::lookAt(glm::normalize(getPosition()), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
         m_mvp = depthProjectionMatrix * depthViewMatrix * _model;
 
