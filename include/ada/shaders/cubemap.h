@@ -28,11 +28,7 @@ varying vec4        v_position;
 
 void main(void) {
     vec4 reflection = textureCube(u_cubeMap, v_position.xyz);
-
-// #if defined(SCENE_CUBEMAP_HDR)
     reflection.rgb = pow(reflection.rgb, vec3(0.4545454545));
-// #endif
-
     gl_FragColor = reflection;
 }
 )";
@@ -64,9 +60,7 @@ out     vec4        fragColor;
 
 void main(void) {
     vec4 reflection = textureCube(u_cubeMap, v_position.xyz);
-// #if defined(SCENE_CUBEMAP_HDR)
     reflection.rgb = pow(reflection.rgb, vec3(0.4545454545));
-// #endif
     fragColor = reflection;
 }
 )";
