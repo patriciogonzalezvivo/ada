@@ -168,7 +168,7 @@ void CubemapFace<T>::upload() {
 
 #elif defined (_WIN32)
     internalFormat = GL_RGB16F;
-#else
+#elif !defined(PLATFORM_RPI)
     internalFormat = GL_RGB16F_ARB;
     // internalFormat = GL_RGB;
 #endif
