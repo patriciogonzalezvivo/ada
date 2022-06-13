@@ -9,6 +9,7 @@ Light::Light():
     direction(0.0),
     intensity(1.0),
     falloff(-1.0),
+    bUpdateShadowMap(true),
     m_mvp_biased(1.0), 
     m_mvp(1.0), 
     m_type(LIGHT_DIRECTIONAL) {
@@ -47,6 +48,11 @@ Light::Light(glm::vec3 _pos, glm::vec3 _dir, float _falloff): m_mvp_biased(1.0),
 Light::~Light() {
 }
 
+void Light::setPosition(const glm::vec3& _pos) {
+    Node::setPosition(_pos);
+    bUpdateShadowMap = true;
+}
+
 glm::mat4 Light::getMVPMatrix( const glm::mat4 &_model, float _area) {
     // TODO:
     //      - Extend this to match different light types and not just directional
@@ -71,6 +77,7 @@ glm::mat4 Light::getMVPMatrix( const glm::mat4 &_model, float _area) {
         );
         m_mvp_biased = biasMatrix * m_mvp;
 
+        bUpdateShadowMap = true;
         bChange = false;
     }
 

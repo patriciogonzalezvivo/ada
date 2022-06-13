@@ -19,6 +19,7 @@ public:
     Light(glm::vec3 _pos, glm::vec3 _dir, float _falloff = -1.0);
     virtual ~Light();
 
+    virtual void        setPosition(const glm::vec3& _pos);
     void                setType(LightType _type) { m_type = _type; }
 
     const LightType&    getType() const { return m_type; }
@@ -36,6 +37,8 @@ public:
     glm::vec3           direction;
     float               intensity;
     float               falloff;
+
+    bool                bUpdateShadowMap;
 
 protected:
     virtual void        onPositionChanged() { bChange = true; };
