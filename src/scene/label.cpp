@@ -62,23 +62,23 @@ void Label::update(Camera* _cam, Font *_font) {
         _cam = getCamera();
 
     if (m_bbox) {
-        *((BoundingBox*)this) = _cam->worldToScreen(*m_bbox, getWorldMatrixPtr());
-        min.x *= ada::getWindowWidth(); 
-        max.x *= ada::getWindowWidth();
-        min.y *= ada::getWindowHeight(); 
-        max.y *= ada::getWindowHeight(); 
-        m_screenPos = getCenter();
+        m_screenBox = _cam->worldToScreen(*m_bbox, getWorldMatrixPtr());
+        m_screenBox.min.x *= ada::getWindowWidth(); 
+        m_screenBox.max.x *= ada::getWindowWidth();
+        m_screenBox.min.y *= ada::getWindowHeight(); 
+        m_screenBox.max.y *= ada::getWindowHeight(); 
+        m_screenPos = m_screenBox.getCenter();
         
         // m_screenPos.x *= ada::getWindowWidth();
         // m_screenPos.y *= ada::getWindowHeight();
         if (m_type == LABEL_TOP)
-            m_screenPos.y -= getHeight() * 0.5;
+            m_screenPos.y -= m_screenBox.getHeight() * 0.5;
         else if (m_type == LABEL_DOWN)
-            m_screenPos.y += getHeight() * 0.5;
+            m_screenPos.y += m_screenBox.getHeight() * 0.5;
         else if (m_type == LABEL_LEFT)
-            m_screenPos.y -= getWidth() * 0.5;
+            m_screenPos.y -= m_screenBox.getWidth() * 0.5;
         else if (m_type == LABEL_RIGHT)
-            m_screenPos.x += getWidth() * 0.5;
+            m_screenPos.x += m_screenBox.getWidth() * 0.5;
     }
     else {
         m_screenPos = _cam->worldToScreen(m_worldPos, getWorldMatrixPtr());
