@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#define MARGIN 25.0
+
 namespace ada {
 
 Label::Label() : m_text(""), m_type(LABEL_CENTER), m_bbox(nullptr), m_worldPos(nullptr) { 
@@ -66,6 +68,7 @@ void Label::update(Camera* _cam, Font *_font) {
         m_screenBox.min.y *= ada::getWindowHeight(); 
         m_screenBox.max.y *= ada::getWindowHeight(); 
         m_screenPos = m_screenBox.getCenter();
+        
         // m_screenPos.x *= ada::getWindowWidth();
         // m_screenPos.y *= ada::getWindowHeight();
         if (m_type == LABEL_TOP)
@@ -83,6 +86,16 @@ void Label::update(Camera* _cam, Font *_font) {
         m_screenPos.y *= ada::getWindowHeight();
     }
 
+    // Is in view? (depth and in viewport)
+    if (m_screenPos.z >= 1.0  ||
+        m_screenPos.x < MARGIN || m_screenPos.x > ada::getWindowWidth() - MARGIN ||
+        m_screenPos.y < MARGIN || m_screenPos.y > ada::getWindowHeight() - MARGIN ) {
+        bVisible = false;
+    }
+    else {
+        bVisible = true;
+    }
+
     if (_font == nullptr)
         _font = getFont();
 
@@ -94,6 +107,9 @@ void Label::update(Camera* _cam, Font *_font) {
 }
 
 void Label::render(Font *_font) {
+    if (!bVisible)
+        return;
+
     if (_font == nullptr)
         _font = getFont();
 

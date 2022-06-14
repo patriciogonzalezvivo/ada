@@ -39,6 +39,8 @@ public:
     void update(Camera* _cam = nullptr, Font *_font = nullptr);
     void render(Font *_font = nullptr);
 
+    bool            bVisible;
+
 private:
     std::function<std::string(Label*)> m_func;    
     std::string     m_text;

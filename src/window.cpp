@@ -1303,8 +1303,9 @@ void    setMousePosition( float _x, float _y ) {
     mouse.drag.x = _x;
     mouse.drag.y = _y;
     #if defined(DRIVER_GLFW)
-    float y = glm::clamp(_y, 0.0f, (float)getWindowHeight());
-    glfwSetCursorPos(window, _x, getWindowHeight() - y);
+    float h = getWindowHeight();
+    float y = h - glm::clamp(_y, 0.0f, h);
+    glfwSetCursorPos(window, _x / fPixelDensity , y / fPixelDensity);
     #endif
 }
 
