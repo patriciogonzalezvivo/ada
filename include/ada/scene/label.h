@@ -26,7 +26,6 @@ public:
     Label(std::function<std::string(Label*)> _func, Node* _position, LabelType _type = LABEL_CENTER);
     Label(std::function<std::string(Label*)> _func, Model* _position, LabelType _type = LABEL_CENTER );
 
-
     void setType(LabelType _type) { m_type = _type; };
     
     void setText(std::function<std::string(Label*)> _func) { m_func = _func; }
@@ -35,6 +34,8 @@ public:
     void linkTo(glm::vec3* _position);
     void linkTo(Node* _position);
     void linkTo(Model* _position);
+
+    virtual glm::vec3   getScreenPosition() const { return m_screenPos; }
     
     void update(Camera* _cam = nullptr, Font *_font = nullptr);
     void render(Font *_font = nullptr);
@@ -43,6 +44,7 @@ public:
 
 private:
     std::function<std::string(Label*)> m_func;    
+
     std::string     m_text;
     BoundingBox     m_screenBox;
     glm::vec3       m_screenPos;

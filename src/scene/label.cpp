@@ -62,23 +62,23 @@ void Label::update(Camera* _cam, Font *_font) {
         _cam = getCamera();
 
     if (m_bbox) {
-        m_screenBox = _cam->worldToScreen(*m_bbox, getWorldMatrixPtr());
-        m_screenBox.min.x *= ada::getWindowWidth(); 
-        m_screenBox.max.x *= ada::getWindowWidth();
-        m_screenBox.min.y *= ada::getWindowHeight(); 
-        m_screenBox.max.y *= ada::getWindowHeight(); 
-        m_screenPos = m_screenBox.getCenter();
+        *((BoundingBox*)this) = _cam->worldToScreen(*m_bbox, getWorldMatrixPtr());
+        min.x *= ada::getWindowWidth(); 
+        max.x *= ada::getWindowWidth();
+        min.y *= ada::getWindowHeight(); 
+        max.y *= ada::getWindowHeight(); 
+        m_screenPos = getCenter();
         
         // m_screenPos.x *= ada::getWindowWidth();
         // m_screenPos.y *= ada::getWindowHeight();
         if (m_type == LABEL_TOP)
-            m_screenPos.y -= m_screenBox.getHeight() * 0.5;
+            m_screenPos.y -= getHeight() * 0.5;
         else if (m_type == LABEL_DOWN)
-            m_screenPos.y += m_screenBox.getHeight() * 0.5;
+            m_screenPos.y += getHeight() * 0.5;
         else if (m_type == LABEL_LEFT)
-            m_screenPos.y -= m_screenBox.getWidth() * 0.5;
+            m_screenPos.y -= getWidth() * 0.5;
         else if (m_type == LABEL_RIGHT)
-            m_screenPos.x += m_screenBox.getWidth() * 0.5;
+            m_screenPos.x += getWidth() * 0.5;
     }
     else {
         m_screenPos = _cam->worldToScreen(m_worldPos, getWorldMatrixPtr());
@@ -96,14 +96,17 @@ void Label::update(Camera* _cam, Font *_font) {
         bVisible = true;
     }
 
-    if (_font == nullptr)
-        _font = getFont();
+    max.z = min.z = m_screenPos.z;
 
     if (m_func)
         m_text = m_func(this);
 
-    set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
-    max.z = min.z = m_screenPos.z;
+    if (m_text.size() > 0) {
+        if (_font == nullptr)
+            _font = getFont();
+        set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
+    }
+
 }
 
 void Label::render(Font *_font) {
