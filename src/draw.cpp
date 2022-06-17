@@ -745,29 +745,23 @@ void addLabel(Label* _label) {
     labelsList.push_back( _label );
 }
 
-void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type) {
-    addLabel( new ada::Label(_text, _position, _type) );
+void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_text, _position, _type, _margin) );
 }
-void addLabel(const std::string& _text, Node* _node, LabelType _type) {
-    addLabel( new ada::Label(_text, _node, _type) );
+void addLabel(const std::string& _text, Node* _node, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_text, _node, _type, _margin) );
 }
-void addLabel(const std::string& _text, Model* _model, LabelType _type) {
-    addLabel( new ada::Label(_text, _model, _type) );
+void addLabel(const std::string& _text, Model* _model, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_text, _model, _type, _margin) );
 }
-void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type) {
-    addLabel( new ada::Label(_func, _position, _type) );
+void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_func, _position, _type, _margin) );
 }
-void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type) {
-    addLabel( new ada::Label(_func, _node, _type) );
+void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_func, _node, _type, _margin) );
 }
-void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type) {
-    addLabel( new ada::Label(_func, _model, _type) );
-}
-void addLabel(std::function<glm::vec4(Label*)> _func, glm::vec3* _position) {
-    addLabel( new ada::Label(_func, _position) );
-}
-void addLabel(std::function<glm::vec4(Label*)> _func, Node* _node) {
-    addLabel( new ada::Label(_func, _node) );
+void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type, float _margin) {
+    addLabel( new ada::Label(_func, _model, _type, _margin) );
 }
 
 void labels() {

@@ -15,6 +15,8 @@ public:
     
     BoundingBox(): min(std::numeric_limits<float>::max()), max(std::numeric_limits<float>::min()) {}
     
+    void        set(const glm::vec2& _center) { set(glm::vec3(_center, 0.0f)); }
+    void        set(const glm::vec3& _center) { min = _center; max = _center; }
     void        set(const glm::vec4& _bbox) { min.x = _bbox.x; min.y = _bbox.y; max.x = _bbox.z; max.y = _bbox.w; }
     void        operator = (const glm::vec4& _bbox) { set(_bbox); }
 

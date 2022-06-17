@@ -153,14 +153,12 @@ void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
 
 void addLabel(Label& _label);
 void addLabel(Label* _label);
-void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER);
-void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER);
-void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER);
-void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type = LABEL_CENTER);
-void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type = LABEL_CENTER);
-void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type = LABEL_CENTER);
-void addLabel(std::function<glm::vec4(Label*)> _func, glm::vec3* _position);
-void addLabel(std::function<glm::vec4(Label*)> _func, Node* _node);
+void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
 void labels();
 
 // plane()
