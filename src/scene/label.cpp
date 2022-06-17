@@ -31,22 +31,32 @@ Label::Label(const std::string& _text, Model* _model, LabelType _type) {
     linkTo(_model);
 }
 
-Label::Label(std::function<std::string(Label*)> _func, glm::vec3* _position, LabelType _type) : m_bbox(nullptr){ 
+Label::Label(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type) : m_bbox(nullptr){ 
     setType(_type);
     setText(_func);
     linkTo(_position);
 }
 
-Label::Label(std::function<std::string(Label*)> _func, Node* _node, LabelType _type) : m_bbox(nullptr) { 
+Label::Label(std::function<std::string(void)> _func, Node* _node, LabelType _type) : m_bbox(nullptr) { 
     setType(_type);
     setText(_func);
     linkTo(_node);
 }
 
-Label::Label(std::function<std::string(Label*)> _func, Model* _model, LabelType _type) { 
+Label::Label(std::function<std::string(void)> _func, Model* _model, LabelType _type) { 
     setType(_type);
     setText(_func);
     linkTo(_model);
+}
+
+Label::Label(std::function<glm::vec4(Label*)> _func, glm::vec3* _position)  { 
+    setRender(_func);
+    linkTo(_position);
+}
+
+Label::Label(std::function<glm::vec4(Label*)> _func, Node* _node)  { 
+    setRender(_func);
+    linkTo(_node);
 }
 
 void Label::linkTo(glm::vec3* _position) { m_worldPos = _position; }
@@ -55,6 +65,14 @@ void Label::linkTo(Model* _model) {
     m_worldPos = &(_model->m_position);
     m_bbox = &(_model->m_bbox);
 }
+
+std::string Label::getText() {
+    if (m_textFunc)
+        return m_textFunc();
+    return m_text;
+}
+
+
 
 void Label::update(Camera* _cam, Font *_font) { 
     // _cam->bChange
@@ -71,7 +89,7 @@ void Label::update(Camera* _cam, Font *_font) {
         
         // m_screenPos.x *= ada::getWindowWidth();
         // m_screenPos.y *= ada::getWindowHeight();
-        if (m_type == LABEL_TOP)
+        if (m_type == LABEL_UP)
             m_screenPos.y -= m_screenBox.getHeight() * 0.5;
         else if (m_type == LABEL_DOWN)
             m_screenPos.y += m_screenBox.getHeight() * 0.5;
@@ -98,46 +116,55 @@ void Label::update(Camera* _cam, Font *_font) {
 
     max.z = min.z = m_screenPos.z;
 
-    if (m_func)
-        m_text = m_func(this);
+    if (!m_renderFunc) {
+        if (m_textFunc)
+            m_text = m_textFunc();
 
-    if (m_text.size() > 0) {
-        if (_font == nullptr)
-            _font = getFont();
-        set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
+        if (m_text.size() > 0) {
+            if (_font == nullptr)
+                _font = getFont();
+
+            set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
+        }
     }
-
 }
 
 void Label::render(Font *_font) {
     if (!bVisible)
         return;
 
-    if (_font == nullptr)
-        _font = getFont();
+    if (m_renderFunc)
+        set( m_renderFunc(this) ); 
 
-    if (m_type == LABEL_CENTER) {
-        _font->setAlign(ada::ALIGN_CENTER);
-        _font->setAlign(ada::ALIGN_MIDDLE);
-    }
-    else if (m_type == LABEL_TOP) {
-        _font->setAlign(ada::ALIGN_CENTER);
-        _font->setAlign(ada::ALIGN_BOTTOM);
-    }
     else {
-        _font->setAlign(ada::ALIGN_CENTER);
-        _font->setAlign(ada::ALIGN_TOP);
-    }
+        if (_font == nullptr)
+            _font = getFont();
 
-    if (m_bbox) {
-        if (m_type == LABEL_LEFT)
-            _font->setAngle(HALF_PI);
-        else if (m_type == LABEL_RIGHT)
-            _font->setAngle(-HALF_PI);
-    }
+        if (m_type == LABEL_CENTER) {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_MIDDLE);
+        }
+        else if (m_type == LABEL_UP) {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_BOTTOM);
+        }
+        else {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_TOP);
+        }
 
-    if (m_worldPos != nullptr)
-        _font->render( m_text, m_screenPos.x, m_screenPos.y );
+        if (m_bbox) {
+            if (m_type == LABEL_LEFT)
+                _font->setAngle(HALF_PI);
+            else if (m_type == LABEL_RIGHT)
+                _font->setAngle(-HALF_PI);
+        }
+        else 
+            _font->setAngle(0.0f);
+
+        if (m_worldPos != nullptr)
+            _font->render( m_text, m_screenPos.x, m_screenPos.y );
+    }
 }
 
 
