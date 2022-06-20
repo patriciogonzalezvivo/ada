@@ -36,9 +36,10 @@ typedef struct {
     glm::vec2 drag;
 } Mouse;
 static Mouse            mouse;
-static glm::vec4        mouse4 = glm::vec4(0.0, 0.0, 0.0, 0.0);
 
 struct timeval          tv;
+static uint32_t         screen_width = 0;
+static uint32_t         screen_height = 0;
 static double           elapseTime = 0.0;
 static double           delta = 0.0;
 static double           FPS = 0.0;
@@ -458,12 +459,24 @@ int clock_gettime(int, struct timespec* spec)      //C-file part
 }
 #endif
 
-int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
+int initGL(WindowProperties _prop) {
     clock_gettime(CLOCK_MONOTONIC, &time_start);
     properties = _prop;
 
     // NON GLFW
     #if !defined(DRIVER_GLFW)
+
+        if (properties.screen_x == -1)
+            properties.screen_x = 0;
+
+        if (properties.screen_y == -1)
+            properties.screen_y = 0;
+
+        if (properties.screen_width == -1)
+            properties.screen_width = getScreenWidth();
+
+        if (properties.screen_height == -1)
+            properties.screen_height = getScreenHeight();
 
         // Clear application state
         EGLBoolean result;
@@ -530,27 +543,27 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             VC_RECT_T src_rect;
 
             //  Initially the viewport is for all the screen
-            dst_rect.x = _viewport.x;
-            dst_rect.y = _viewport.y;
-            dst_rect.width = _viewport.z;
-            dst_rect.height = _viewport.w;
+            dst_rect.x = properties.screen_x;
+            dst_rect.y = properties.screen_y;
+            dst_rect.width = properties.screen_width;
+            dst_rect.height = properties.screen_height;
 
             src_rect.x = 0;
             src_rect.y = 0;
-            src_rect.width = _viewport.z << 16;
-            src_rect.height = _viewport.w << 16;
+            src_rect.width = properties.screen_width << 16;
+            src_rect.height = properties.screen_height << 16;
 
             DISPMANX_ELEMENT_HANDLE_T dispman_element;
             DISPMANX_UPDATE_HANDLE_T dispman_update;
 
-            if (_prop.style == HEADLESS) {
+            if (properties.style == HEADLESS) {
                 uint32_t dest_image_handle;
                 DISPMANX_RESOURCE_HANDLE_T dispman_resource;
-                dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, _viewport.z, _viewport.w, &dest_image_handle);
+                dispman_resource = vc_dispmanx_resource_create(VC_IMAGE_RGBA32, properties.screen_width, properties.screen_height, &dest_image_handle);
                 dispman_display = vc_dispmanx_display_open_offscreen(dispman_resource, DISPMANX_NO_ROTATE);
-            } else {
+            } 
+            else
                 dispman_display = vc_dispmanx_display_open(0); // LCD
-            }
 
             // VC_DISPMANX_ALPHA_T alpha = { 
             //     DISPMANX_FLAGS_ALPHA_FROM_SOURCE | DISPMANX_FLAGS_ALPHA_FIXED_ALL_PIXELS, 
@@ -565,8 +578,8 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
                                                         0 /*&alpha*/ , 0/*clamp*/, (DISPMANX_TRANSFORM_T)0/*transform*/);
 
             nativeviewport.element = dispman_element;
-            nativeviewport.width = _viewport.z;
-            nativeviewport.height = _viewport.w;
+            nativeviewport.width = properties.screen_width;
+            nativeviewport.height = properties.screen_height;
             vc_dispmanx_update_submit_sync( dispman_update );
             check();
 
@@ -593,98 +606,103 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
     // GLFW
     #else
 
+        if (properties.screen_width == -1)
+            properties.screen_width = 512;
+
+        if (properties.screen_height == -1)
+            properties.screen_height = 512;
+
         glfwSetErrorCallback([](int err, const char* msg)->void {
             std::cerr << "GLFW error 0x"<<std::hex<<err<<std::dec<<": "<<msg<<"\n";
         });
+        
         if(!glfwInit()) {
             std::cerr << "ABORT: GLFW init failed" << std::endl;
             exit(-1);
         }
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, _prop.major);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, _prop.minor);
-        if (_prop.major >= 3 && _prop.minor >= 2) {
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, properties.major);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, properties.minor);
+        if (properties.major >= 3 && properties.minor >= 2) {
             glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
             glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
         }
 
-        if (_prop.msaa != 0)
-            glfwWindowHint(GLFW_SAMPLES, _prop.msaa);
+        if (properties.msaa != 0)
+            glfwWindowHint(GLFW_SAMPLES, properties.msaa);
 
-        if (_prop.style == HEADLESS)
+        if (properties.style == HEADLESS)
             glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
-        else if (_prop.style == UNDECORATED )
+        else if (properties.style == UNDECORATED )
             glfwWindowHint(GLFW_DECORATED, GL_FALSE);
             
-        else if (_prop.style == ALLWAYS_ON_TOP )
+        else if (properties.style == ALLWAYS_ON_TOP )
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
 
-        else if (_prop.style == UNDECORATED_ALLWAYS_ON_TOP) {
+        else if (properties.style == UNDECORATED_ALLWAYS_ON_TOP) {
             glfwWindowHint(GLFW_DECORATED, GL_FALSE);
             glfwWindowHint(GLFW_FLOATING, GL_TRUE);
         }
         
-        if (_prop.style == FULLSCREEN) {
+        if (properties.style == FULLSCREEN) {
             GLFWmonitor* monitor = glfwGetPrimaryMonitor();
             const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-            _viewport.z = mode->width;
-            _viewport.w = mode->height;
+            properties.screen_width = mode->width;
+            properties.screen_height = mode->height;
             glfwWindowHint(GLFW_RED_BITS, mode->redBits);
             glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-            window = glfwCreateWindow(_viewport.z, _viewport.w, "", monitor, NULL);
+            window = glfwCreateWindow(properties.screen_width, properties.screen_height, "", monitor, NULL);
         }
-        else if (_prop.style == LENTICULAR) {
+        else if (properties.style == LENTICULAR) {
             glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-            glfwWindowHint(GLFW_DECORATED, false);
+            glfwWindowHint(GLFW_DECORATED, GL_FALSE);
 
-            int count;
-            GLFWmonitor **monitors = glfwGetMonitors(&count);
+            int count = 0;
             int monitorID = 1;
+            GLFWmonitor **monitors = glfwGetMonitors(&count);
 
-            if(count > 2){ //if we have more than 2 screens, try and find the looking glass screen ID 
+            if (count > 2) { //if we have more than 2 screens, try and find the looking glass screen ID 
                 monitorID = -1;
                 for (int i = 0; i < count; i++){
                     const char* name = glfwGetMonitorName(monitors[i]);
-                    if(name && strlen(name) >= 3){ // if monitor name is > than 3 chars
-                        if(name[0] == 'L' && name[1] == 'K' && name[2] == 'G'){ // found a match for the looking glass screen
+                    if (name && strlen(name) >= 3) // if monitor name is > than 3 chars
+                        if(name[0] == 'L' && name[1] == 'K' && name[2] == 'G') // found a match for the looking glass screen
                             monitorID = i;
-                        }
-                    }
                 }
-                if(monitorID == -1){ //could not find the looking glass screen
+                if (monitorID == -1) //could not find the looking glass screen
                     monitorID = 1;
-                }
             }
 
             const GLFWvidmode* mode = glfwGetVideoMode(monitors[monitorID]);
-            _viewport.z = mode->width;
-            _viewport.w = mode->height;
+            properties.screen_width = mode->width;
+            properties.screen_height = mode->height;
 
             int xpos, ypos;
             glfwGetMonitorPos(monitors[monitorID], &xpos, &ypos);
-            window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
+            window = glfwCreateWindow(properties.screen_width, properties.screen_height, "", NULL, NULL);
             
-            if (_viewport.x != 0 || _viewport.y != 0) {
-                _viewport.x += xpos;
-                _viewport.y += ypos;
+            if (properties.screen_x != 0 || properties.screen_y != 0) {
+                properties.screen_x += xpos;
+                properties.screen_y += ypos;
             }
 
-            glfwSetWindowPos(window, _viewport.x, _viewport.y);
+            glfwSetWindowPos(window, properties.screen_x, properties.screen_y);
         }
         else {
-            window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
+            window = glfwCreateWindow(properties.screen_width, properties.screen_height, "", NULL, NULL);
 
             #if !defined(__EMSCRIPTEN__)
-            glm::ivec2 screen = getScreenSize();
-            if (_viewport.x == -1)
-                _viewport.x = screen.x / 2 - _viewport.z / 2;
-            if (_viewport.y == -1)
-                _viewport.y = screen.y / 2 - _viewport.w / 2;
 
-            glfwSetWindowPos(window, _viewport.x, _viewport.y);
+            if (properties.screen_x == -1)
+                properties.screen_x = getScreenWidth() / 2 - properties.screen_width / 2;
+
+            if (properties.screen_y == -1)
+                properties.screen_y = getScreenHeight() / 2 - properties.screen_height / 2;
+
+            glfwSetWindowPos(window, properties.screen_x, properties.screen_y);
             #endif
         }
 
@@ -720,18 +738,10 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         // callback when a mouse button is pressed or released
         glfwSetMouseButtonCallback(window, [](GLFWwindow* _window, int button, int action, int mods) {
             if (button == GLFW_MOUSE_BUTTON_1) {
-                // update mouse4 when left mouse button is pressed or released
-                if (action == GLFW_PRESS && !left_mouse_button_down) {
+                if (action == GLFW_PRESS && !left_mouse_button_down)
                     left_mouse_button_down = true;
-                    mouse4.x = mouse.x;
-                    mouse4.y = mouse.y;
-                    mouse4.z = mouse.x;
-                    mouse4.w = mouse.y;
-                } else if (action == GLFW_RELEASE && left_mouse_button_down) {
+                else if (action == GLFW_RELEASE && left_mouse_button_down)
                     left_mouse_button_down = false;
-                    mouse4.z = -mouse4.z;
-                    mouse4.w = -mouse4.w;
-                }
             }
             if (action == GLFW_PRESS) {
                 mouse.drag.x = mouse.x;
@@ -804,12 +814,6 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             if (mouse.x > getWindowWidth()) mouse.x = getWindowWidth();
             if (mouse.y > getWindowHeight()) mouse.y = getWindowHeight();
 
-            // update mouse4 when cursor moves
-            if (left_mouse_button_down) {
-                mouse4.x = mouse.x;
-                mouse4.y = mouse.y;
-            }
-
             /*
              * TODO: the following code would best be moved into the
              * mouse button callback. If you click the mouse button without
@@ -873,7 +877,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         
     #endif
 
-    setViewport(_viewport.z, _viewport.w);
+    setViewport(properties.screen_width, properties.screen_height);
 
     #if defined(__EMSCRIPTEN__)
     update_canvas_size();
@@ -1121,33 +1125,39 @@ void updateViewport() {
     onViewportResize(width, height);
 }
 
-glm::ivec2 getScreenSize() {
-    glm::ivec2 screen;
-
+void getScreenSize() {
+    {
     #if defined(DRIVER_GLFW)
         // glfwGetMonitorPhysicalSize(glfwGetPrimaryMonitor(), &screen.x, &screen.y);
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-        screen.x = mode->width;
-        screen.y = mode->height;
+        screen_width = mode->width;
+        screen_height = mode->height;
 
     #elif defined(DRIVER_BROADCOM)
         initHost();
-
-        uint32_t screen_width;
-        uint32_t screen_height;
         int32_t success = graphics_get_display_size(0 /* LCD */, &screen_width, &screen_height);
         assert(success >= 0);
-        screen = glm::ivec2(screen_width, screen_height);
 
     #elif defined(DRIVER_GBM)
         initHost();
-
-        screen = glm::ivec2(mode.hdisplay, mode.vdisplay);
+        screen_width = mode.hdisplay;
+        screen_height = mode.vdisplay;
 
     #endif
+    }
+}
 
-    return screen;
+int getScreenWidth() {
+    if (screen_width <= 0.0)
+        getScreenSize();
+    return screen_width;
+}
+
+int getScreenHeight() {
+    if (screen_height <= 0.0)
+        getScreenSize();
+    return screen_height;
 }
 
 bool isFullscreen() {
@@ -1320,16 +1330,11 @@ void    setMousePosition( float _x, float _y ) {
     #endif
 }
 
-void    setMousePosition( glm::vec2 _pos ) { setMousePosition(_pos.x, _pos.y); }
-
 float   getMouseX(){ return mouse.x; }
 float   getMouseY(){ return mouse.y; }
-glm::vec2 getMousePosition() { return glm::vec2(mouse.x,mouse.y); }
 float   getMouseVelX(){ return mouse.velX; }
 float   getMouseVelY(){ return mouse.velY;}
-glm::vec2 getMouseVelocity() { return glm::vec2(mouse.velX,mouse.velY);}
 int     getMouseButton(){ return mouse.button;}
-glm::vec4 getMouse4() {return mouse4;}
 bool    getMouseEntered() { return mouse.entered; }
 
 bool    isShiftPressed() { return bShift; }

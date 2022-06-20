@@ -15,7 +15,7 @@ namespace ada {
 class App {
 public:
 
-    void run(glm::ivec4 &_viewport, WindowProperties _properties = WindowProperties());
+    void run(WindowProperties _properties = WindowProperties());
 
     virtual void setup() {};
     virtual void update() {};

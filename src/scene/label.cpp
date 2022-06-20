@@ -6,6 +6,7 @@
 #include <iostream>
 
 #define SCREEN_MARGIN 25.0
+#define TEXT_MARGIN 10.0
 
 namespace ada {
 
@@ -110,6 +111,24 @@ void Label::update(Camera* _cam, Font *_font) {
     else if (m_type == LABEL_RIGHT)
         m_screenPos.x += m_screenBox.getWidth() * 0.5;
 
+    if (m_type == LABEL_LINE_TO_WINDOW_BORDER) {
+        _font->setAlign(ada::ALIGN_MIDDLE);
+        _font->setAlign(ada::ALIGN_LEFT);
+        m_line_points[0] = m_screenPos;
+        m_line_points[1] = m_screenPos;
+        float w = getWidth() * ada::getPixelDensity();
+        if (m_screenPos.x < ada::getWindowWidth() * 0.5) {
+            m_line_points[0].x -= m_screenBox.getWidth();
+            m_line_points[1].x = w + TEXT_MARGIN;
+            m_screenPos.x = 0.0;
+        }
+        else {
+            m_line_points[0].x += m_screenBox.getWidth();
+            m_screenPos.x = ada::getWindowWidth() - w;
+            m_line_points[1].x = m_screenPos.x - TEXT_MARGIN;
+        }
+    }
+
     max.z = min.z = m_screenPos.z;
 
     if (m_textFunc)
@@ -121,7 +140,6 @@ void Label::update(Camera* _cam, Font *_font) {
 
         set( _font->getBoundingBox( m_text, m_screenPos.x, m_screenPos.y) );
     }
-
 }
 
 void Label::render(Font *_font) {
@@ -131,27 +149,35 @@ void Label::render(Font *_font) {
     if (_font == nullptr)
         _font = getFont();
 
-    if (m_type == LABEL_CENTER) {
-        _font->setAlign(ada::ALIGN_CENTER);
+    if (m_type == LABEL_LINE_TO_WINDOW_BORDER) {
         _font->setAlign(ada::ALIGN_MIDDLE);
-    }
-    else if (m_type == LABEL_UP) {
-        _font->setAlign(ada::ALIGN_CENTER);
-        _font->setAlign(ada::ALIGN_BOTTOM);
+        _font->setAlign(ada::ALIGN_LEFT);
+        _font->setAngle(0.0f);
+        line(m_line_points[0], m_line_points[1]);
     }
     else {
-        _font->setAlign(ada::ALIGN_CENTER);
-        _font->setAlign(ada::ALIGN_TOP);
-    }
+        if (m_type == LABEL_CENTER) {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_MIDDLE);
+        }
+        else if (m_type == LABEL_UP) {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_BOTTOM);
+        }
+        else {
+            _font->setAlign(ada::ALIGN_CENTER);
+            _font->setAlign(ada::ALIGN_TOP);
+        }
 
-    if (m_bbox) {
-        if (m_type == LABEL_LEFT)
-            _font->setAngle(HALF_PI);
-        else if (m_type == LABEL_RIGHT)
-            _font->setAngle(-HALF_PI);
+        if (m_bbox) {
+            if (m_type == LABEL_LEFT)
+                _font->setAngle(HALF_PI);
+            else if (m_type == LABEL_RIGHT)
+                _font->setAngle(-HALF_PI);
+        }
+        else 
+            _font->setAngle(0.0f);
     }
-    else 
-        _font->setAngle(0.0f);
 
     if (m_worldPos != nullptr)
         _font->render( m_text, m_screenPos.x, m_screenPos.y );

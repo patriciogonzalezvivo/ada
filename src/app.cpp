@@ -40,8 +40,8 @@ void App::loop(double _time, App* _app) {
     #endif
 }
 
-void App::run(glm::ivec4 &_viewport, WindowProperties _properties) {
-    initGL(_viewport, _properties);
+void App::run(WindowProperties _properties) {
+    initGL(_properties);
 
     width = getWindowWidth();
     height = getWindowHeight();

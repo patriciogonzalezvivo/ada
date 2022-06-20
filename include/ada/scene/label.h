@@ -13,7 +13,7 @@ namespace ada {
 enum LabelType {
     LABEL_CENTER = 0,
     LABEL_UP, LABEL_DOWN, LABEL_LEFT, LABEL_RIGHT,
-    LABEL_TOP_BUTTOM
+    LABEL_LINE_TO_WINDOW_BORDER
 };
 
 class Label : public BoundingBox {
@@ -53,6 +53,7 @@ private:
     std::string     m_text;
     BoundingBox     m_screenBox;
     glm::vec3       m_screenPos;
+    glm::vec2       m_line_points[3]; 
     LabelType       m_type;
     float           m_margin;
 

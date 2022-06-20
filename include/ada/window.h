@@ -43,11 +43,16 @@ struct WindowProperties {
     #if defined(__EMSCRIPTEN__)
     size_t      webgl = 0;
     #endif
+
+    int         screen_x = -1;
+    int         screen_y = -1;
+    int         screen_width = -1;
+    int         screen_height = -1;
 };
 
 //	GL Context
 //----------------------------------------------
-int         initGL(glm::ivec4 &_viewport, WindowProperties _properties = WindowProperties());
+int         initGL(WindowProperties _properties = WindowProperties());
 bool        isGL();
 void        updateGL();
 void        renderGL();
@@ -79,7 +84,8 @@ void        setWindowVSync(bool _value);
 
 bool        isFullscreen();
 void        setFullscreen(bool _fullscreen);
-glm::ivec2  getScreenSize();
+int         getScreenWidth();
+int         getScreenHeight();
 float       getPixelDensity();
 
 const glm::ivec4& getViewport();
@@ -105,16 +111,13 @@ int         getRestUs();
 // Mouse Keyboards
 // ---------------------------------------
 void        setMousePosition(float _x, float _y);
-void        setMousePosition(glm::vec2 _pos);
 
 float       getMouseX();
 float       getMouseY();
-glm::vec2   getMousePosition();
+
 float       getMouseVelX();
 float       getMouseVelY();
-glm::vec2   getMouseVelocity();
 int         getMouseButton();
-glm::vec4   getMouse4();
 bool        getMouseEntered();
 
 bool        isShiftPressed();

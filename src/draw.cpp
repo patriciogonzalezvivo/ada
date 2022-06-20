@@ -473,7 +473,7 @@ void textSize(float _size, Font* _font) {
     if (_font == nullptr)
         _font = getFont();
     
-    _font->setSize(_size);
+    _font->setSize(_size / ada::getPixelDensity());
 }
 
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font) { text(_text, _pos.x, _pos.y, _font); }
@@ -609,7 +609,7 @@ void shader(Shader* _program) {
         #endif
     }
 
-    if (cameraPtr) {
+    if (cameraPtr != nullptr) {
         _program->setUniform("u_modelViewProjectionMatrix", cameraPtr->getProjectionViewMatrix() * matrix_world );
         _program->setUniform("u_projectionMatrix", cameraPtr->getProjectionMatrix());
         _program->setUniform("u_normalMatrix", cameraPtr->getNormalMatrix());
@@ -768,19 +768,34 @@ void labels() {
     if (font == nullptr)
         font = getDefaultFont();
 
-    for (size_t i = 0; i < labelsList.size(); i++)
-        labelsList[i]->update( getCamera(), font );
+    Camera *cam = getCamera();
 
-    // font->setColor( glm::vec4(0.0f,0.0f,0.0f,1.0f) );
-    // font->setBlurAmount( 10.0f );
-    // font->setEffect( EFFECT_GROW );
-    // for (size_t i = 0; i < labelsList.size(); i++)
-    //     labelsList[i].render( font );
-    
+    for (size_t i = 0; i < labelsList.size(); i++)
+        labelsList[i]->update( cam, font );
+
+    resetCamera();
+
     font->setEffect( EFFECT_NONE );
     font->setColor( fill_color );
     for (size_t i = 0; i < labelsList.size(); i++)
         labelsList[i]->render( font );
+
+    setCamera(cam);
+}
+
+int labelAt(float _x, float _y) {
+    for (size_t i = 0; i < labelsList.size(); i++)
+        if (labelsList[i]->contains(_x, _y))
+            return i;
+    
+    return -1;
+}
+
+Label* label(size_t _index) {
+    if (_index >= labelsList.size())
+        return nullptr;
+
+    return labelsList[_index];
 }
 
 };
