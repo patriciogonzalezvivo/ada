@@ -677,6 +677,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
         else {
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
 
+            #if !defined(__EMSCRIPTEN__)
             glm::ivec2 screen = getScreenSize();
             if (_viewport.x == -1)
                 _viewport.x = screen.x / 2 - _viewport.z / 2;
@@ -684,6 +685,7 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
                 _viewport.y = screen.y / 2 - _viewport.w / 2;
 
             glfwSetWindowPos(window, _viewport.x, _viewport.y);
+            #endif
         }
 
         if (!window) {
