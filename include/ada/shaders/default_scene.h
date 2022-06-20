@@ -2001,7 +2001,11 @@ void main(void) {
     vec2 c = mod(t.zw, 2.0);
     float p = abs(c.x-c.y) * 0.5;
              
+    #ifdef FLOOR_COLOR
+    mat.baseColor = FLOOR_COLOR;
+    #else
     mat.baseColor += p;
+    #endif
     mat.roughness = 0.5 + p * 0.5;
 #endif
     
