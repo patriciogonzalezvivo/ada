@@ -668,14 +668,23 @@ int initGL(glm::ivec4 &_viewport, WindowProperties _prop) {
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
             
             if (_viewport.x != 0 || _viewport.y != 0) {
-                xpos += _viewport.x;
-                ypos += _viewport.y;
+                _viewport.x += xpos;
+                _viewport.y += ypos;
             }
 
-            glfwSetWindowPos(window, xpos, ypos);
+            glfwSetWindowPos(window, _viewport.x, _viewport.y);
         }
-        else
+        else {
             window = glfwCreateWindow(_viewport.z, _viewport.w, "", NULL, NULL);
+
+            glm::ivec2 screen = getScreenSize();
+            if (_viewport.x == -1)
+                _viewport.x = screen.x / 2 - _viewport.z / 2;
+            if (_viewport.y == -1)
+                _viewport.y = screen.y / 2 - _viewport.w / 2;
+
+            glfwSetWindowPos(window, _viewport.x, _viewport.y);
+        }
 
         if (!window) {
             glfwTerminate();

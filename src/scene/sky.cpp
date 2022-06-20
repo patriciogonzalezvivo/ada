@@ -169,8 +169,7 @@ void CubemapFace<T>::upload() {
 #elif defined (_WIN32)
     internalFormat = GL_RGB16F;
 #elif !defined(PLATFORM_RPI)
-    internalFormat = GL_RGB16F_ARB;
-    // internalFormat = GL_RGB;
+    internalFormat = GL_RGB;
 #endif
 
     glTexImage2D(cubemapFaceId[id], 0, internalFormat, width, height, 0, format, type, data);
