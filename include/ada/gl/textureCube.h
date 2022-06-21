@@ -13,7 +13,7 @@ public:
     TextureCube();
     virtual ~TextureCube();
 
-    virtual bool    load(SkyData* _skyData, int _width = 512 );
+    virtual bool    load(SkyData* _skyData, int _width = 1024 );
     virtual bool    load(const std::string &_fileName, bool _vFlip = true);
 
     virtual void    bind();
