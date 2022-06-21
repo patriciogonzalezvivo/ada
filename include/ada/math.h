@@ -1,6 +1,7 @@
 #pragma once
 
 #include <math.h>
+#include "glm/glm.hpp"
 
 namespace ada {
 
@@ -98,5 +99,7 @@ inline float remap(const float& _value, const float& _inputMin, const float& _in
     }
 }
 
+inline double toLat(const glm::vec3& _v) { return atan2(_v.z, sqrt(_v.x * _v.x + _v.y * _v.y)); }
+inline double toLon(const glm::vec3& _v) { return atan2(_v.y, _v.x); }
 
 }
