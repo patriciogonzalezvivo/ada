@@ -341,6 +341,13 @@ static EM_BOOL resize_callback(int eventType, const EmscriptenUiEvent *e, void* 
     return EM_TRUE;
 }
 
+static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent *e, void* userData) {
+    if (eventType == EMSCRIPTEN_EVENT_KEYDOWN)
+        onKeyPress(e->keyCode);
+    
+    return EM_TRUE;
+}
+
 static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent *e, void* userData) {
     float x = (float)e->targetX;
     float y = viewport.w - (float)e->targetY;
@@ -717,9 +724,6 @@ int initGL(WindowProperties _prop) {
             glewInit();
         #endif
 
-        #if defined(EVENTS_AS_CALLBACKS)
-        if (onKeyPress)
-        #endif 
         glfwSetKeyCallback(window, [](GLFWwindow* _window, int _key, int _scancode, int _action, int _mods) {
             if (_action == GLFW_PRESS && (_key == GLFW_KEY_LEFT_SHIFT || GLFW_KEY_RIGHT_SHIFT) )
                 bShift = true;
@@ -731,8 +735,12 @@ int initGL(WindowProperties _prop) {
             else if (_action == GLFW_RELEASE && (_key == GLFW_KEY_LEFT_CONTROL || GLFW_KEY_RIGHT_CONTROL) )
                 bControl = false;
 
-            else if (_action == GLFW_PRESS)
+            if (_action == GLFW_PRESS) {
+                #if defined(EVENTS_AS_CALLBACKS)
+                if (onKeyPress)
+                #endif 
                 onKeyPress(_key);
+            }
         });
 
         // callback when a mouse button is pressed or released
@@ -863,6 +871,8 @@ int initGL(WindowProperties _prop) {
         enable_extension("OES_texture_half_float_linear");
 
         emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, resize_callback);
+
+        // emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, key_callback);
         
         emscripten_set_mousedown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
         emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, NULL, true, mouse_callback);
