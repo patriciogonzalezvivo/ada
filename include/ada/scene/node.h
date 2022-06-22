@@ -57,7 +57,7 @@ public:
     virtual void        boom(float _amount) { translate(getYAxis() * _amount); };
     virtual void        dolly(float _amount) { translate(getZAxis() * _amount); };
 
-    virtual void        orbit(float _longitude, float _latitude, float _radius, const glm::vec3& _centerPoint = glm::vec3(0.0));
+    virtual void        orbit(float _azimuth, float _elevation, float _distance, const glm::vec3& _centerPoint = glm::vec3(0.0));
 
     virtual void        tilt(float _degrees) { rotate(glm::angleAxis(glm::radians(_degrees), getXAxis())); };
     virtual void        pan(float _degrees) { rotate(glm::angleAxis(glm::radians(_degrees), getYAxis())); };
