@@ -1,7 +1,10 @@
 #pragma once
 
 #include "node.h"
-#include "ada/geom/boundingBox.h"
+#include "../geom/boundingBox.h"
+
+#include <map>
+#include <vector>
 
 namespace ada {
 

@@ -92,26 +92,26 @@ void HaveDefines::delDefine(const std::string &_define) {
 }
 
 void HaveDefines::printDefines() {
-    for (DefinesList_cit it = m_defines.begin(); it != m_defines.end(); ++it)
+    for (DefinesMap_cit it = m_defines.begin(); it != m_defines.end(); ++it)
         std::cout << "#define " << it->first << " " << it->second << std::endl;
 }
 
 void HaveDefines::mergeDefines( HaveDefines *_haveDefines ) {
-    for (DefinesList_cit it = _haveDefines->m_defines.begin(); it != _haveDefines->m_defines.end(); ++it)
+    for (DefinesMap_cit it = _haveDefines->m_defines.begin(); it != _haveDefines->m_defines.end(); ++it)
         addDefine(it->first, it->second);
 }
 
 void HaveDefines::mergeDefines( const HaveDefines *_haveDefines ) {
-    for (DefinesList_cit it = _haveDefines->m_defines.begin(); it != _haveDefines->m_defines.end(); ++it)
+    for (DefinesMap_cit it = _haveDefines->m_defines.begin(); it != _haveDefines->m_defines.end(); ++it)
         addDefine(it->first, it->second);
 }
 
-void HaveDefines::mergeDefines( const DefinesList &_defines ) {
-    for (DefinesList_cit it=_defines.begin(); it != _defines.end(); ++it)
+void HaveDefines::mergeDefines( const DefinesMap &_defines ) {
+    for (DefinesMap_cit it=_defines.begin(); it != _defines.end(); ++it)
         addDefine(it->first, it->second);
 }
 
-void HaveDefines::replaceDefines( const DefinesList &_defines ) {
+void HaveDefines::replaceDefines( const DefinesMap &_defines ) {
     m_defines = _defines;
     m_defineChange = true;
 }

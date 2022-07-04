@@ -3,10 +3,10 @@
 #include <string>
 #include <functional>
 
-#include "ada/scene/camera.h"
-#include "ada/scene/model.h"
-#include "ada/window.h"
-#include "ada/font.h"
+#include "camera.h"
+#include "model.h"
+#include "../window.h"
+#include "../font.h"
 
 namespace ada {
 

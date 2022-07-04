@@ -7,9 +7,7 @@
 #include "ada/gl/shader.h"
 #include "ada/shaders/defaultShaders.h"
 
-#include "ada/scene/camera.h"
-#include "ada/scene/light.h"
-#include "ada/scene/label.h"
+#include "ada/scene.h"
 
 #include "ada/geom/mesh.h"
 #include "ada/geom/line.h"
@@ -151,18 +149,6 @@ void textSize(float _size, Font* _font = nullptr);
 void text(const std::string& _text, const glm::vec2& _pos, Font* _font = nullptr );
 void text(const std::string& _text, float _x, float _y, Font* _font = nullptr);
 
-void addLabel(Label& _label);
-void addLabel(Label* _label);
-void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
-void labels();
-int labelAt(float _x, float _y);
-Label* label(size_t _index);
-
 // plane()
 // box()
 // sphere()
@@ -185,15 +171,22 @@ void resetShader();
 
 void texture(Texture& _texture, const std::string _name = "");
 void texture(Texture* _texture, const std::string _name = "");
-
 // textureMode()
 // textureWrap()
-// normalMaterial()
-// ambientMaterial()
-// emissiveMaterial()
-// specularMaterial()
-// shininess()
-// p5.Shader
+
+// Interaction
+// --------------------------------
+// debugMode()
+// noDebugMode()
+
+// 3D Scene
+// -------------------
+
+// Scene
+void setScene(Scene& scene);
+void setScene(Scene* scene);
+Scene* createScene();
+Scene* getScene();
 
 // Camera
 // camera()
@@ -202,16 +195,10 @@ void ortho(float _left, float _right, float _bottom, float _top,  float _near, f
 // frustum()
 Camera* createCamera();
 
-// p5.Camera
 void setCamera(Camera& _camera);
 void setCamera(Camera* _camera);
 void resetCamera();
 Camera* getCamera();
-
-// Interaction
-// --------------------------------
-// debugMode()
-// noDebugMode()
 
 // Lights
 // ambientLight()
@@ -220,15 +207,34 @@ Camera* getCamera();
 // pointLight()
 // lightFalloff()
 // spotLight()
-
 void lights();
 void noLights();
 Light* createLight(const std::string& _name = "default");
 void addLight(Light& _light, const std::string& _name = "default");
 void addLight(Light* _light, const std::string& _name = "default");
 
+// Material
+// normalMaterial()
+// ambientMaterial()
+// emissiveMaterial()
+// specularMaterial()
+// shininess()
+
 // void loadModel( const std::string& _filename );
 void model(Vbo& _vbo, Shader* _program = nullptr);
 void model(Vbo* _vbo, Shader* _program = nullptr);
+
+// Labels
+void addLabel(Label& _label);
+void addLabel(Label* _label);
+void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(const std::string& _text, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(const std::string& _text, Model* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, glm::vec3* _position, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, Node* _node, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _type = LABEL_CENTER, float _margin = 0.0f);
+void labels();
+int labelAt(float _x, float _y);
+Label* label(size_t _index);
 
 };

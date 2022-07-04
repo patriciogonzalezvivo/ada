@@ -4,7 +4,7 @@
 #include "texture.h"
 #include "glm/glm.hpp"
 
-#include "ada/scene/sky.h"
+#include "../scene/sky.h"
 
 namespace ada {
 

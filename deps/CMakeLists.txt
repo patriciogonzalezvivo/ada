@@ -33,5 +33,8 @@ add_subdirectory(stb)
 ## Glob
 add_subdirectory(glob)
 
+# PhoneDepth
+add_subdirectory(phonedepth)
+
 ## SkyModel
 add_subdirectory(skymodel)

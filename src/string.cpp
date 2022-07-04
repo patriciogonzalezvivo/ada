@@ -43,6 +43,11 @@ std::string purifyString(const std::string& _string) {
     return std;
 }
 
+bool haveWildcard(const std::string& _str) {
+    return  (_str.find('*') != std::string::npos) ||
+            (_str.find('?') != std::string::npos);
+}
+
 bool isInt(const std::string& _string) {
   return _string.find_first_not_of( "0123456789-" ) == std::string::npos;
 }

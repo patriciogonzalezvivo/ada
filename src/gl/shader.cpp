@@ -234,7 +234,7 @@ GLuint Shader::compileShader(const std::string& _src, GLenum _type, bool _verbos
         zeroBasedLineDirective = true; // ... glsl defaults to version 1.10, which starts numbering #line directives from 0.
     }
 
-    for (DefinesList_it it = m_defines.begin(); it != m_defines.end(); it++)
+    for (DefinesMap_it it = m_defines.begin(); it != m_defines.end(); it++)
         prolog += "#define " + it->first + " " + it->second + '\n';
 
     //

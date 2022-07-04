@@ -32,12 +32,10 @@ std::map<std::string, Font*>    fonts;
 glm::mat4   matrix_world    = glm::mat4(1.0f);
 std::stack<glm::mat4>   matrix_stack;
 
+// 3D Scene
+Scene*      scene           = nullptr;
 Camera*     cameraPtr       = nullptr;
 Camera*     cameraCustomPtr = nullptr;
-LightPtrs   lightsList;
-bool        lights_enabled  = false;
-
-std::vector<Label*>     labelsList;
 
 void print(const std::string& _text) { std::cout << _text << std::endl; }
 void frameRate(int _fps) { setFps(_fps); }
@@ -145,7 +143,6 @@ const glm::mat4& getViewMatrix() {
 
 const glm::mat4& getWorldMatrix() { return matrix_world; }
 glm::mat4* getWorldMatrixPtr() { return &matrix_world; }
-
 
 Shader* getPointShader() {
     if (points_shader == nullptr) {
@@ -630,10 +627,13 @@ void shader(Shader* _program) {
     else
         _program->setUniform("u_modelViewProjectionMatrix", getFlippedOrthoMatrix() * matrix_world );
 
-    if (lights_enabled) {
+    if (scene == nullptr)
+        return;
+
+    if (scene->getLightsEnabled()) {
         // Pass Light Uniforms
-        if (lightsList.size() == 1) {
-            LightPtrs::iterator it = lightsList.begin();
+        if (scene->lights.size() == 1) {
+            LightsMap::iterator it = scene->lights.begin();
 
             _program->setUniform("u_lightColor", it->second->color);
             _program->setUniform("u_lightIntensity", it->second->intensity);
@@ -646,10 +646,10 @@ void shader(Shader* _program) {
                 _program->setUniform("u_lightFalloff", it->second->falloff);
 
             // _program->setUniform("u_lightMatrix", it->second->getBiasMVPMatrix() );
-            // _program->setUniformDepthTexture("u_lightSListhadowMap", it->second->getShadowMap(), _program->textureIndex++ );
+            // _program->setUniformDepthTexture("u_lightSMaphadowMap", it->second->getShadowMap(), _program->textureIndex++ );
         }
         else {
-            for (LightPtrs::iterator it = lightsList.begin(); it != lightsList.end(); ++it) {
+            for (LightsMap::iterator it = scene->lights.begin(); it != scene->lights.end(); ++it) {
                 std::string name = "u_" + it->first;
 
                 _program->setUniform(name + "Color", it->second->color);
@@ -668,15 +668,19 @@ void shader(Shader* _program) {
     }
 }
 
-void lights() { lights_enabled = true; }
-void noLights() { lights_enabled = false; }
-Light* createLight(const std::string& _name) {
-    Light* light = new Light();
-    addLight(light, _name);
-    return light;
+void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }
+void texture(Texture* _texture, const std::string _name) {
+    if (shaderPtr == nullptr)
+        shaderPtr = getFillShader();
+    
+    std::string name = _name;
+    if (_name.size() == 0)
+        name = "u_tex" + toString(shaderPtr->textureIndex);
+    shaderPtr->addDefine("USE_TEXTURE", name);
+    shaderPtr->setUniformTexture(name, _texture, shaderPtr->textureIndex );
+    shaderPtr->setUniform(name + "Resolution", (float)_texture->getWidth(), (float)_texture->getHeight());
+    shaderPtr->textureIndex++;
 }
-void addLight(Light& _light, const std::string& _name) { lightsList[_name] = &_light; }
-void addLight(Light* _light, const std::string& _name) { lightsList[_name] = _light; }
 
 
 void model(Vbo& _vbo, Shader* _program) { model(&_vbo, _program); }
@@ -723,18 +727,46 @@ void model(Vbo* _vbo, Shader* _program) {
     _vbo->render(_program);
 }
 
-void texture(Texture& _texture, const std::string _name) { texture(&_texture, _name); }
-void texture(Texture* _texture, const std::string _name) {
-    if (shaderPtr == nullptr)
-        shaderPtr = getFillShader();
-    
-    std::string name = _name;
-    if (_name.size() == 0)
-        name = "u_tex" + toString(shaderPtr->textureIndex);
-    shaderPtr->addDefine("USE_TEXTURE", name);
-    shaderPtr->setUniformTexture(name, _texture, shaderPtr->textureIndex );
-    shaderPtr->setUniform(name + "Resolution", (float)_texture->getWidth(), (float)_texture->getHeight());
-    shaderPtr->textureIndex++;
+// 3D Scene
+void setScene(Scene& _scene) { setScene( &_scene ); }
+void setScene(Scene* _scene) { scene = _scene; }
+Scene* createScene() {
+    if (scene)
+        delete scene;
+    scene = new Scene();
+    return scene;
+}
+
+Scene* getScene() { return scene; }
+
+void lights() { 
+    if (scene)
+        scene->enableLights(true); 
+}
+
+void noLights() { 
+    if (scene)
+        scene->enableLights(false);
+}
+
+Light* createLight(const std::string& _name) {
+    Light* light = new Light();
+    addLight(light, _name);
+    return light;
+}
+
+void addLight(Light& _light, const std::string& _name) { 
+    if (scene == nullptr)
+        createScene();
+
+    scene->lights[_name] = &_light; 
+}
+
+void addLight(Light* _light, const std::string& _name) { 
+    if (scene == nullptr)
+        createScene();
+
+    scene->lights[_name] = _light;
 }
 
 void addLabel(Label& _label) { addLabel(&_label); }
@@ -742,7 +774,10 @@ void addLabel(Label* _label) {
     if (font == nullptr)
         font = getDefaultFont();
 
-    labelsList.push_back( _label );
+    if (scene == nullptr)
+        createScene();
+
+    scene->labels.push_back( _label );
 }
 
 void addLabel(const std::string& _text, glm::vec3* _position, LabelType _type, float _margin) {
@@ -765,37 +800,46 @@ void addLabel(std::function<std::string(void)> _func, Model* _model, LabelType _
 }
 
 void labels() {
+    if (scene == nullptr)
+        return;
+
     if (font == nullptr)
         font = getDefaultFont();
 
     Camera *cam = getCamera();
 
-    for (size_t i = 0; i < labelsList.size(); i++)
-        labelsList[i]->update( cam, font );
+    for (size_t i = 0; i < scene->labels.size(); i++)
+        scene->labels[i]->update( cam, font );
 
     resetCamera();
 
     font->setEffect( EFFECT_NONE );
     font->setColor( fill_color );
-    for (size_t i = 0; i < labelsList.size(); i++)
-        labelsList[i]->render( font );
+    for (size_t i = 0; i < scene->labels.size(); i++)
+        scene->labels[i]->render( font );
 
     setCamera(cam);
 }
 
 int labelAt(float _x, float _y) {
-    for (size_t i = 0; i < labelsList.size(); i++)
-        if (labelsList[i]->contains(_x, _y))
+    if (scene == nullptr)
+        return -1;
+
+    for (size_t i = 0; i < scene->labels.size(); i++)
+        if (scene->labels[i]->contains(_x, _y))
             return i;
     
     return -1;
 }
 
 Label* label(size_t _index) {
-    if (_index >= labelsList.size())
+    if (scene == nullptr)
         return nullptr;
 
-    return labelsList[_index];
+    if (_index >= scene->labels.size())
+        return nullptr;
+
+    return scene->labels[_index];
 }
 
 };

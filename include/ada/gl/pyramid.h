@@ -12,14 +12,14 @@
 // - ofxPoissonFill (https://github.com/LingDong-/ofxPoissonFill)
 //
 
-#define CONVOLUTION_PYRAMID_MAX_LAYERS 12
+#define PYRAMID_MAX_LAYERS 12
 
 namespace ada {
 
-class ConvolutionPyramid {
+class Pyramid {
 public:
-    ConvolutionPyramid();
-    virtual ~ConvolutionPyramid();
+    Pyramid();
+    virtual ~Pyramid();
 
     void            allocate(int _width, int _height);
     bool            isAllocated() const {return m_depth != 0; }
@@ -33,8 +33,8 @@ public:
 
     bool            fixed;
 private:
-    Fbo             m_downs[CONVOLUTION_PYRAMID_MAX_LAYERS];
-    Fbo             m_ups[CONVOLUTION_PYRAMID_MAX_LAYERS];
+    Fbo             m_downs[PYRAMID_MAX_LAYERS];
+    Fbo             m_ups[PYRAMID_MAX_LAYERS];
 
     int             m_width;
     int             m_height;

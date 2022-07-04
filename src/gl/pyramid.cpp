@@ -1,4 +1,4 @@
-#include "ada/gl/convolutionPyramid.h"
+#include "ada/gl/pyramid.h"
 #include "ada/gl/textureProps.h"
 
 #include <algorithm>
@@ -6,15 +6,15 @@
 
 namespace ada {
 
-ConvolutionPyramid::ConvolutionPyramid(): m_depth(0) {
+Pyramid::Pyramid(): m_depth(0) {
 }
 
-ConvolutionPyramid::~ConvolutionPyramid() {
+Pyramid::~Pyramid() {
 }
 
-void ConvolutionPyramid::allocate(int _width, int _height) {
+void Pyramid::allocate(int _width, int _height) {
     m_depth = log2(std::min(_width, _height)) - 1;
-    m_depth = std::min((unsigned int)CONVOLUTION_PYRAMID_MAX_LAYERS, m_depth);
+    m_depth = std::min((unsigned int)PYRAMID_MAX_LAYERS, m_depth);
 
     m_width = _width;
     m_height = _height;
@@ -35,7 +35,7 @@ void ConvolutionPyramid::allocate(int _width, int _height) {
     }
 }
 
-void ConvolutionPyramid::process(const ada::Fbo *_input) {
+void Pyramid::process(const ada::Fbo *_input) {
     unsigned int i;
     pass(&m_downs[0], _input, NULL, 0);
 
@@ -53,7 +53,7 @@ void ConvolutionPyramid::process(const ada::Fbo *_input) {
     pass(&m_ups[m_depth-1], _input, &(m_ups[m_depth-2]), 0);
 }
 
-const ada::Fbo* ConvolutionPyramid::getResult(unsigned int index) const { 
+const ada::Fbo* Pyramid::getResult(unsigned int index) const { 
     if (index < m_depth)
         return &m_ups[m_depth - 1 - index];
     else

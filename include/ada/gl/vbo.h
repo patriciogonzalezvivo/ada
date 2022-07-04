@@ -5,7 +5,7 @@
 #include "gl.h"
 #include "vertexLayout.h"
 
-#include "ada/geom/mesh.h"
+#include "../geom/mesh.h"
 
 namespace ada {
 

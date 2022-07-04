@@ -23,6 +23,9 @@ std::string toUnderscore(const std::string& _string); //Replace spaces by unders
 //  Extract extrange characters from a string
 std::string purifyString(const std::string& _string);
 
+// Check if it have a wildcard like * or ?
+bool haveWildcard(const std::string& _str);
+
 // Split a string into a vector of strings 
 std::vector<std::string> split(const std::string& _string, char _sep, bool _tolerate_empty = false);
 

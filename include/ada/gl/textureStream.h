@@ -1,7 +1,6 @@
 #pragma once
 
 #include "texture.h"
-#include "ada/window.h"
 
 #include <vector>
 #include <iostream>
@@ -42,9 +41,9 @@ public:
     virtual size_t          getPrevTexturesTotal() { return m_idPrevs.size(); }
     virtual const GLuint    getPrevTextureId(size_t _index) const { return m_idPrevs[_index]; };
     virtual const std::vector<GLuint>& getPrevTextureIds() const { return m_idPrevs; }
-    virtual GLuint *        getPrevTextureIdsPtr() { return m_idPrevs.data(); }
+    virtual GLuint*         getPrevTextureIdsPtr() { return m_idPrevs.data(); }
     
-    virtual float           getFps() const { return ada::getFps(); }
+    virtual float           getFps() const { return 0.0; }
     virtual float           getDuration() const { return 0.0; }
     virtual float           getTime() const { return 0.0; }
     virtual float           getPct() const { return getTime() / getDuration(); }
@@ -86,7 +85,6 @@ protected:
     std::vector<GLuint>     m_idPrevs;
 
     bool                    m_play = true;
-
 };
 
 }

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <map>
-#include <string>
 #include "glm/glm.hpp"
 
-#include "ada/fs.h"
-#include "ada/gl/shader.h"
+#include "../gl/shader.h"
+#include "../gl/defines.h"
 
 namespace ada {
 
@@ -19,7 +17,5 @@ public:
     std::string name;
 
 };
-
-typedef std::map<std::string,Material> Materials;
 
 }

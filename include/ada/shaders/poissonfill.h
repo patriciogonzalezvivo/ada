@@ -13,9 +13,9 @@ const std::string poissonfill_frag = R"(
 precision highp float;
 #endif
 
-uniform sampler2D   u_convolutionPyramidTex0;
-uniform sampler2D   u_convolutionPyramidTex1;
-uniform bool        u_convolutionPyramidUpscaling;
+uniform sampler2D   u_pyramidTex0;
+uniform sampler2D   u_pyramidTex1;
+uniform bool        u_pyramidUpscaling;
 
 uniform vec2        u_resolution;
 uniform vec2        u_pixel;
@@ -54,30 +54,30 @@ void main() {
     vec2 pixel = u_pixel;
     vec2 st = v_texcoord;
 
-    if (!u_convolutionPyramidUpscaling) {
+    if (!u_pyramidUpscaling) {
         // DOWNSCALE
         //
-        //  u_convolutionPyramidTex0: previous pass (bigger)
+        //  u_pyramidTex0: previous pass (bigger)
         //
         for (int dy = -2; dy <= 2; dy++) {
             for (int dx = -2; dx <= 2; dx++) {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel * 0.5;
                 if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0)
                     continue;
-                color += texture2D(u_convolutionPyramidTex0, saturate(uv)) * H1(dx) * H1(dy);
+                color += texture2D(u_pyramidTex0, saturate(uv)) * H1(dx) * H1(dy);
             }
         }
     }
     else {
         // UPSCALE
         //
-        //  u_convolutionPyramidTex0: unfiltered counterpart (same size)
-        //  u_convolutionPyramidTex1: previous pass (smaller)
+        //  u_pyramidTex0: unfiltered counterpart (same size)
+        //  u_pyramidTex1: previous pass (smaller)
         //
         for (int dy = -1; dy <= 1; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel;
-                color += texture2D(u_convolutionPyramidTex0, saturate(uv)) * G(dx) * G(dy);
+                color += texture2D(u_pyramidTex0, saturate(uv)) * G(dx) * G(dy);
             }
         }
 
@@ -86,7 +86,7 @@ void main() {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel * 2.0;
                 if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0)
                     continue;
-                color += texture2D(u_convolutionPyramidTex1, saturate(uv)) * h2 * H1(dx) * H1(dy);
+                color += texture2D(u_pyramidTex1, saturate(uv)) * h2 * H1(dx) * H1(dy);
             }
         }
     }
@@ -101,9 +101,9 @@ const std::string poissonfill_frag_300 = R"(
 precision highp float;
 #endif
 
-uniform sampler2D   u_convolutionPyramidTex0;
-uniform sampler2D   u_convolutionPyramidTex1;
-uniform bool        u_convolutionPyramidUpscaling;
+uniform sampler2D   u_pyramidTex0;
+uniform sampler2D   u_pyramidTex1;
+uniform bool        u_pyramidUpscaling;
 
 uniform vec2        u_resolution;
 uniform vec2        u_pixel;
@@ -143,30 +143,30 @@ void main() {
     vec2 pixel = u_pixel;
     vec2 st = v_texcoord;
 
-    if (!u_convolutionPyramidUpscaling) {
+    if (!u_pyramidUpscaling) {
         // DOWNSCALE
         //
-        //  u_convolutionPyramidTex0: previous pass (bigger)
+        //  u_pyramidTex0: previous pass (bigger)
         //
         for (int dy = -2; dy <= 2; dy++) {
             for (int dx = -2; dx <= 2; dx++) {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel * 0.5;
                 if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0)
                     continue;
-                color += texture(u_convolutionPyramidTex0, saturate(uv)) * H1(dx) * H1(dy);
+                color += texture(u_pyramidTex0, saturate(uv)) * H1(dx) * H1(dy);
             }
         }
     }
     else {
         // UPSCALE
         //
-        //  u_convolutionPyramidTex0: unfiltered counterpart (same size)
-        //  u_convolutionPyramidTex1: previous pass (smaller)
+        //  u_pyramidTex0: unfiltered counterpart (same size)
+        //  u_pyramidTex1: previous pass (smaller)
         //
         for (int dy = -1; dy <= 1; dy++) {
             for (int dx = -1; dx <= 1; dx++) {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel;
-                color += texture(u_convolutionPyramidTex0, saturate(uv)) * G(dx) * G(dy);
+                color += texture(u_pyramidTex0, saturate(uv)) * G(dx) * G(dy);
             }
         }
 
@@ -175,7 +175,7 @@ void main() {
                 vec2 uv = st + vec2(float(dx), float(dy)) * pixel * 2.0;
                 if (uv.x <= 0.0 || uv.x >= 1.0 || uv.y <= 0.0 || uv.y >= 1.0)
                     continue;
-                color += texture(u_convolutionPyramidTex1, saturate(uv)) * h2 * H1(dx) * H1(dy);
+                color += texture(u_pyramidTex1, saturate(uv)) * h2 * H1(dx) * H1(dy);
             }
         }
     }

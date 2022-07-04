@@ -1,9 +1,7 @@
 #pragma once
 
-#include <map>
-
 #include "node.h"
-#include "ada/gl/fbo.h"
+#include "../gl/fbo.h"
 
 namespace ada {
 
@@ -56,8 +54,5 @@ protected:
     
     GLint               m_viewport[4];
 };
-
-typedef std::map<std::string,Light> Lights;
-typedef std::map<std::string,Light*> LightPtrs;
 
 }

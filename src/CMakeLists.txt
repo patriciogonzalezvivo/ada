@@ -13,14 +13,10 @@ set(ADA_SOURCES
     window.cpp
     fs.cpp 
     time.cpp
-    string.cpp
-    pixel.cpp 
     font.cpp
-    geom/triangle.cpp 
-    geom/line.cpp
-    geom/mesh.cpp 
-    geom/meshes.cpp
-    geom/ops.cpp
+    scene.cpp
+    pixel.cpp 
+    string.cpp
     gl/gl.cpp 
     gl/fbo.cpp
     gl/vbo.cpp
@@ -36,8 +32,13 @@ set(ADA_SOURCES
     gl/textureStreamMMAL.cpp
     gl/textureStreamAudio.cpp 
     gl/textureStreamSequence.cpp
-    gl/convolutionPyramid.cpp
+    gl/pyramid.cpp
     gl/vertexLayout.cpp 
+    geom/ops.cpp
+    geom/line.cpp
+    geom/mesh.cpp 
+    geom/meshes.cpp
+    geom/triangle.cpp 
     scene/sky.cpp
     scene/node.cpp
     scene/model.cpp
@@ -255,10 +256,11 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/skymodel"
     "${PROJECT_SOURCE_DIR}/deps/fontstash"
     "${PROJECT_SOURCE_DIR}/deps/miniaudio"
+    "${PROJECT_SOURCE_DIR}/deps/phonedepth"
 )
 
 ## DEPS
-target_link_libraries(ada PUBLIC stb glob skymodel )
+target_link_libraries(ada PUBLIC stb glob skymodel phonedepth)
 
 # IDEs should put the headers in a nice place
 # source_group(   TREE ${INCLUDE_FOLDER} 

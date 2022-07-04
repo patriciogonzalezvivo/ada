@@ -29,10 +29,6 @@
 #include "fontstash.h"
 #include "shaders.h"
 
-// #define USE_ADA_SHADER
-#if defined(USE_ADA_SHADER)
-#include "ada/gl/shader.h"
-#endif
 #include "ada/window.h"
 
 typedef unsigned int fsuint;
@@ -266,23 +262,7 @@ void glfons__disableVertexLayout(GLFONScontext* gl) {
     }
 }
 
-#if defined(USE_ADA_SHADER)
-ada::Shader glfons__shader;
-#endif
-
 void glfons__initShaders(GLFONScontext* gl) {
-
-#if defined(USE_ADA_SHADER)
-
-    #if defined(__EMSCRIPTEN__)
-    if (ada::getWebGLVersionNumber() == 2)
-        glfons__shader.load(glfs::sdfFragShaderSrc_300, glfs::vertexShaderSrc_300);
-    else 
-    #endif
-    glfons__shader.load(glfs::sdfFragShaderSrc, glfs::vertexShaderSrc);
-
-    GLuint program = glfons__shader.getProgram();
-#else
     GLuint program = glCreateProgram();
     GLuint vertex, fragment;
 
@@ -304,7 +284,7 @@ void glfons__initShaders(GLFONScontext* gl) {
 
     glDeleteShader(vertex);
     glDeleteShader(fragment);
-#endif
+
     gl->program = program;
 
     GLuint boundProgram;

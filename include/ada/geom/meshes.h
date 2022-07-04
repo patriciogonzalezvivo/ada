@@ -2,8 +2,8 @@
 
 #include <vector>
 
-#include "ada/geom/mesh.h"
-#include "ada/geom/boundingBox.h"
+#include "mesh.h"
+#include "boundingBox.h"
 
 namespace ada {
 

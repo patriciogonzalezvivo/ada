@@ -4,7 +4,7 @@
 #include <functional>
 
 #include "glm/glm.hpp"
-#include "ada/scene/camera.h"
+#include "camera.h"
 
 namespace ada {
 

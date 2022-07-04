@@ -7,9 +7,9 @@
 
 namespace ada {
 
-typedef std::map<std::string,std::string> DefinesList;
-typedef std::map<std::string,std::string>::iterator DefinesList_it;
-typedef std::map<std::string,std::string>::const_iterator DefinesList_cit;
+typedef std::map<std::string,std::string>                   DefinesMap;
+typedef std::map<std::string,std::string>::iterator         DefinesMap_it;
+typedef std::map<std::string,std::string>::const_iterator   DefinesMap_cit;
 
 class HaveDefines {
 public:
@@ -29,13 +29,13 @@ public:
 
     void    mergeDefines( HaveDefines *_haveDefines );
     void    mergeDefines( const HaveDefines *_haveDefines );
-    void    mergeDefines( const DefinesList &_defines );
-    void    replaceDefines( const DefinesList &_defines );
+    void    mergeDefines( const DefinesMap &_defines );
+    void    replaceDefines( const DefinesMap &_defines );
     
     void    printDefines();
 
 protected:
-    DefinesList m_defines;
+    DefinesMap  m_defines;
     bool        m_defineChange;
 };
 
