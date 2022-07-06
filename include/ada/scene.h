@@ -107,6 +107,16 @@ public:
     virtual TextureCube* getActiveCubemap() const { return m_activeCubemap; }
     virtual void        clearCubemaps();
 
+    // Skybox
+    virtual void        setSunPosition(const glm::vec3& _v);
+    virtual void        setSunPosition(float _az, float _elev);
+    virtual void        setSkyTurbidity(float _turbidity);
+    virtual void        setGroundAlbedo(const glm::vec3& _albedo);
+    virtual float       getSunAzimuth();
+    virtual float       getSunElevation();
+    virtual float       getSkyTurbidity();
+    virtual glm::vec3   getGroundAlbedo();
+
     // Buffers
     BuffersList         buffers;
     DoubleBuffersList   doubleBuffers;
@@ -132,7 +142,7 @@ public:
     virtual bool        getLightsEnabled() const { return m_enableLights; }
     virtual void        printLights();
     virtual void        clearLights();
-    
+
     ModelsMap           models;
     virtual bool        haveModel(const std::string& _name) const;
     virtual void        setModel(const std::string& _name, Model* _model);
@@ -147,9 +157,14 @@ public:
     virtual void        clearMaterials();
 
     LabelsList          labels;
+    virtual void        printLabels();
     virtual void        clearLabels();
 
+    std::vector<Node*>  root;
+
 protected:
+    SkyData             m_skybox;
+
     size_t              m_streamsPrevs;
     bool                m_streamsPrevsChange;
 

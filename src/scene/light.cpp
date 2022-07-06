@@ -12,7 +12,7 @@ Light::Light():
     bUpdateShadowMap(true),
     m_mvp_biased(1.0), 
     m_mvp(1.0), 
-    m_type(LIGHT_DIRECTIONAL) {
+    m_lightType(LIGHT_DIRECTIONAL) {
     std::fill(m_viewport, m_viewport+4, 0);
 }
 
@@ -20,7 +20,7 @@ Light::Light(glm::vec3 _dir): m_mvp_biased(1.0), m_mvp(1.0) {
     color = glm::vec3(1.0); 
     intensity = 1.0;
     falloff = -1.0; 
-    m_type = LIGHT_DIRECTIONAL;
+    m_lightType = LIGHT_DIRECTIONAL;
     direction = normalize(_dir);
     std::fill(m_viewport, m_viewport+4, 0);
 }
@@ -29,7 +29,7 @@ Light::Light(glm::vec3 _pos, float _falloff): m_mvp_biased(1.0), m_mvp(1.0) {
     color = glm::vec3(1.0); 
     intensity = 1.0;
     falloff = -1.0;
-    m_type = LIGHT_POINT;
+    m_lightType = LIGHT_POINT;
     setPosition(_pos);
     falloff = _falloff;
     std::fill(m_viewport, m_viewport+4, 0);
@@ -39,7 +39,7 @@ Light::Light(glm::vec3 _pos, glm::vec3 _dir, float _falloff): m_mvp_biased(1.0),
     color = glm::vec3(1.0); 
     intensity = 1.0;
     falloff = -1.0;
-    m_type = LIGHT_SPOT;
+    m_lightType = LIGHT_SPOT;
     direction = _dir;
     setPosition(_pos);
     falloff = _falloff;

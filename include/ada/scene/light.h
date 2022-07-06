@@ -18,9 +18,9 @@ public:
     virtual ~Light();
 
     virtual void        setPosition(const glm::vec3& _pos);
-    void                setType(LightType _type) { m_type = _type; }
+    void                setType(LightType _type) { m_lightType = _type; }
 
-    const LightType&    getType() const { return m_type; }
+    const LightType&    getLightType() const { return m_lightType; }
     glm::mat4           getMVPMatrix( const glm::mat4 &_model, float _area );
     glm::mat4           getBiasMVPMatrix();
 
@@ -50,7 +50,7 @@ protected:
     float               m_near;
     float               m_far;
 
-    LightType           m_type;
+    LightType           m_lightType;
     
     GLint               m_viewport[4];
 };

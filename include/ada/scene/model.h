@@ -17,32 +17,29 @@ public:
     Model(const std::string& _name, const Mesh& _mesh, const Material& _mat);
     virtual ~Model();
 
-    bool            loadGeom(const Mesh& _mesh);
-    bool            loadShader(const std::string& _fragStr, const std::string& _vertStr, bool verbose);
-    bool            loadMaterial(const Material& _material);
-
     bool            loaded() const { return m_model_vbo != nullptr; }
-    void            clear();
-
-    void            setName(const std::string& _str);
-    const std::string& getName() const { return m_name; }
-
     void            addDefine(const std::string& _define, const std::string& _value = "");
     void            delDefine(const std::string& _define);
-    void            printDefines();
-    void            printVboInfo();
+    void            clear();
 
+    bool            setGeom(const Mesh& _mesh);
+    void            setName(const std::string& _str);
+    bool            setShader(const std::string& _fragStr, const std::string& _vertStr, bool verbose);
+    bool            setMaterial(const Material& _material);
+
+    const std::string& getName() const { return m_name; }
+    Vbo*            getVbo() { return m_model_vbo; }
+    Vbo*            getVboBbox() { return m_bbox_vbo; }
     float           getArea() const { return m_area; }
-    const BoundingBox& getBoundingBox() const { return m_bbox; }
-
     Shader*         getShader() { return &m_shader; }
+    const BoundingBox& getBoundingBox() const { return m_bbox; }
     
     void            render();
     void            render(Shader* _shader);
     void            renderBbox(Shader* _shader);
 
-    Vbo*            getVbo() { return m_model_vbo; }
-    Vbo*            getVboBbox() { return m_bbox_vbo; }
+    void            printDefines();
+    void            printVboInfo();
 
 protected:
     Shader          m_shader;

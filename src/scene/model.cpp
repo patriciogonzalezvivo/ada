@@ -19,8 +19,8 @@ Model::Model(const std::string& _name, const Mesh &_mesh, const Material &_mat):
     m_model_vbo(nullptr), m_bbox_vbo(nullptr), 
     m_area(0.0f) {
     setName(_name);
-    loadGeom(_mesh);
-    loadMaterial(_mat);
+    setGeom(_mesh);
+    setMaterial(_mat);
 }
 
 void Model::setName(const std::string& _str) {
@@ -50,7 +50,7 @@ void Model::printVboInfo() {
         m_model_vbo->printInfo();
 }
 
-bool Model::loadGeom(const Mesh& _mesh) {
+bool Model::setGeom(const Mesh& _mesh) {
     // Load Geometry VBO
     m_model_vbo = new Vbo(_mesh);
 
@@ -93,12 +93,12 @@ bool Model::loadGeom(const Mesh& _mesh) {
     return true;
 }
 
-bool Model::loadMaterial(const Material &_material) {
+bool Model::setMaterial(const Material &_material) {
     m_shader.mergeDefines(&_material);
     return true;
 }
 
-bool Model::loadShader(const std::string& _fragStr, const std::string& _vertStr, bool verbose) {
+bool Model::setShader(const std::string& _fragStr, const std::string& _vertStr, bool verbose) {
     if (m_shader.isLoaded())
         m_shader.detach(GL_FRAGMENT_SHADER | GL_VERTEX_SHADER);
 

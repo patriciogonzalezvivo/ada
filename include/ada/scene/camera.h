@@ -8,7 +8,7 @@
 
 namespace ada {
 
-enum Projection {
+enum ProjectionType {
     ORTHO, 
     PERSPECTIVE,
     PERSPECTIVE_VIRTUAL_OFFSET,
@@ -20,7 +20,7 @@ public:
     Camera();
     virtual ~Camera();
 
-    virtual void        setProjection(Projection cam_mode);
+    virtual void        setProjection(ProjectionType cam_mode);
     virtual void        setProjection(const glm::mat4& _M );
 
     virtual void        setFOV(double _fov);
@@ -40,7 +40,7 @@ public:
     virtual BoundingBox worldToScreen(const BoundingBox& _bbox, glm::mat4* _model = nullptr) const;
 
     //Getting Functions
-    virtual const Projection&   getType() const { return m_type;};
+    virtual const ProjectionType&   getProjectionType() const { return m_projectionType;};
 
     virtual const float         getFOV() const { return m_fov; }
     virtual const float         getAspect() const { return m_aspect; }
@@ -91,7 +91,7 @@ private:
     float       m_shutterSpeed;
     float       m_sensitivity;
 
-    Projection  m_type;
+    ProjectionType m_projectionType;
 };
 
 }

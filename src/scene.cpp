@@ -103,9 +103,9 @@ bool Scene::feedTo(Shader *_shader, bool _lights, bool _buffers ) {
 
             _shader->setUniform("u_lightColor", it->second->color);
             _shader->setUniform("u_lightIntensity", it->second->intensity);
-            if (it->second->getType() != LIGHT_DIRECTIONAL)
+            if (it->second->getLightType() != LIGHT_DIRECTIONAL)
                 _shader->setUniform("u_light", it->second->getPosition());
-            if (it->second->getType() == LIGHT_DIRECTIONAL || it->second->getType() == LIGHT_SPOT)
+            if (it->second->getLightType() == LIGHT_DIRECTIONAL || it->second->getLightType() == LIGHT_SPOT)
                 _shader->setUniform("u_lightDirection", it->second->direction);
             if (it->second->falloff > 0)
                 _shader->setUniform("u_lightFalloff", it->second->falloff);
@@ -121,9 +121,9 @@ bool Scene::feedTo(Shader *_shader, bool _lights, bool _buffers ) {
 
                 _shader->setUniform(name + "Color", it->second->color);
                 _shader->setUniform(name + "Intensity", it->second->intensity);
-                if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+                if (it->second->getLightType() != ada::LIGHT_DIRECTIONAL)
                     _shader->setUniform(name, it->second->getPosition());
-                if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+                if (it->second->getLightType() == ada::LIGHT_DIRECTIONAL || it->second->getLightType() == ada::LIGHT_SPOT)
                     _shader->setUniform(name + "Direction", it->second->direction);
                 if (it->second->falloff > 0)
                     _shader->setUniform(name +"Falloff", it->second->falloff);
@@ -693,8 +693,6 @@ Camera* Scene::getCamera(const std::string& _name ) {
 }
 
 void Scene::printCameras() {
-    // TODO:
-    // 
     std::cout << "// Cameras: " << std::endl;
     for (CamerasMap::iterator it = cameras.begin(); it != cameras.end(); ++it)
         std::cout << "// " << it->first << " " << toString( it->second->getPosition() ) << std::endl;
@@ -727,16 +725,101 @@ Light* Scene::getLight(const std::string& _name) {
     return nullptr;
 }
 
+void Scene::setSkyTurbidity(float _turbidity) {
+    m_skybox.change += m_skybox.turbidity == _turbidity;
+    m_skybox.turbidity = _turbidity;
+    if ( !haveCamera("skybox") )
+        cubemaps["skybox"] = new TextureCube();
+    cubemaps["skybox"]->load(&m_skybox);
+}
+
+void Scene::setGroundAlbedo(const glm::vec3& _albedo) {
+    m_skybox.change += m_skybox.groundAlbedo == _albedo;
+    m_skybox.groundAlbedo = _albedo;
+    if ( !haveCamera("skybox") )
+        cubemaps["skybox"] = new TextureCube();
+    cubemaps["skybox"]->load(&m_skybox);
+}
+
+float Scene::getSkyTurbidity() {
+    return m_skybox.turbidity;
+}
+
+glm::vec3 Scene::getGroundAlbedo() {
+    return m_skybox.groundAlbedo;
+}
+
+void Scene::setSunPosition(float _az, float _elev) {
+    m_skybox.change += m_skybox.elevation == _elev;
+    m_skybox.elevation = _elev;
+
+    m_skybox.change += m_skybox.azimuth == _az;
+    m_skybox.azimuth = _az;
+
+    if ( !m_skybox.change )
+        return;
+
+    if ( !haveCamera("skybox") )
+        cubemaps["skybox"] = new TextureCube();
+    cubemaps["skybox"]->load(&m_skybox);
+
+    float distance = 100.0f;
+    if ( haveLight("sun") ) 
+        distance = glm::length( lights["sun"]->getPosition() );
+
+    glm::vec3 p = glm::vec3(0.0f, 0.0f, distance );
+    glm::quat lat = glm::angleAxis(-m_skybox.elevation, glm::vec3(1.0, 0.0, 0.0));
+    glm::quat lon = glm::angleAxis(m_skybox.azimuth, glm::vec3(0.0, 1.0, 0.0));
+    p = lat * p;
+    p = lon * p;
+
+    if ( !haveLight("sun") ) 
+        lights["sun"] = new Light(p, -1.0);
+    else
+        lights["sun"]->setPosition(p);
+}
+
+void Scene::setSunPosition(const glm::vec3& _v) {
+    float elev = atan2(_v.y, sqrt(_v.x * _v.x + _v.z * _v.z) );
+    float az = atan2(_v.x, _v.z);
+
+    m_skybox.change += m_skybox.elevation == elev;
+    m_skybox.elevation = elev;
+
+    m_skybox.change += m_skybox.azimuth == az;
+    m_skybox.azimuth = az;
+
+    if ( !m_skybox.change )
+        return;
+
+    if ( !haveCamera("skybox") )
+        cubemaps["skybox"] = new TextureCube();
+    cubemaps["skybox"]->load(&m_skybox);
+
+    if ( !haveLight("sun") )
+        lights["sun"] = new Light(_v, -1.0);
+    else
+        lights["sun"]->setPosition(_v);   
+}
+
+float Scene::getSunAzimuth() {
+    return m_skybox.azimuth;
+}
+
+float Scene::getSunElevation() {
+    return m_skybox.elevation;
+}
+
 void Scene::printLights() {
     if (m_enableLights) {
         // Pass Light Uniforms
         if (lights.size() == 1) {
             LightsMap::iterator it = lights.begin();
 
-            if (it->second->getType() != LIGHT_DIRECTIONAL)
+            if (it->second->getLightType() != LIGHT_DIRECTIONAL)
                 std::cout << "unifrom vect3 u_light; // " << toString( it->second->getPosition() ) << std::endl;
             std::cout << "unifrom vect3 u_lightColor; // " << toString( it->second->color )  << std::endl;
-            if (it->second->getType() == LIGHT_DIRECTIONAL || it->second->getType() == LIGHT_SPOT)
+            if (it->second->getLightType() == LIGHT_DIRECTIONAL || it->second->getLightType() == LIGHT_SPOT)
                 std::cout << "unifrom vect3 u_lightDirection; // " << toString( it->second->direction ) << std::endl;
             std::cout << "unifrom float u_lightIntensity; // " << toString( it->second->intensity, 3) << std::endl;
             if (it->second->falloff > 0.0)
@@ -752,10 +835,10 @@ void Scene::printLights() {
             for (LightsMap::iterator it = lights.begin(); it != lights.end(); ++it) {
                 std::string name = "u_" + it->first;
 
-                if (it->second->getType() != LIGHT_DIRECTIONAL)
+                if (it->second->getLightType() != LIGHT_DIRECTIONAL)
                     std::cout << "uniform vec3 u_light; // " << toString( it->second->getPosition() ) << std::endl;
                 std::cout << "uniform vec3 u_lightColor; // " << toString( it->second->color )  << std::endl;
-                if (it->second->getType() == LIGHT_DIRECTIONAL || it->second->getType() == LIGHT_SPOT)
+                if (it->second->getLightType() == LIGHT_DIRECTIONAL || it->second->getLightType() == LIGHT_SPOT)
                     std::cout << "uniform vec3 u_lightDirection; // " << toString( it->second->direction ) << std::endl;
                 std::cout << "uniform float u_lightIntensity; // " << toString( it->second->intensity, 3) << std::endl;
                 if (it->second->falloff > 0.0)
@@ -816,6 +899,12 @@ void Scene::printMaterials() {
 
 void Scene::clearMaterials() {
     materials.clear();
+}
+
+void Scene::printLabels() {
+    std::cout << "// Labels: " << std::endl;
+    for (size_t i = 0; i < labels.size(); i++)
+        std::cout << "// " << labels[i]->getText() << std::endl;
 }
 
 void Scene::clearLabels() {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "glm/glm.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtc/quaternion.hpp"
@@ -7,15 +8,22 @@
 
 namespace ada {
 
+enum NodeType {
+    EMPTY_NODE = 0, 
+    MODEL_NODE,
+    LIGHT_NODE,
+    CAMERA_NODE
+};
+
 class Node {
 public:
 
     Node();
     virtual ~Node() { };
 
+    // SET
     virtual void        setProperties(const Node& _other);
 
-    // SET
     virtual void        setScale(const glm::vec3& _scale);
 
     virtual void        setPosition(const glm::vec3& _pos);
@@ -28,6 +36,7 @@ public:
     virtual void        setTransformMatrix(const glm::mat4& _m);
 
     // GET 
+    // virtual NodeType            getType() const { return m_type; }
     virtual const glm::vec3&    getScale() const { return m_scale; };
     virtual const glm::vec3&    getPosition() const { return m_position; };
 
@@ -71,7 +80,9 @@ public:
 
     virtual void        reset();
 
-    bool    bChange;
+    std::vector<Node*>  childs;
+
+    bool                bChange;
 
 protected:
     virtual void        createMatrix();
@@ -87,6 +98,8 @@ protected:
     glm::vec3           m_position;
     glm::quat           m_orientation;
     glm::vec3           m_scale;
+
+    // NodeType            m_type;
 
     friend class        Label;
 };

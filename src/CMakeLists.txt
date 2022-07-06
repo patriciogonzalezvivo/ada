@@ -38,7 +38,11 @@ set(ADA_SOURCES
     geom/line.cpp
     geom/mesh.cpp 
     geom/meshes.cpp
-    geom/triangle.cpp 
+    geom/triangle.cpp
+    io/gltf.cpp
+    io/obj.cpp
+    io/ply.cpp
+    io/stl.cpp
     scene/sky.cpp
     scene/node.cpp
     scene/model.cpp
@@ -257,6 +261,9 @@ target_include_directories(ada PUBLIC
     "${PROJECT_SOURCE_DIR}/deps/fontstash"
     "${PROJECT_SOURCE_DIR}/deps/miniaudio"
     "${PROJECT_SOURCE_DIR}/deps/phonedepth"
+    "${PROJECT_SOURCE_DIR}/deps/tinygltf"
+    "${PROJECT_SOURCE_DIR}/deps/tinyobjloader"
+    "${PROJECT_SOURCE_DIR}/deps/tinyply"
 )
 
 ## DEPS

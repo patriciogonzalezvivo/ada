@@ -301,5 +301,9 @@ void del(const std::string &_str, StringList &_list) {
         
 }
 
+std::string getUniformName(const std::string& _str) {
+    std::vector<std::string> values = ada::split(_str, '.');
+    return "u_" + ada::toLower( ada::toUnderscore( ada::purifyString( values[0] ) ) );
+}
 
 }

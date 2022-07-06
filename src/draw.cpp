@@ -638,9 +638,9 @@ void shader(Shader* _program) {
             _program->setUniform("u_lightColor", it->second->color);
             _program->setUniform("u_lightIntensity", it->second->intensity);
 
-            if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+            if (it->second->getLightType() != ada::LIGHT_DIRECTIONAL)
                 _program->setUniform("u_light", it->second->getPosition());
-            if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+            if (it->second->getLightType() == ada::LIGHT_DIRECTIONAL || it->second->getLightType() == ada::LIGHT_SPOT)
                 _program->setUniform("u_lightDirection", it->second->direction);
             if (it->second->falloff > 0)
                 _program->setUniform("u_lightFalloff", it->second->falloff);
@@ -654,9 +654,9 @@ void shader(Shader* _program) {
 
                 _program->setUniform(name + "Color", it->second->color);
                 _program->setUniform(name + "Intensity", it->second->intensity);
-                if (it->second->getType() != ada::LIGHT_DIRECTIONAL)
+                if (it->second->getLightType() != ada::LIGHT_DIRECTIONAL)
                     _program->setUniform(name, it->second->getPosition());
-                if (it->second->getType() == ada::LIGHT_DIRECTIONAL || it->second->getType() == ada::LIGHT_SPOT)
+                if (it->second->getLightType() == ada::LIGHT_DIRECTIONAL || it->second->getLightType() == ada::LIGHT_SPOT)
                     _program->setUniform(name + "Direction", it->second->direction);
                 if (it->second->falloff > 0)
                     _program->setUniform(name +"Falloff", it->second->falloff);

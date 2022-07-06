@@ -19,7 +19,7 @@ Camera::Camera():
     m_target(0.0), 
     m_aspect(4.0f/3.0f), m_fov(45.), m_nearClip(0.01f), m_farClip(1000.0f), 
     m_exposure(2.60417e-05), m_ev100(14.9658), m_aperture(16), m_shutterSpeed(1.0f/125.0f), m_sensitivity(100.0f), 
-    m_type(Projection::PERSPECTIVE) {
+    m_projectionType(ProjectionType::PERSPECTIVE) {
 
     updateCameraSettings();
 }
@@ -34,8 +34,8 @@ void Camera::setViewport(int _width, int _height){
 }
 
 //Setting Functions
-void Camera::setProjection(Projection _type) {
-    m_type = _type;
+void Camera::setProjection(ProjectionType _type) {
+    m_projectionType = _type;
     m_viewMatrix = getTransformMatrix();
     lookAt(m_target);
     updateCameraSettings();
@@ -63,7 +63,7 @@ void Camera::setDistance(float _distance) {
 }
 
 void Camera::setProjection(const glm::mat4& _M ) {
-    m_type = Projection::CUSTOM;
+    m_projectionType = ProjectionType::CUSTOM;
     m_projectionMatrix = _M;
     bChange = true;
 }
@@ -103,14 +103,14 @@ void Camera::setVirtualOffset(float scale, int currentViewIndex, int totalViews,
 }
 
 const glm::mat4& Camera::getViewMatrix() const {
-    if (m_type == Projection::PERSPECTIVE_VIRTUAL_OFFSET )
+    if (m_projectionType == ProjectionType::PERSPECTIVE_VIRTUAL_OFFSET )
         return m_viewMatrix;
     else 
         return getTransformMatrix(); 
 }
 
 const glm::vec3& Camera::getPosition() const {
-    if (m_type == Projection::PERSPECTIVE_VIRTUAL_OFFSET )
+    if (m_projectionType == ProjectionType::PERSPECTIVE_VIRTUAL_OFFSET )
         return m_position_offset;
     else 
         return m_position;
@@ -180,9 +180,9 @@ void  Camera::setExposure(float _aperture, float _shutterSpeed, float _sensitivi
 void Camera::updateCameraSettings() {
     setExposure(getAperture(), getShutterSpeed(), getSensitivity());
     
-    if (m_type == Projection::ORTHO)
+    if (m_projectionType == ProjectionType::ORTHO)
         m_projectionMatrix = glm::ortho(-1.5f * float(m_aspect), 1.5f * float(m_aspect), -1.5f, 1.5f, -10.0f, 10.f);
-    else if (m_type != Projection::CUSTOM)
+    else if (m_projectionType != ProjectionType::CUSTOM)
         m_projectionMatrix = glm::perspective(m_fov, m_aspect, m_nearClip, m_farClip);
     
     updateProjectionViewMatrix();
